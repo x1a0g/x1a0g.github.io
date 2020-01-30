@@ -90,15 +90,15 @@
 
 
 
-<meta name="description" content="昨天经过了一天的学习对ret2libc有了较为深刻的认识，于是今天找了道题来练习一下例一：​    这是攻防世界的level3   题目分析：拿到题目之后我们看下开了哪些保护12345Arch:     i386-32-littleRELRO:    Partial RELROStack:    No canary foundNX:       NX enabledPIE:      No PIE">
+<meta name="description" content="昨天经过了一天的学习对ret2libc有了较为深刻的认识，于是今天找了道题来练习一下例一：">
 <meta property="og:type" content="article">
 <meta property="og:title" content="pwn学习之ret2libc练习（攻防世界level3）">
 <meta property="og:url" content="https://huangpiao.tech/2020/01/30/pwn%E5%AD%A6%E4%B9%A0%E4%B9%8Bret2libc%E7%BB%83%E4%B9%A0(%E6%94%BB%E9%98%B2%E4%B8%96%E7%95%8C)/index.html">
 <meta property="og:site_name" content="x1a0g&#39;Blog">
-<meta property="og:description" content="昨天经过了一天的学习对ret2libc有了较为深刻的认识，于是今天找了道题来练习一下例一：​    这是攻防世界的level3   题目分析：拿到题目之后我们看下开了哪些保护12345Arch:     i386-32-littleRELRO:    Partial RELROStack:    No canary foundNX:       NX enabledPIE:      No PIE">
+<meta property="og:description" content="昨天经过了一天的学习对ret2libc有了较为深刻的认识，于是今天找了道题来练习一下例一：">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2020-01-30T10:20:46.000Z">
-<meta property="article:modified_time" content="2020-01-30T11:10:53.405Z">
+<meta property="article:modified_time" content="2020-01-30T11:52:36.524Z">
 <meta property="article:author" content="x1a0g">
 <meta property="article:tag" content="pwn学习">
 <meta name="twitter:card" content="summary">
@@ -341,7 +341,9 @@
       
 
       
-        <h4 id="昨天经过了一天的学习对ret2libc有了较为深刻的认识，于是今天找了道题来练习一下"><a href="#昨天经过了一天的学习对ret2libc有了较为深刻的认识，于是今天找了道题来练习一下" class="headerlink" title="昨天经过了一天的学习对ret2libc有了较为深刻的认识，于是今天找了道题来练习一下"></a>昨天经过了一天的学习对ret2libc有了较为深刻的认识，于是今天找了道题来练习一下</h4><h5 id="例一："><a href="#例一：" class="headerlink" title="例一："></a>例一：</h5><p>​    这是攻防世界的level3  </p>
+        <h4 id="昨天经过了一天的学习对ret2libc有了较为深刻的认识，于是今天找了道题来练习一下"><a href="#昨天经过了一天的学习对ret2libc有了较为深刻的认识，于是今天找了道题来练习一下" class="headerlink" title="昨天经过了一天的学习对ret2libc有了较为深刻的认识，于是今天找了道题来练习一下"></a>昨天经过了一天的学习对ret2libc有了较为深刻的认识，于是今天找了道题来练习一下</h4><h5 id="例一："><a href="#例一：" class="headerlink" title="例一："></a>例一：</h5><a id="more"></a>
+
+<p>​    这是攻防世界的level3  </p>
 <h6 id="题目分析："><a href="#题目分析：" class="headerlink" title="题目分析："></a>题目分析：</h6><pre><code>拿到题目之后我们看下开了哪些保护</code></pre><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">Arch:     i386-32-little</span><br><span class="line">RELRO:    Partial RELRO</span><br><span class="line">Stack:    No canary found</span><br><span class="line">NX:       NX enabled</span><br><span class="line">PIE:      No PIE (0x8048000)</span><br></pre></td></tr></table></figure>
 
 <p>发现开的NX这就得拿rop来绕过了 是个32位的elf</p>
