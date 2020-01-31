@@ -90,15 +90,15 @@
 
 
 
-<meta name="description" content="今天又是继续学习的一天  ，今天学习了中级rop的ret2__libc_csu_init原理在x64环境下函数的前6个参数是通过寄存器传参    而我们很多时候无法找到我们需要的每一个gadgets  so , 今天这种利用方式出现了    首先我们要知道什么是  __libc_csu_init？  这个函数是用来对 libc 进行初始化操作的，而一般的程序都会调用 libc 函数，所以这个函数一">
+<meta name="description" content="今天又是继续学习的一天  ，今天学习了中级rop的ret2__libc_csu_init原理在x64环境下函数的前6个参数是通过寄存器传参    而我们很多时候无法找到我们需要的每一个gadgets  so , 今天这种利用方式出现了">
 <meta property="og:type" content="article">
 <meta property="og:title" content="pwn学习之ret2__libc_csu_init">
 <meta property="og:url" content="https://huangpiao.tech/2020/01/31/pwn%E5%AD%A6%E4%B9%A0%E4%B9%8Bret2-libc-csu-init/index.html">
 <meta property="og:site_name" content="x1a0g&#39;Blog">
-<meta property="og:description" content="今天又是继续学习的一天  ，今天学习了中级rop的ret2__libc_csu_init原理在x64环境下函数的前6个参数是通过寄存器传参    而我们很多时候无法找到我们需要的每一个gadgets  so , 今天这种利用方式出现了    首先我们要知道什么是  __libc_csu_init？  这个函数是用来对 libc 进行初始化操作的，而一般的程序都会调用 libc 函数，所以这个函数一">
+<meta property="og:description" content="今天又是继续学习的一天  ，今天学习了中级rop的ret2__libc_csu_init原理在x64环境下函数的前6个参数是通过寄存器传参    而我们很多时候无法找到我们需要的每一个gadgets  so , 今天这种利用方式出现了">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2020-01-31T05:03:07.000Z">
-<meta property="article:modified_time" content="2020-01-31T06:19:59.688Z">
+<meta property="article:modified_time" content="2020-01-31T06:20:51.053Z">
 <meta property="article:author" content="x1a0g">
 <meta property="article:tag" content="pwn学习">
 <meta name="twitter:card" content="summary">
@@ -342,6 +342,8 @@
 
       
         <h4 id="今天又是继续学习的一天-，今天学习了中级rop的ret2-libc-csu-init"><a href="#今天又是继续学习的一天-，今天学习了中级rop的ret2-libc-csu-init" class="headerlink" title="今天又是继续学习的一天  ，今天学习了中级rop的ret2__libc_csu_init"></a>今天又是继续学习的一天  ，今天学习了中级rop的ret2__libc_csu_init</h4><h5 id="原理"><a href="#原理" class="headerlink" title="原理"></a>原理</h5><p>在x64环境下函数的前6个参数是通过寄存器传参    而我们很多时候无法找到我们需要的每一个gadgets  so , 今天这种利用方式出现了  </p>
+<a id="more"></a>
+
 <ol>
 <li><p>首先我们要知道什么是  __libc_csu_init？</p>
 <ol>
