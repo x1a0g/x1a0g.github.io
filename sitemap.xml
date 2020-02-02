@@ -2,6 +2,20 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>https://huangpiao.tech/2020/02/02/jasec%E7%9A%84pwn100%E9%A2%98%E7%9B%AE/</loc>
+    
+    <lastmod>2020-02-02T10:16:53.705Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>https://huangpiao.tech/2020/02/02/hgame%E7%9A%84week1%E7%9A%84ROP-LEVEL0/</loc>
+    
+    <lastmod>2020-02-02T10:16:37.499Z</lastmod>
+    
+  </url>
+  
+  <url>
     <loc>https://huangpiao.tech/2020/01/31/ichunqiu-easypwn-canary%E6%B3%84%E9%9C%B2%E7%BB%93%E5%90%88ret2libc%E7%9A%84%E4%B8%80%E6%AC%A1%E7%BB%83%E4%B9%A0/</loc>
     
     <lastmod>2020-01-31T10:32:52.885Z</lastmod>
