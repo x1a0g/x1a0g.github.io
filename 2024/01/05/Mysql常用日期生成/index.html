@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.0.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" integrity="sha256-yIDrPSXHZdOZhAqiBP7CKzIwMQmRCJ8UeB8Jo17YC4o=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"x1a0g.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.19.1","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":{"enable":true,"style":"mac"},"fold":{"enable":false,"height":500},"bookmark":{"enable":true,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.xml","localsearch":{"enable":true,"trigger":"manual","top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="有时我们在生成一些时间轴类似的数据时，要求数据库不管有没有指定天的数据，都要生成该时间节点，可用mysql.help_topic来解决此类问题，通过序列和日期函数相结合来满足我们的业务需求。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Mysql常用日期生成">
+<meta property="og:url" content="http://x1a0g.github.io/2024/01/05/Mysql%E5%B8%B8%E7%94%A8%E6%97%A5%E6%9C%9F%E7%94%9F%E6%88%90/index.html">
+<meta property="og:site_name" content="x1a0g&#39;s blog">
+<meta property="og:description" content="有时我们在生成一些时间轴类似的数据时，要求数据库不管有没有指定天的数据，都要生成该时间节点，可用mysql.help_topic来解决此类问题，通过序列和日期函数相结合来满足我们的业务需求。">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2024-01-05T13:08:42.000Z">
+<meta property="article:modified_time" content="2024-01-05T13:11:03.238Z">
+<meta property="article:author" content="x1a0g">
+<meta property="article:tag" content="mysql">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="http://x1a0g.github.io/2024/01/05/Mysql%E5%B8%B8%E7%94%A8%E6%97%A5%E6%9C%9F%E7%94%9F%E6%88%90/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"http://x1a0g.github.io/2024/01/05/Mysql%E5%B8%B8%E7%94%A8%E6%97%A5%E6%9C%9F%E7%94%9F%E6%88%90/","path":"2024/01/05/Mysql常用日期生成/","title":"Mysql常用日期生成"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>Mysql常用日期生成 | x1a0g's blog</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">x1a0g's blog</p>
+      <i class="logo-line"></i>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup"><div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off" maxlength="80"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close" role="button">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div class="search-result-container no-result">
+  <div class="search-result-icon">
+    <i class="fa fa-spinner fa-pulse fa-5x"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#1%E3%80%81%E8%AE%A1%E7%AE%97%E5%BD%93%E6%97%A5%E5%87%80%E6%94%B6%E5%85%A5"><span class="nav-number">1.</span> <span class="nav-text">1、计算当日净收入</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#2%E3%80%81%E8%AE%A1%E7%AE%97%E6%9C%AC%E5%91%A8%E7%9A%84%E5%87%80%E6%94%B6%E5%85%A5"><span class="nav-number">2.</span> <span class="nav-text">2、计算本周的净收入</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#3%E3%80%81%E8%8E%B7%E5%8F%96%E6%9C%AC%E5%91%A8%EF%BC%88%E5%91%A8%E4%B8%80%E5%88%B0%E5%91%A8%E6%97%A5%EF%BC%89"><span class="nav-number">3.</span> <span class="nav-text">3、获取本周（周一到周日）</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#4%E3%80%81%E8%8E%B7%E5%8F%96%E6%9C%AC%E6%9C%88%E7%9A%84%E6%89%80%E6%9C%89%E5%A4%A9%E6%95%B0"><span class="nav-number">4.</span> <span class="nav-text">4、获取本月的所有天数</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#5%E3%80%81%E8%8E%B7%E5%8F%96%E6%9C%AC%E6%9C%88%E7%9A%84%E5%87%80%E6%94%B6%E5%85%A5"><span class="nav-number">5.</span> <span class="nav-text">5、获取本月的净收入</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#6%E3%80%81%E8%AE%A1%E7%AE%97%E4%B8%8A%E5%91%A8%E6%AF%8F%E4%B8%80%E5%A4%A9%E7%9A%84%E5%87%80%E6%94%B6%E5%85%A5"><span class="nav-number">6.</span> <span class="nav-text">6、计算上周每一天的净收入</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#7%E3%80%81%E5%85%88%E6%8C%89a%E5%AD%97%E6%AE%B5%E6%8E%92%E5%BA%8F%EF%BC%8Ca%E5%AD%97%E6%AE%B5%E7%9B%B8%E5%90%8C%E6%8C%89b%E5%AD%97%E6%AE%B5%EF%BC%8C%E6%9C%80%E5%90%8E%E8%AE%A1%E7%AE%97%E6%8E%92%E5%90%8D"><span class="nav-number">7.</span> <span class="nav-text">7、先按a字段排序，a字段相同按b字段，最后计算排名</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#8%E3%80%81%E6%9F%A5%E8%AF%A2%E5%8E%BB%E5%B9%B41%E6%9C%88%E5%88%B012%E6%9C%88"><span class="nav-number">8.</span> <span class="nav-text">8、查询去年1月到12月</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#9%E3%80%81%E6%9F%A5%E8%AF%A2%E4%BB%8A%E5%B9%B41%E6%9C%88%E5%88%B0%E5%BD%93%E5%89%8D%E6%9C%88%E7%9A%84%E6%89%80%E6%9C%89%E6%9C%88%E4%BB%BD"><span class="nav-number">9.</span> <span class="nav-text">9、查询今年1月到当前月的所有月份</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#10%E3%80%81%E6%8C%87%E5%AE%9A%E6%9C%88%E4%BB%BD%E7%94%9F%E6%88%9030%E5%A4%A9"><span class="nav-number">10.</span> <span class="nav-text">10、指定月份生成30天</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">x1a0g</p>
+  <div class="site-description" itemprop="description">虽不能至 心向往之</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">1</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">1</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">1</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://x1a0g.github.io/2024/01/05/Mysql%E5%B8%B8%E7%94%A8%E6%97%A5%E6%9C%9F%E7%94%9F%E6%88%90/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="x1a0g">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="x1a0g's blog">
+      <meta itemprop="description" content="虽不能至 心向往之">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="Mysql常用日期生成 | x1a0g's blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Mysql常用日期生成
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+      
+
+      <time title="创建时间：2024-01-05 21:08:42 / 修改时间：21:11:03" itemprop="dateCreated datePublished" datetime="2024-01-05T21:08:42+08:00">2024-01-05</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/mysql/" itemprop="url" rel="index"><span itemprop="name">mysql</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><blockquote>
+<p>有时我们在生成一些时间轴类似的数据时，要求数据库不管有没有指定天的数据，都要生成该时间节点，可用mysql.help_topic来解决此类问题，通过序列和日期函数相结合来满足我们的业务需求。 </p>
+</blockquote>
+<span id="more"></span>
+
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">-- 今天</span><br><span class="line">SELECT <span class="title function_">DATE_FORMAT</span><span class="params">(NOW()</span>,<span class="string">&#x27;%Y-%m-%d 00:00:00&#x27;</span>) AS <span class="string">&#x27;今天开始&#x27;</span>;</span><br><span class="line">SELECT <span class="title function_">DATE_FORMAT</span><span class="params">(NOW()</span>,<span class="string">&#x27;%Y-%m-%d 23:59:59&#x27;</span>) AS <span class="string">&#x27;今天结束&#x27;</span>;</span><br><span class="line"></span><br><span class="line">-- 昨天</span><br><span class="line">SELECT <span class="title function_">DATE_FORMAT</span><span class="params">( DATE_SUB(CURDATE()</span>, INTERVAL <span class="number">1</span> DAY), <span class="string">&#x27;%Y-%m-%d 00:00:00&#x27;</span>) AS <span class="string">&#x27;昨天开始&#x27;</span>;</span><br><span class="line">SELECT <span class="title function_">DATE_FORMAT</span><span class="params">( DATE_SUB(CURDATE()</span>, INTERVAL <span class="number">1</span> DAY), <span class="string">&#x27;%Y-%m-%d 23:59:59&#x27;</span>) AS <span class="string">&#x27;昨天结束&#x27;</span>;</span><br><span class="line"></span><br><span class="line">-- 上周</span><br><span class="line">SELECT <span class="title function_">DATE_FORMAT</span><span class="params">( DATE_SUB( DATE_SUB(CURDATE()</span>, INTERVAL <span class="title function_">WEEKDAY</span><span class="params">(CURDATE()</span>) DAY), INTERVAL <span class="number">1</span> WEEK), <span class="string">&#x27;%Y-%m-%d 00:00:00&#x27;</span>) AS <span class="string">&#x27;上周一&#x27;</span>;</span><br><span class="line">SELECT <span class="title function_">DATE_FORMAT</span><span class="params">( SUBDATE(CURDATE()</span>, WEEKDAY(CURDATE()) + <span class="number">1</span>), <span class="string">&#x27;%Y-%m-%d 23:59:59&#x27;</span>) AS <span class="string">&#x27;上周末&#x27;</span>;</span><br><span class="line"></span><br><span class="line">-- 本周</span><br><span class="line">SELECT <span class="title function_">DATE_FORMAT</span><span class="params">( SUBDATE(CURDATE()</span>,DATE_FORMAT(CURDATE(),<span class="string">&#x27;%w&#x27;</span>)-<span class="number">1</span>), <span class="string">&#x27;%Y-%m-%d 00:00:00&#x27;</span>) AS <span class="string">&#x27;本周一&#x27;</span>;</span><br><span class="line">SELECT <span class="title function_">DATE_FORMAT</span><span class="params">( SUBDATE(CURDATE()</span>,DATE_FORMAT(CURDATE(),<span class="string">&#x27;%w&#x27;</span>)-<span class="number">7</span>), <span class="string">&#x27;%Y-%m-%d 23:59:59&#x27;</span>) AS <span class="string">&#x27;本周末&#x27;</span>;</span><br><span class="line">-- 上面的本周算法会有问题,因为mysql是按照周日为一周第一天,如果当前是周日的话,会把时间定为到下一周.</span><br><span class="line">SELECT <span class="title function_">DATE_FORMAT</span><span class="params">( DATE_SUB(CURDATE()</span>, INTERVAL <span class="title function_">WEEKDAY</span><span class="params">(CURDATE()</span>) DAY), <span class="string">&#x27;%Y-%m-%d 00:00:00&#x27;</span>) AS <span class="string">&#x27;本周一&#x27;</span>;</span><br><span class="line">SELECT <span class="title function_">DATE_FORMAT</span><span class="params">( DATE_ADD(SUBDATE(CURDATE()</span>, WEEKDAY(CURDATE())), INTERVAL <span class="number">6</span> DAY), <span class="string">&#x27;%Y-%m-%d 23:59:59&#x27;</span>) AS <span class="string">&#x27;本周末&#x27;</span>;</span><br><span class="line"></span><br><span class="line">-- 上月</span><br><span class="line">SELECT <span class="title function_">DATE_FORMAT</span><span class="params">( DATE_SUB(CURDATE()</span>, INTERVAL <span class="number">1</span> MONTH), <span class="string">&#x27;%Y-%m-01 00:00:00&#x27;</span>) AS <span class="string">&#x27;上月初&#x27;</span>;</span><br><span class="line">SELECT <span class="title function_">DATE_FORMAT</span><span class="params">( LAST_DAY(DATE_SUB(CURDATE()</span>, INTERVAL <span class="number">1</span> MONTH)), <span class="string">&#x27;%Y-%m-%d 23:59:59&#x27;</span>) AS <span class="string">&#x27;上月末&#x27;</span>;</span><br><span class="line"></span><br><span class="line">-- 本月</span><br><span class="line">SELECT <span class="title function_">DATE_FORMAT</span><span class="params">( CURDATE()</span>, <span class="string">&#x27;%Y-%m-01 00:00:00&#x27;</span>) AS <span class="string">&#x27;本月初&#x27;</span>;</span><br><span class="line">SELECT <span class="title function_">DATE_FORMAT</span><span class="params">( LAST_DAY(CURDATE()</span>), <span class="string">&#x27;%Y-%m-%d 23:59:59&#x27;</span>) AS <span class="string">&#x27;本月末&#x27;</span>;</span><br></pre></td></tr></table></figure>
+
+<h1 id="1、计算当日净收入"><a href="#1、计算当日净收入" class="headerlink" title="1、计算当日净收入"></a>1、计算当日净收入</h1><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span></span><br><span class="line">	<span class="built_in">sum</span>(IF( order_status <span class="operator">=</span> <span class="number">1</span>, amount, <span class="number">0</span> ))</span><br><span class="line"><span class="operator">-</span> <span class="built_in">sum</span>(IF( order_status <span class="operator">=</span> <span class="number">8</span>, amount, <span class="number">0</span> )) current_day_m</span><br><span class="line"><span class="keyword">FROM</span></span><br><span class="line">	`t_pay_details` </span><br><span class="line"><span class="keyword">WHERE</span></span><br><span class="line">	DATE_FORMAT( status_time, <span class="string">&#x27;%Y-%m-%d&#x27;</span> ) <span class="operator">=</span> <span class="string">&#x27;2022-07-26&#x27;</span> </span><br><span class="line">	<span class="keyword">AND</span> order_status <span class="operator">&lt;&gt;</span> <span class="number">3</span></span><br></pre></td></tr></table></figure>
+
+
+
+<h1 id="2、计算本周的净收入"><a href="#2、计算本周的净收入" class="headerlink" title="2、计算本周的净收入"></a>2、计算本周的净收入</h1><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line">SELECT</span><br><span class="line">	a.curdate,</span><br><span class="line">	IFNULL( b.current_day_m, <span class="number">0</span> )/ <span class="number">100</span> current_day_m </span><br><span class="line"><span class="title function_">FROM</span></span><br><span class="line">	<span class="params">(</span></span><br><span class="line"><span class="params">	SELECT</span></span><br><span class="line"><span class="params">		DATE_SUB( CURDATE()</span>, INTERVAL <span class="title function_">WEEKDAY</span><span class="params">( CURDATE()</span>) DAY ) AS curdate UNION</span><br><span class="line">	SELECT</span><br><span class="line">		<span class="title function_">DATE_ADD</span><span class="params">( SUBDATE( CURDATE()</span>, WEEKDAY( CURDATE())), INTERVAL <span class="number">1</span> DAY ) AS curdate UNION</span><br><span class="line">	SELECT</span><br><span class="line">		<span class="title function_">DATE_ADD</span><span class="params">( SUBDATE( CURDATE()</span>, WEEKDAY( CURDATE())), INTERVAL <span class="number">2</span> DAY ) AS curdate UNION</span><br><span class="line">	SELECT</span><br><span class="line">		<span class="title function_">DATE_ADD</span><span class="params">( SUBDATE( CURDATE()</span>, WEEKDAY( CURDATE())), INTERVAL <span class="number">3</span> DAY ) AS curdate UNION</span><br><span class="line">	SELECT</span><br><span class="line">		<span class="title function_">DATE_ADD</span><span class="params">( SUBDATE( CURDATE()</span>, WEEKDAY( CURDATE())), INTERVAL <span class="number">4</span> DAY ) AS curdate UNION</span><br><span class="line">	SELECT</span><br><span class="line">		<span class="title function_">DATE_ADD</span><span class="params">( SUBDATE( CURDATE()</span>, WEEKDAY( CURDATE())), INTERVAL <span class="number">5</span> DAY ) AS curdate UNION</span><br><span class="line">	SELECT</span><br><span class="line">		<span class="title function_">DATE_ADD</span><span class="params">( SUBDATE( CURDATE()</span>, WEEKDAY( CURDATE())), INTERVAL <span class="number">6</span> DAY ) </span><br><span class="line">	) a</span><br><span class="line">	LEFT <span class="title function_">JOIN</span> <span class="params">(</span></span><br><span class="line"><span class="params">	SELECT</span></span><br><span class="line"><span class="params">		DATE_FORMAT( status_time, <span class="string">&#x27;%Y-%m-%d&#x27;</span> )</span> curdate,</span><br><span class="line">		sum(</span><br><span class="line">		IF</span><br><span class="line">			( order_status = <span class="number">1</span>, amount, <span class="number">0</span> )) - sum(</span><br><span class="line">		IF</span><br><span class="line">		( order_status = <span class="number">8</span>, amount, <span class="number">0</span> )) current_day_m </span><br><span class="line">	FROM</span><br><span class="line">		`t_pay_details` </span><br><span class="line">	WHERE</span><br><span class="line">		<span class="title function_">DATE_FORMAT</span><span class="params">( status_time, <span class="string">&#x27;%Y-%m-%d&#x27;</span> )</span> BETWEEN ( SELECT <span class="title function_">DATE_SUB</span><span class="params">( CURDATE()</span>, INTERVAL <span class="title function_">WEEKDAY</span><span class="params">( CURDATE()</span>) DAY ) AS curdate ) </span><br><span class="line">		AND (</span><br><span class="line">		SELECT</span><br><span class="line">		<span class="title function_">DATE_ADD</span><span class="params">( SUBDATE( CURDATE()</span>, WEEKDAY( CURDATE())), INTERVAL <span class="number">6</span> DAY )) </span><br><span class="line">		AND order_status &lt;&gt; <span class="number">3</span> </span><br><span class="line">	GROUP BY</span><br><span class="line">	<span class="title function_">DATE_FORMAT</span><span class="params">( status_time, <span class="string">&#x27;%Y-%m-%d&#x27;</span> )</span> </span><br><span class="line">	) b ON a.curdate = b.curdate</span><br></pre></td></tr></table></figure>
+
+
+
+<h1 id="3、获取本周（周一到周日）"><a href="#3、获取本周（周一到周日）" class="headerlink" title="3、获取本周（周一到周日）"></a>3、获取本周（周一到周日）</h1><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">SELECT <span class="title function_">DATE_SUB</span><span class="params">(CURDATE()</span>, INTERVAL <span class="title function_">WEEKDAY</span><span class="params">(CURDATE()</span>) DAY) AS <span class="string">&#x27;a&#x27;</span> union</span><br><span class="line">SELECT <span class="title function_">DATE_ADD</span><span class="params">(SUBDATE(CURDATE()</span>, WEEKDAY(CURDATE())), INTERVAL <span class="number">1</span> DAY) AS <span class="string">&#x27;a&#x27;</span> union</span><br><span class="line">SELECT <span class="title function_">DATE_ADD</span><span class="params">(SUBDATE(CURDATE()</span>, WEEKDAY(CURDATE())), INTERVAL <span class="number">2</span> DAY) AS <span class="string">&#x27;a&#x27;</span> union</span><br><span class="line">SELECT <span class="title function_">DATE_ADD</span><span class="params">(SUBDATE(CURDATE()</span>, WEEKDAY(CURDATE())), INTERVAL <span class="number">3</span> DAY) AS <span class="string">&#x27;a&#x27;</span> union</span><br><span class="line">SELECT <span class="title function_">DATE_ADD</span><span class="params">(SUBDATE(CURDATE()</span>, WEEKDAY(CURDATE())), INTERVAL <span class="number">4</span> DAY) AS <span class="string">&#x27;a&#x27;</span> union</span><br><span class="line">SELECT <span class="title function_">DATE_ADD</span><span class="params">(SUBDATE(CURDATE()</span>, WEEKDAY(CURDATE())), INTERVAL <span class="number">5</span> DAY) AS <span class="string">&#x27;a&#x27;</span> union</span><br><span class="line">SELECT <span class="title function_">DATE_ADD</span><span class="params">(SUBDATE(CURDATE()</span>, WEEKDAY(CURDATE())), INTERVAL <span class="number">6</span> DAY)</span><br></pre></td></tr></table></figure>
+
+<h1 id="4、获取本月的所有天数"><a href="#4、获取本月的所有天数" class="headerlink" title="4、获取本月的所有天数"></a>4、获取本月的所有天数</h1><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">SELECT</span><br><span class="line">	<span class="title function_">date_format</span><span class="params">(</span></span><br><span class="line"><span class="params">		date_add( DATE_ADD( curdate()</span>, INTERVAL - DAY ( curdate())+ <span class="number">1</span> DAY ), INTERVAL ( cast( help_topic_id AS signed INTEGER ) + <span class="number">0</span> ) DAY ),</span><br><span class="line">		<span class="string">&#x27;%Y-%m-%d&#x27;</span> </span><br><span class="line">	) curdate</span><br><span class="line">FROM</span><br><span class="line">	mysql.help_topic </span><br><span class="line">WHERE</span><br><span class="line">	help_topic_id &lt; DAY (</span><br><span class="line">		last_day(</span><br><span class="line">		DATE_ADD( curdate(), INTERVAL - DAY ( curdate())+ <span class="number">1</span> DAY ))) </span><br><span class="line">ORDER BY</span><br><span class="line">	help_topic_id;</span><br></pre></td></tr></table></figure>
+
+
+
+<h1 id="5、获取本月的净收入"><a href="#5、获取本月的净收入" class="headerlink" title="5、获取本月的净收入"></a>5、获取本月的净收入</h1><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line">explain select SQL_NO_CACHE a.curdate,IFNULL( b.current_day_m, <span class="number">0</span> )/ <span class="number">100</span>  current_day_m <span class="title function_">from</span> <span class="params">(SELECT</span></span><br><span class="line"><span class="params">	date_format(</span></span><br><span class="line"><span class="params">		date_add( DATE_ADD( curdate()</span>, INTERVAL - DAY ( curdate())+ <span class="number">1</span> DAY ), INTERVAL ( cast( help_topic_id AS signed INTEGER ) + <span class="number">0</span> ) DAY ),</span><br><span class="line">		<span class="string">&#x27;%Y-%m-%d&#x27;</span> </span><br><span class="line">	) curdate</span><br><span class="line">FROM</span><br><span class="line">	mysql.help_topic </span><br><span class="line">WHERE</span><br><span class="line">	help_topic_id &lt; DAY (</span><br><span class="line">		last_day(</span><br><span class="line">		DATE_ADD( curdate(), INTERVAL - DAY ( curdate())+ <span class="number">1</span> DAY ))) </span><br><span class="line">ORDER BY</span><br><span class="line">	help_topic_id) a</span><br><span class="line">LEFT <span class="title function_">JOIN</span></span><br><span class="line"><span class="params">(</span></span><br><span class="line"><span class="params">SELECT</span></span><br><span class="line"><span class="params">		DATE_FORMAT( status_time, <span class="string">&#x27;%Y-%m-%d&#x27;</span> )</span> curdate,</span><br><span class="line">		sum(</span><br><span class="line">		IF</span><br><span class="line">			( order_status = <span class="number">1</span>, amount, <span class="number">0</span> )) - sum(</span><br><span class="line">		IF</span><br><span class="line">		( order_status = <span class="number">8</span>, amount, <span class="number">0</span> )) current_day_m </span><br><span class="line">	FROM</span><br><span class="line">		`t_pay_details` </span><br><span class="line">	WHERE</span><br><span class="line">		<span class="title function_">DATE_FORMAT</span><span class="params">(status_time, <span class="string">&#x27;%Y-%m-%d&#x27;</span> )</span> BETWEEN ( SELECT <span class="title function_">DATE_FORMAT</span><span class="params">( CURDATE()</span>, <span class="string">&#x27;%Y-%m-01&#x27;</span>) ) </span><br><span class="line">		AND (SELECT <span class="title function_">DATE_FORMAT</span><span class="params">(LAST_DAY(CURDATE()</span>), <span class="string">&#x27;%Y-%m-%d&#x27;</span>)) </span><br><span class="line">		AND order_status &lt;&gt; <span class="number">3</span> </span><br><span class="line">	GROUP BY</span><br><span class="line">	<span class="title function_">DATE_FORMAT</span><span class="params">( status_time, <span class="string">&#x27;%Y-%m-%d&#x27;</span> )</span> </span><br><span class="line">) b ON a.curdate = b.curdate</span><br></pre></td></tr></table></figure>
+
+<h1 id="6、计算上周每一天的净收入"><a href="#6、计算上周每一天的净收入" class="headerlink" title="6、计算上周每一天的净收入"></a>6、计算上周每一天的净收入</h1><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span></span><br><span class="line">	a.curdate,</span><br><span class="line">	IFNULL( b.current_day_m, <span class="number">0</span> )<span class="operator">/</span> <span class="number">100</span>  current_day_m</span><br><span class="line"><span class="keyword">FROM</span></span><br><span class="line">	(</span><br><span class="line">	<span class="keyword">SELECT</span></span><br><span class="line">		DATE_SUB( SUBDATE( CURDATE(), WEEKDAY( CURDATE())), <span class="type">INTERVAL</span> <span class="number">1</span> <span class="keyword">DAY</span> ) <span class="keyword">AS</span> curdate <span class="keyword">UNION</span></span><br><span class="line">	<span class="keyword">SELECT</span></span><br><span class="line">		DATE_SUB( SUBDATE( CURDATE(), WEEKDAY( CURDATE())), <span class="type">INTERVAL</span> <span class="number">2</span> <span class="keyword">DAY</span> ) <span class="keyword">AS</span> curdate <span class="keyword">UNION</span></span><br><span class="line">	<span class="keyword">SELECT</span></span><br><span class="line">		DATE_SUB( SUBDATE( CURDATE(), WEEKDAY( CURDATE())), <span class="type">INTERVAL</span> <span class="number">3</span> <span class="keyword">DAY</span> ) <span class="keyword">AS</span> curdate <span class="keyword">UNION</span></span><br><span class="line">	<span class="keyword">SELECT</span></span><br><span class="line">		DATE_SUB( SUBDATE( CURDATE(), WEEKDAY( CURDATE())), <span class="type">INTERVAL</span> <span class="number">4</span> <span class="keyword">DAY</span> ) <span class="keyword">AS</span> curdate <span class="keyword">UNION</span></span><br><span class="line">	<span class="keyword">SELECT</span></span><br><span class="line">		DATE_SUB( SUBDATE( CURDATE(), WEEKDAY( CURDATE())), <span class="type">INTERVAL</span> <span class="number">5</span> <span class="keyword">DAY</span> ) <span class="keyword">AS</span> curdate <span class="keyword">UNION</span></span><br><span class="line">	<span class="keyword">SELECT</span></span><br><span class="line">		DATE_SUB( SUBDATE( CURDATE(), WEEKDAY( CURDATE())), <span class="type">INTERVAL</span> <span class="number">6</span> <span class="keyword">DAY</span> ) <span class="keyword">AS</span> curdate <span class="keyword">UNION</span></span><br><span class="line">	<span class="keyword">SELECT</span></span><br><span class="line">		DATE_SUB( SUBDATE( CURDATE(), WEEKDAY( CURDATE())), <span class="type">INTERVAL</span> <span class="number">7</span> <span class="keyword">DAY</span> )</span><br><span class="line">	) a</span><br><span class="line">	<span class="keyword">LEFT</span> <span class="keyword">JOIN</span> (</span><br><span class="line">	<span class="keyword">SELECT</span></span><br><span class="line">		DATE_FORMAT( status_time, <span class="string">&#x27;%Y-%m-%d&#x27;</span> ) curdate,</span><br><span class="line">		<span class="built_in">sum</span>(</span><br><span class="line">		IF</span><br><span class="line">			( order_status <span class="operator">=</span> <span class="number">1</span>, amount, <span class="number">0</span> )) <span class="operator">-</span> <span class="built_in">sum</span>(</span><br><span class="line">		IF</span><br><span class="line">		( order_status <span class="operator">=</span> <span class="number">8</span>, amount, <span class="number">0</span> )) current_day_m </span><br><span class="line">	<span class="keyword">FROM</span></span><br><span class="line">		`t_pay_details` </span><br><span class="line">	<span class="keyword">WHERE</span></span><br><span class="line">		DATE_FORMAT( status_time, <span class="string">&#x27;%Y-%m-%d&#x27;</span> ) <span class="keyword">BETWEEN</span> 		( <span class="keyword">SELECT</span> DATE_SUB( SUBDATE( CURDATE(), WEEKDAY( CURDATE())), <span class="type">INTERVAL</span> <span class="number">7</span> <span class="keyword">DAY</span> ) <span class="keyword">AS</span> curdate )</span><br><span class="line">		<span class="keyword">AND</span> </span><br><span class="line">		( <span class="keyword">SELECT</span> DATE_SUB( SUBDATE( CURDATE(), WEEKDAY( CURDATE())), <span class="type">INTERVAL</span> <span class="number">1</span> <span class="keyword">DAY</span> ) <span class="keyword">AS</span> curdate ) </span><br><span class="line">	</span><br><span class="line">		<span class="keyword">AND</span> order_status <span class="operator">&lt;&gt;</span> <span class="number">3</span> </span><br><span class="line">	<span class="keyword">GROUP</span> <span class="keyword">BY</span></span><br><span class="line">	DATE_FORMAT( status_time, <span class="string">&#x27;%Y-%m-%d&#x27;</span> ) </span><br><span class="line">	) b <span class="keyword">ON</span> a.curdate <span class="operator">=</span> b.curdate</span><br></pre></td></tr></table></figure>
+
+<h1 id="7、先按a字段排序，a字段相同按b字段，最后计算排名"><a href="#7、先按a字段排序，a字段相同按b字段，最后计算排名" class="headerlink" title="7、先按a字段排序，a字段相同按b字段，最后计算排名"></a>7、先按a字段排序，a字段相同按b字段，最后计算排名</h1><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span></span><br><span class="line">	<span class="variable">@cur1</span> :<span class="operator">=</span> <span class="variable">@cur1</span> <span class="operator">+</span> <span class="number">1</span> <span class="keyword">AS</span> rank,</span><br><span class="line">	p.<span class="operator">*</span> </span><br><span class="line"><span class="keyword">FROM</span></span><br><span class="line">	(</span><br><span class="line">	<span class="keyword">SELECT</span></span><br><span class="line">		tts.<span class="operator">*</span>,</span><br><span class="line">		su.nick_name <span class="keyword">AS</span> nick_name </span><br><span class="line">	<span class="keyword">FROM</span></span><br><span class="line">		t_train_score <span class="keyword">AS</span> tts,</span><br><span class="line">		sys_user <span class="keyword">AS</span> su </span><br><span class="line">	<span class="keyword">WHERE</span></span><br><span class="line">		tts.user_no <span class="operator">=</span> su.user_name </span><br><span class="line">		<span class="keyword">AND</span> tts.class_code <span class="operator">=</span> &quot;20220420114&quot; </span><br><span class="line">		<span class="keyword">AND</span> tts.project_code <span class="operator">=</span> &quot;b15f9bd99857461aa256aca27ea60cc4&quot; </span><br><span class="line">		<span class="keyword">AND</span> tts.check_code <span class="operator">=</span> &quot;20220428001&quot; </span><br><span class="line">		<span class="keyword">AND</span> tts.  <span class="operator">=</span> <span class="string">&#x27;0&#x27;</span> </span><br><span class="line">	<span class="keyword">ORDER</span> <span class="keyword">BY</span></span><br><span class="line">		score <span class="keyword">DESC</span>,</span><br><span class="line">		total_time <span class="keyword">ASC</span> </span><br><span class="line">		LIMIT <span class="number">0</span>,</span><br><span class="line">		<span class="number">2</span></span><br><span class="line">		) p,(</span><br><span class="line">	<span class="keyword">SELECT</span></span><br><span class="line">	<span class="variable">@cur1</span> :<span class="operator">=</span> <span class="number">0</span> #&#123;如果分页的话直接在这去  拿 pageNum<span class="number">-1</span> <span class="operator">*</span> pageSize即可&#125;</span><br><span class="line">	) q</span><br></pre></td></tr></table></figure>
+
+<h1 id="8、查询去年1月到12月"><a href="#8、查询去年1月到12月" class="headerlink" title="8、查询去年1月到12月"></a>8、查询去年1月到12月</h1><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span></span><br><span class="line"><span class="keyword">CASE</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">WHEN</span></span><br><span class="line">length( mon ) <span class="operator">=</span> <span class="number">1</span> <span class="keyword">THEN</span></span><br><span class="line">concat( <span class="keyword">LEFT</span> ( <span class="built_in">CURRENT_DATE</span>, <span class="number">5</span>)<span class="number">-1</span>, <span class="string">&#x27;-0&#x27;</span>, mon ) <span class="keyword">ELSE</span> concat( <span class="keyword">LEFT</span> ( <span class="built_in">CURRENT_DATE</span>, <span class="number">5</span> )<span class="number">-1</span>,<span class="string">&#x27;-&#x27;</span>, mon )</span><br><span class="line"><span class="keyword">END</span> months</span><br><span class="line"><span class="keyword">FROM</span></span><br><span class="line">( <span class="keyword">SELECT</span> <span class="variable">@m</span> :<span class="operator">=</span> <span class="variable">@m</span> <span class="operator">+</span> <span class="number">1</span> mon <span class="keyword">FROM</span> t_mscm_sales, ( <span class="keyword">SELECT</span> <span class="variable">@m</span> :<span class="operator">=</span> <span class="number">0</span> ) a ) aa</span><br><span class="line">LIMIT <span class="number">12</span></span><br></pre></td></tr></table></figure>
+
+<h1 id="9、查询今年1月到当前月的所有月份"><a href="#9、查询今年1月到当前月的所有月份" class="headerlink" title="9、查询今年1月到当前月的所有月份"></a>9、查询今年1月到当前月的所有月份</h1><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span></span><br><span class="line"><span class="keyword">CASE</span></span><br><span class="line">		</span><br><span class="line">	<span class="keyword">WHEN</span></span><br><span class="line">		length( mon )<span class="operator">=</span> <span class="number">1</span> <span class="keyword">THEN</span></span><br><span class="line">			concat( <span class="keyword">LEFT</span> ( <span class="built_in">CURRENT_DATE</span>, <span class="number">5</span> ), <span class="string">&#x27;0&#x27;</span>, mon ) <span class="keyword">ELSE</span> concat( <span class="keyword">LEFT</span> ( <span class="built_in">CURRENT_DATE</span>, <span class="number">5</span> ), mon ) </span><br><span class="line">		<span class="keyword">END</span> months </span><br><span class="line"><span class="keyword">FROM</span></span><br><span class="line">	( <span class="keyword">SELECT</span> <span class="variable">@m</span> :<span class="operator">=</span> <span class="variable">@m</span> <span class="operator">+</span> <span class="number">1</span> mon <span class="keyword">FROM</span> t_mission,( <span class="keyword">SELECT</span> <span class="variable">@m</span> :<span class="operator">=</span> <span class="number">0</span> ) a ) aa </span><br><span class="line">	LIMIT <span class="number">9</span>; <span class="operator">/</span><span class="operator">/</span><span class="number">9</span>可以随便传</span><br></pre></td></tr></table></figure>
+
+<h1 id="10、指定月份生成30天"><a href="#10、指定月份生成30天" class="headerlink" title="10、指定月份生成30天"></a>10、指定月份生成30天</h1><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> date_format(date_add(<span class="string">&#x27;2022-02-01&#x27;</span>, <span class="type">interval</span>(<span class="built_in">cast</span>(help_topic_id <span class="keyword">as</span> signed <span class="type">integer</span>)<span class="operator">+</span> <span class="number">0</span>) <span class="keyword">day</span>),<span class="string">&#x27;%Y-%m-%d&#x27;</span>) 日期</span><br><span class="line"><span class="keyword">from</span> mysql.help_topic</span><br><span class="line"><span class="keyword">where</span> help_topic_id  <span class="operator">&lt;</span> <span class="keyword">day</span>(last_day(<span class="string">&#x27;2022-02-01&#x27;</span>))</span><br><span class="line"><span class="keyword">order</span> <span class="keyword">by</span> help_topic_id;</span><br></pre></td></tr></table></figure>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/mysql/" rel="tag"># mysql</a>
+          </div>
+
+        
+
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2024</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">x1a0g</span>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+  <a role="button" class="book-mark-link book-mark-link-fixed"></a>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script><script src="/js/bookmark.js"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.4.1/search.js" integrity="sha256-1kfA5uHPf65M5cphT2dvymhkuyHPQp5A53EGZOnOLmc=" crossorigin="anonymous"></script>
+<script src="/js/third-party/search/local-search.js"></script>
+
+
+
+
+
+
+
+  
+
+
+
+
+
+</body>
+</html>
