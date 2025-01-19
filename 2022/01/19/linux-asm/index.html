@@ -10,7 +10,7 @@
 <meta property="og:type" content="article">
 <meta property="og:title" content="linux-asm">
 <meta property="og:url" content="http://example.com/2022/01/19/linux-asm/index.html">
-<meta property="og:site_name" content="x1a0g">
+<meta property="og:site_name" content="x1a0g&#39;s blog">
 <meta property="og:description" content="1、从一个c程序开始123456789#include&lt;stdio.h&gt;int main()&#123;	printf(&quot;hello world&quot;);	return 0;&#125;  一个c程序要编译成linux上可执行文件，需要经历4个步骤：  预处理 编译 汇编 链接下面分别从这四个方面去看一下每个过程中流程代码   预处理  1gcc -E hello.c">
 <meta property="og:locale" content="en_US">
 <meta property="og:image" content="http://example.com/2022/01/19/linux-asm/arithmetic1.jpg">
@@ -83,6 +83,8 @@
     <br/>
     <span id="actions">
       <ul>
+        
+        <li><a class="icon" aria-label="Previous post" href="/2023/01/30/next-js-AllInOne/"><i class="fa-solid fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
         
         
         <li><a class="icon" aria-label="Back to top" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
@@ -553,15 +555,15 @@
 </thead>
 <tbody><tr>
 <td>1</td>
-<td><strong>当两个字节相乘时 −</strong><br><br>被乘数在AL寄存器中，乘数是内存中或另一个寄存器中的一个字节。 该产品在 AX 中。 乘积的高8位存放在AH中，低8位存放在AL中。<br><br><style>.snrezpicqcbk{}</style><img src="/2022/01/19/linux-asm/arithmetic1.jpg" class="snrezpicqcbk" alt="Arithmetic1"></td>
+<td><strong>当两个字节相乘时 −</strong><br><br>被乘数在AL寄存器中，乘数是内存中或另一个寄存器中的一个字节。 该产品在 AX 中。 乘积的高8位存放在AH中，低8位存放在AL中。<br><br><style>.plzkaioavsnr{}</style><img src="/2022/01/19/linux-asm/arithmetic1.jpg" class="plzkaioavsnr" alt="Arithmetic1"></td>
 </tr>
 <tr>
 <td>2</td>
-<td><strong>当两个单字值相乘时 −</strong><br><br>被乘数应该在AX寄存器中，乘数是内存或另一个寄存器中的一个字。 例如，对于像MUL DX这样的指令，您必须将乘数存储在DX中，将被乘数存储在AX中。<br><br>生成的结果是一个双字，需要两个寄存器。 高位（最左边）部分存储在 DX 中，低位（最右边）部分存储在 AX 中。<br><br><style>.gluxwacrpkym{}</style><img src="/2022/01/19/linux-asm/arithmetic2.jpg" class="gluxwacrpkym" alt="Arithmetic2"></td>
+<td><strong>当两个单字值相乘时 −</strong><br><br>被乘数应该在AX寄存器中，乘数是内存或另一个寄存器中的一个字。 例如，对于像MUL DX这样的指令，您必须将乘数存储在DX中，将被乘数存储在AX中。<br><br>生成的结果是一个双字，需要两个寄存器。 高位（最左边）部分存储在 DX 中，低位（最右边）部分存储在 AX 中。<br><br><style>.wtvnpaewiplg{}</style><img src="/2022/01/19/linux-asm/arithmetic2.jpg" class="wtvnpaewiplg" alt="Arithmetic2"></td>
 </tr>
 <tr>
 <td>3</td>
-<td><strong>当两个双字值相乘时−</strong><br><br>当两个双字值相乘时，被乘数应位于 EAX 中，乘数是存储在内存或另一个寄存器中的双字值。 生成的乘积存储在 EDX:EAX 寄存器中，即高位 32 位存储在 EDX 寄存器中，低位 32 位存储在 EAX 寄存器中。<br><br><style>.chfcecxbrxlt{}</style><img src="/2022/01/19/linux-asm/arithmetic3.jpg" class="chfcecxbrxlt" alt="Arithmetic3"></td>
+<td><strong>当两个双字值相乘时−</strong><br><br>当两个双字值相乘时，被乘数应位于 EAX 中，乘数是存储在内存或另一个寄存器中的双字值。 生成的乘积存储在 EDX:EAX 寄存器中，即高位 32 位存储在 EDX 寄存器中，低位 32 位存储在 EAX 寄存器中。<br><br><style>.bcbihfxmuhci{}</style><img src="/2022/01/19/linux-asm/arithmetic3.jpg" class="bcbihfxmuhci" alt="Arithmetic3"></td>
 </tr>
 </tbody></table>
 <p>hvb-]&#96;&#96;&#96;z80<br>MOV AL, 10<br>MOV DL, 25<br>MUL DL</p>

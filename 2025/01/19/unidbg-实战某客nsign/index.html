@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="环境   frida16去特征版   java8 unidbg  一. 抓包抓包使用小黄鸟， 配置相关证书，配置ssl unpining .kyymnehixirf{zoom:50%;} lsposed中启动即可。  抓包结果如下,接口请求头中需要添加nsign进行验签  .cwwvtfntlcur{zoom:80%;}  二. frida分析1. jadx寻找入口点在jadx载入这个apk后，">
+<meta property="og:type" content="article">
+<meta property="og:title" content="unidbg 实战某客nsign">
+<meta property="og:url" content="http://example.com/2025/01/19/unidbg-%E5%AE%9E%E6%88%98%E6%9F%90%E5%AE%A2nsign/index.html">
+<meta property="og:site_name" content="x1a0g&#39;s blog">
+<meta property="og:description" content="环境   frida16去特征版   java8 unidbg  一. 抓包抓包使用小黄鸟， 配置相关证书，配置ssl unpining .kyymnehixirf{zoom:50%;} lsposed中启动即可。  抓包结果如下,接口请求头中需要添加nsign进行验签  .cwwvtfntlcur{zoom:80%;}  二. frida分析1. jadx寻找入口点在jadx载入这个apk后，">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="http://example.com/2025/01/19/unidbg-%E5%AE%9E%E6%88%98%E6%9F%90%E5%AE%A2nsign/Obsidian_FVOQ0hi3et.png">
+<meta property="og:image" content="http://example.com/2025/01/19/unidbg-%E5%AE%9E%E6%88%98%E6%9F%90%E5%AE%A2nsign/Obsidian_Qvu12zTLhP.png">
+<meta property="og:image" content="http://example.com/2025/01/19/unidbg-%E5%AE%9E%E6%88%98%E6%9F%90%E5%AE%A2nsign/Obsidian_xQyQ2sDAAI.png">
+<meta property="og:image" content="http://example.com/2025/01/19/unidbg-%E5%AE%9E%E6%88%98%E6%9F%90%E5%AE%A2nsign/Obsidian_t19JB3I1oR.png">
+<meta property="og:image" content="http://example.com/2025/01/19/unidbg-%E5%AE%9E%E6%88%98%E6%9F%90%E5%AE%A2nsign/Obsidian_8j99Ka6CrF.png">
+<meta property="og:image" content="http://example.com/2025/01/19/unidbg-%E5%AE%9E%E6%88%98%E6%9F%90%E5%AE%A2nsign/idea64_afAS2Ccglc.png">
+<meta property="article:published_time" content="2025-01-19T09:31:10.000Z">
+<meta property="article:modified_time" content="2025-01-19T09:45:47.989Z">
+<meta property="article:author" content="x1a0g">
+<meta property="article:tag" content="逆向">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/2025/01/19/unidbg-%E5%AE%9E%E6%88%98%E6%9F%90%E5%AE%A2nsign/Obsidian_FVOQ0hi3et.png">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/favicon.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+        
+      
+    
+    <!-- title -->
+    <title>unidbg 实战某客nsign</title>
+    <!-- async scripts -->
+    <!-- Google Analytics -->
+
+
+    <!-- Umami Analytics -->
+
+
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="Top" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fa-solid fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     --><!--
+       --><li><a href="/categories/">Category</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        
+        <li><a class="icon" aria-label="Next post" href="/2023/01/30/next-js-AllInOne/"><i class="fa-solid fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="Back to top" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="Share post" href="#"><i class="fa-solid fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+      <span id="i-share" class="info" style="display:none;">Share post</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2025/01/19/unidbg-%E5%AE%9E%E6%88%98%E6%9F%90%E5%AE%A2nsign/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2025/01/19/unidbg-%E5%AE%9E%E6%88%98%E6%9F%90%E5%AE%A2nsign/&text=unidbg 实战某客nsign"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2025/01/19/unidbg-%E5%AE%9E%E6%88%98%E6%9F%90%E5%AE%A2nsign/&title=unidbg 实战某客nsign"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2025/01/19/unidbg-%E5%AE%9E%E6%88%98%E6%9F%90%E5%AE%A2nsign/&is_video=false&description=unidbg 实战某客nsign"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=unidbg 实战某客nsign&body=Check out this article: http://example.com/2025/01/19/unidbg-%E5%AE%9E%E6%88%98%E6%9F%90%E5%AE%A2nsign/"><i class="fa-solid fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2025/01/19/unidbg-%E5%AE%9E%E6%88%98%E6%9F%90%E5%AE%A2nsign/&title=unidbg 实战某客nsign"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2025/01/19/unidbg-%E5%AE%9E%E6%88%98%E6%9F%90%E5%AE%A2nsign/&title=unidbg 实战某客nsign"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2025/01/19/unidbg-%E5%AE%9E%E6%88%98%E6%9F%90%E5%AE%A2nsign/&title=unidbg 实战某客nsign"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2025/01/19/unidbg-%E5%AE%9E%E6%88%98%E6%9F%90%E5%AE%A2nsign/&title=unidbg 实战某客nsign"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2025/01/19/unidbg-%E5%AE%9E%E6%88%98%E6%9F%90%E5%AE%A2nsign/&name=unidbg 实战某客nsign&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2025/01/19/unidbg-%E5%AE%9E%E6%88%98%E6%9F%90%E5%AE%A2nsign/&t=unidbg 实战某客nsign"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    
+    
+      <div id="toc">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%80-%E6%8A%93%E5%8C%85"><span class="toc-number">1.</span> <span class="toc-text">一. 抓包</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%8C-frida%E5%88%86%E6%9E%90"><span class="toc-number">2.</span> <span class="toc-text">二. frida分析</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-jadx%E5%AF%BB%E6%89%BE%E5%85%A5%E5%8F%A3%E7%82%B9"><span class="toc-number">2.1.</span> <span class="toc-text">1. jadx寻找入口点</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-frida-hook"><span class="toc-number">2.2.</span> <span class="toc-text">2. frida hook</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-ida%E5%88%86%E6%9E%90"><span class="toc-number">2.3.</span> <span class="toc-text">3. ida分析</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-%E8%B0%83%E7%94%A8"><span class="toc-number">2.4.</span> <span class="toc-text">4. 调用</span></a></li></ol></li></ol>
+      </div>
+    
+  </span>
+</div>
+
+    
+    <div class="content index py4 ">
+        
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle p-name" itemprop="name headline">
+        unidbg 实战某客nsign
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author p-author h-card" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span class="p-name" itemprop="name">x1a0g</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2025-01-19T09:31:10.000Z" class="dt-published" itemprop="datePublished">2025-01-19</time>
+        
+      
+    </div>
+
+
+      
+    <div class="article-category">
+        <i class="fa-solid fa-archive"></i>
+        <a class="category-link" href="/categories/%E5%AE%89%E5%8D%93%E9%80%86%E5%90%91/">安卓逆向</a>
+    </div>
+
+
+      
+    <div class="article-tag">
+        <i class="fa-solid fa-tag"></i>
+        <a class="p-category" href="/tags/%E9%80%86%E5%90%91/" rel="tag">逆向</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content e-content" itemprop="articleBody">
+    <blockquote>
+<p>环境</p>
+</blockquote>
+<ul>
+<li>frida16去特征版  </li>
+<li>java8</li>
+<li>unidbg</li>
+</ul>
+<h2 id="一-抓包"><a href="#一-抓包" class="headerlink" title="一. 抓包"></a>一. 抓包</h2><p>抓包使用小黄鸟， 配置相关证书，配置ssl unpining</p>
+<style>.kyymnehixirf{zoom:50%;}</style><img src="/2025/01/19/unidbg-%E5%AE%9E%E6%88%98%E6%9F%90%E5%AE%A2nsign/Obsidian_FVOQ0hi3et.png" class="kyymnehixirf" alt="Obsidian_FVOQ0hi3et">
+<p>lsposed中启动即可。</p>
+<blockquote>
+<p>抓包结果如下,接口请求头中需要添加nsign进行验签</p>
+</blockquote>
+<style>.cwwvtfntlcur{zoom:80%;}</style><img src="/2025/01/19/unidbg-%E5%AE%9E%E6%88%98%E6%9F%90%E5%AE%A2nsign/Obsidian_Qvu12zTLhP.png" class="cwwvtfntlcur" alt="Obsidian_Qvu12zTLhP">
+
+<h2 id="二-frida分析"><a href="#二-frida分析" class="headerlink" title="二. frida分析"></a>二. frida分析</h2><h3 id="1-jadx寻找入口点"><a href="#1-jadx寻找入口点" class="headerlink" title="1. jadx寻找入口点"></a>1. jadx寻找入口点</h3><p><strong>在jadx载入这个apk后，就需要找到sign生成的位置，通常来说，从一个正向开发的角度来讲，如果我在绝大多数的api都需要添加一个sign校验，那么一个一个加显然是费时费力的，所以如果我是开发者，通常来说会使用aop的形式或者定义一个interceptor，在过滤器filter之后，controller之前定义去实现这个功能。</strong></p>
+<blockquote>
+<p>故 搜索一下interpector</p>
+</blockquote>
+<style>.cfprbjucldgr{zoom:60%;}</style><img src="/2025/01/19/unidbg-%E5%AE%9E%E6%88%98%E6%9F%90%E5%AE%A2nsign/Obsidian_xQyQ2sDAAI.png" class="cfprbjucldgr" alt="Obsidian_xQyQ2sDAAI">
+
+<p>找到关键位置，之后进入找到sign在请求头中添加nsign的代码</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">c = SignUtil.c(path, c2, b2, uuid);</span><br><span class="line">newBuilder2.add(<span class="string">&quot;nsign&quot;</span>, c);</span><br><span class="line"><span class="type">UserProfile</span> <span class="variable">userProfile</span> <span class="operator">=</span> UserProfileProtocol.getUserProfile();</span><br></pre></td></tr></table></figure>
+
+<p>跟进去找到nsign生成方法，是一个native方法</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">native</span> String <span class="title function_">getSign</span><span class="params">(String str, String str2, Map&lt;String, <span class="type">byte</span>[]&gt; map, String str3, <span class="type">int</span> i)</span>;</span><br></pre></td></tr></table></figure>
+<p>位置在libsignxxx.so  这东西定位一般搜一下System.loadLibrary 就可以</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">static</span> &#123;</span><br><span class="line">	System.loadLibrary(<span class="string">&quot;signxxxx&quot;</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="2-frida-hook"><a href="#2-frida-hook" class="headerlink" title="2. frida hook"></a>2. frida hook</h3><blockquote>
+<p>hook  getSign方法,脚本如下</p>
+</blockquote>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">hookTest1</span>(<span class="params"></span>)&#123;  </span><br><span class="line">    <span class="keyword">let</span> <span class="title class_">SignUtil</span> = <span class="title class_">Java</span>.<span class="title function_">use</span>(<span class="string">&quot;com.xxx.xxx.sign.SignUtil&quot;</span>);  </span><br><span class="line">    <span class="title class_">SignUtil</span>[<span class="string">&quot;getSign&quot;</span>].<span class="property">implementation</span> = <span class="keyword">function</span> (<span class="params">str, str2, map, str3, i</span>) &#123;  </span><br><span class="line">        <span class="keyword">var</span> <span class="title class_">Gson</span> = <span class="title class_">Java</span>.<span class="title function_">use</span>(<span class="string">&#x27;com.google.gson.Gson&#x27;</span>).$new();  </span><br><span class="line">        <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&quot;map -&gt; &quot;</span> + <span class="title class_">Gson</span>.<span class="title function_">toJsonTree</span>(map).<span class="title function_">getAsJsonObject</span>());  </span><br><span class="line">        <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">`SignUtil.getSign is called: str=<span class="subst">$&#123;str&#125;</span>, str2=<span class="subst">$&#123;str2&#125;</span>, map=<span class="subst">$&#123;map&#125;</span>, str3=<span class="subst">$&#123;str3&#125;</span>, i=<span class="subst">$&#123;i&#125;</span>`</span>);  </span><br><span class="line">        <span class="keyword">let</span> result = <span class="variable language_">this</span>[<span class="string">&quot;getSign&quot;</span>](str, str2, map, str3, i);  </span><br><span class="line">        <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">`SignUtil.getSign result=<span class="subst">$&#123;result&#125;</span>`</span>);  </span><br><span class="line">        <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;------------------------------&#x27;</span>);  </span><br><span class="line">        <span class="keyword">return</span> result;  </span><br><span class="line">    &#125;;  </span><br><span class="line">&#125;  </span><br><span class="line">  </span><br><span class="line"><span class="keyword">function</span> <span class="title function_">main</span>(<span class="params"></span>)&#123;  </span><br><span class="line">    <span class="title class_">Java</span>.<span class="title function_">perform</span>(<span class="keyword">function</span>(<span class="params"></span>)&#123;  </span><br><span class="line">        <span class="title function_">hookTest1</span>();  </span><br><span class="line">    &#125;);  </span><br><span class="line">&#125;  </span><br><span class="line"><span class="title function_">setImmediate</span>(main);</span><br></pre></td></tr></table></figure>
+
+<p>结果如下:</p>
+<style>.lhckoguiukfc{zoom:60%;}</style><img src="/2025/01/19/unidbg-%E5%AE%9E%E6%88%98%E6%9F%90%E5%AE%A2nsign/Obsidian_t19JB3I1oR.png" class="lhckoguiukfc" alt="Obsidian_t19JB3I1oR">
+<p>让gpt把map参数的值转换一下</p>
+<figure class="highlight http"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  &quot;app&quot;: &quot;xxxxxx&quot;,</span><br><span class="line">  &quot;from&quot;: &quot;mobile&quot;,</span><br><span class="line">  &quot;pm&quot;: &quot;b276&quot;,</span><br><span class="line">  &quot;city_id&quot;: &quot;14&quot;,</span><br><span class="line">  ...</span><br><span class="line">  &quot;cid&quot;: []</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="3-ida分析"><a href="#3-ida分析" class="headerlink" title="3. ida分析"></a>3. ida分析</h3><blockquote>
+<p>载入ida可以在导出表中发现几个函数，就是此次unidbg调用的目标</p>
+</blockquote>
+<style>.dejtcuhewscy{zoom:60%;}</style><img src="/2025/01/19/unidbg-%E5%AE%9E%E6%88%98%E6%9F%90%E5%AE%A2nsign/Obsidian_8j99Ka6CrF.png" class="dejtcuhewscy" alt="Obsidian_8j99Ka6CrF">
+
+<h3 id="4-调用"><a href="#4-调用" class="headerlink" title="4. 调用"></a>4. 调用</h3><blockquote>
+<p>通过unidbg正常补环境调用成功</p>
+</blockquote>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Slf4j</span>  </span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">SignUtil</span> <span class="keyword">extends</span> <span class="title class_">AbstractJni</span> &#123;  </span><br><span class="line">  </span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> AndroidEmulator emulator;  </span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> VM vm;  </span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> Module <span class="keyword">module</span>;  </span><br><span class="line">  </span><br><span class="line">  </span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">SignUtil</span><span class="params">()</span> &#123;  </span><br><span class="line">        <span class="built_in">this</span>.emulator = AndroidEmulatorBuilder.for64Bit().setProcessName(<span class="string">&quot;com.xxx.xxx.app&quot;</span>).addBackendFactory(<span class="keyword">new</span> <span class="title class_">DynarmicFactory</span>(<span class="literal">false</span>)).build();  </span><br><span class="line">        <span class="built_in">this</span>.vm = emulator.createDalvikVM();  </span><br><span class="line">        vm.setVerbose(<span class="literal">true</span>);  </span><br><span class="line">        <span class="type">Memory</span> <span class="variable">memory</span> <span class="operator">=</span> emulator.getMemory();  </span><br><span class="line">        memory.setLibraryResolver(<span class="keyword">new</span> <span class="title class_">AndroidResolver</span>(<span class="number">23</span>));  </span><br><span class="line">        vm.setJni(<span class="built_in">this</span>);  </span><br><span class="line">        <span class="comment">//加载so文件  </span></span><br><span class="line">        <span class="type">String</span> <span class="variable">path</span> <span class="operator">=</span> <span class="string">&quot;file\\libsign.so&quot;</span>;  </span><br><span class="line">        <span class="type">DalvikModule</span> <span class="variable">dalvikModule</span> <span class="operator">=</span> vm.loadLibrary(<span class="keyword">new</span> <span class="title class_">File</span>(path), <span class="literal">true</span>);  </span><br><span class="line">        dalvikModule.callJNI_OnLoad(emulator);  </span><br><span class="line">        log.info(<span class="string">&quot;=============load &#123;&#125; 成功&quot;</span>, path);  </span><br><span class="line">        <span class="keyword">module</span> = dalvikModule.getModule();  </span><br><span class="line">  </span><br><span class="line">        log.info(<span class="string">&quot;===============创建虚拟机成功&quot;</span>);  </span><br><span class="line">    &#125;  </span><br><span class="line">  </span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> Map&lt;String, Object&gt; <span class="title function_">jsonToMap</span><span class="params">(String json)</span> &#123;  </span><br><span class="line">        <span class="type">Gson</span> <span class="variable">gson</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Gson</span>();  </span><br><span class="line">        <span class="comment">// 使用 TypeToken 获取 Map 的类型  </span></span><br><span class="line">        <span class="keyword">return</span> gson.fromJson(json, <span class="keyword">new</span> <span class="title class_">TypeToken</span>&lt;Map&lt;String, Object&gt;&gt;() &#123;  </span><br><span class="line">        &#125;.getType());  </span><br><span class="line">    &#125;  </span><br><span class="line">  </span><br><span class="line">    <span class="comment">//private static native String getSign(String str, String str2, Map&lt;String, byte[]&gt; map, String str3, int i);  </span></span><br><span class="line">    <span class="keyword">public</span> String <span class="title function_">getSign</span><span class="params">(String str, String str2, Map&lt;String, <span class="type">byte</span>[]&gt; map, String str3, <span class="type">int</span> i)</span> &#123;  </span><br><span class="line">        List&lt;Object&gt; obj = <span class="keyword">new</span> <span class="title class_">ArrayList</span>&lt;&gt;();  </span><br><span class="line">        DvmObject&lt;?&gt; dvmObject = vm.resolveClass(<span class="string">&quot;com.x1a0g.xxx&quot;</span>).newObject(<span class="literal">null</span>);  </span><br><span class="line">        <span class="comment">//调用jni函数的时候通常前面加两个参数  JniEnv* a,jclass b,真实的参数  </span></span><br><span class="line">        <span class="type">Pointer</span> <span class="variable">jniEnv</span> <span class="operator">=</span> vm.getJNIEnv();  </span><br><span class="line">        obj.add(jniEnv);  </span><br><span class="line">        obj.add(vm.addLocalObject(dvmObject));<span class="comment">//瞎几把传一个就行  </span></span><br><span class="line">        obj.add(vm.addLocalObject(<span class="keyword">new</span> <span class="title class_">StringObject</span>(vm, str)));  </span><br><span class="line">        obj.add(vm.addLocalObject(<span class="keyword">new</span> <span class="title class_">StringObject</span>(vm, str2)));  </span><br><span class="line">        obj.add(vm.addLocalObject(ProxyDvmObject.createObject(vm, map)));  </span><br><span class="line">        obj.add(vm.addLocalObject(<span class="keyword">new</span> <span class="title class_">StringObject</span>(vm, str3)));  </span><br><span class="line">        obj.add(i);  </span><br><span class="line">        <span class="type">Number</span> <span class="variable">pointer</span> <span class="operator">=</span> <span class="keyword">module</span>.callFunction(emulator, <span class="number">0x18F0</span>, obj.toArray());<span class="comment">//0x18F0在ida的导出表里面可以看到</span></span><br><span class="line"></span><br><span class="line">        <span class="comment">//读取指针位置的值</span></span><br><span class="line">        DvmObject&lt;String&gt; object = vm.getObject(pointer.intValue());</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> object.getValue(); </span><br><span class="line">    &#125;  </span><br><span class="line">  </span><br><span class="line">    <span class="meta">@Override</span>  </span><br><span class="line">    <span class="keyword">public</span> <span class="type">int</span> <span class="title function_">callIntMethod</span><span class="params">(BaseVM vm, DvmObject&lt;?&gt; dvmObject, String signature, VarArg varArg)</span> &#123;  </span><br><span class="line">        <span class="keyword">if</span> (<span class="string">&quot;java/util/HashMap-&gt;size()I&quot;</span>.equals(signature)) &#123;  </span><br><span class="line">            <span class="type">HashMap</span> <span class="variable">value</span> <span class="operator">=</span> (HashMap) dvmObject.getValue();  </span><br><span class="line">            <span class="keyword">return</span> value.size();  </span><br><span class="line">  </span><br><span class="line">        &#125;  </span><br><span class="line">        <span class="keyword">return</span> <span class="built_in">super</span>.callIntMethod(vm, dvmObject, signature, varArg);  </span><br><span class="line">    &#125;  </span><br><span class="line">  </span><br><span class="line">    <span class="meta">@Override</span>  </span><br><span class="line">    <span class="keyword">public</span> DvmObject&lt;?&gt; callObjectMethod(BaseVM vm, DvmObject&lt;?&gt; dvmObject, String signature, VarArg varArg) &#123;  </span><br><span class="line">        <span class="keyword">if</span> (<span class="string">&quot;java/util/HashMap-&gt;keySet()Ljava/util/Set;&quot;</span>.equals(signature)) &#123;  </span><br><span class="line">            <span class="type">HashMap</span> <span class="variable">res</span> <span class="operator">=</span> (HashMap) dvmObject.getValue();  </span><br><span class="line">            <span class="keyword">return</span> ProxyDvmObject.createObject(vm,res.keySet());  </span><br><span class="line">        &#125;<span class="keyword">else</span> <span class="keyword">if</span> (<span class="string">&quot;java/util/Set-&gt;toArray()[Ljava/lang/Object;&quot;</span>.equals(signature)) &#123;  </span><br><span class="line">            <span class="type">Set</span> <span class="variable">set</span> <span class="operator">=</span> (Set) dvmObject.getValue();  </span><br><span class="line">            <span class="keyword">return</span> ProxyDvmObject.createObject(vm,set.toArray());  </span><br><span class="line">        &#125;<span class="keyword">else</span> <span class="keyword">if</span> (<span class="string">&quot;java/util/HashMap-&gt;get(Ljava/lang/Object;)Ljava/lang/Object;&quot;</span>.equals(signature)) &#123;  </span><br><span class="line">            <span class="type">HashMap</span> <span class="variable">map</span> <span class="operator">=</span> (HashMap) dvmObject.getValue();  </span><br><span class="line">            <span class="type">Object</span> <span class="variable">object</span> <span class="operator">=</span> varArg.getObjectArg(<span class="number">0</span>).getValue();  </span><br><span class="line">            <span class="keyword">return</span> ProxyDvmObject.createObject(vm,map.get(object));  </span><br><span class="line">        &#125;  </span><br><span class="line">        <span class="keyword">return</span> <span class="built_in">super</span>.callObjectMethod(vm, dvmObject, signature, varArg);  </span><br><span class="line">    &#125;  </span><br><span class="line">  </span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;  </span><br><span class="line">        <span class="type">SignUtil</span> <span class="variable">signUtil</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">SignUtil</span>();  </span><br><span class="line">        <span class="type">String</span> <span class="variable">fc</span> <span class="operator">=</span> <span class="string">&quot;&#123;\n&quot;</span> + </span><br><span class="line">                <span class="string">&quot;  \&quot;city_id\&quot;: \&quot;14\&quot;,\n&quot;</span> +  </span><br><span class="line">                <span class="string">&quot;  \&quot;cid\&quot;: []\n&quot;</span> +  </span><br><span class="line">                <span class="string">&quot;&#125;&quot;</span>;  </span><br><span class="line">        <span class="type">String</span> <span class="variable">str</span> <span class="operator">=</span> <span class="string">&quot;123&quot;</span>;  </span><br><span class="line">        <span class="type">String</span> <span class="variable">str2</span> <span class="operator">=</span> <span class="string">&quot;aaaaaaa&quot;</span>;  </span><br><span class="line">        Map&lt;String, <span class="type">byte</span>[]&gt; mm = <span class="keyword">new</span> <span class="title class_">HashMap</span>&lt;&gt;();  </span><br><span class="line">        Map&lt;String, Object&gt; json = jsonToMap(fc);  </span><br><span class="line">        json.forEach((k, v) -&gt; mm.put(k.toString(), v.toString().getBytes()));  </span><br><span class="line">        <span class="type">String</span> <span class="variable">str3</span> <span class="operator">=</span> <span class="string">&quot;ccc-ddd-4c75-555-fff&quot;</span>;  </span><br><span class="line">        <span class="type">Integer</span> <span class="variable">i</span> <span class="operator">=</span> <span class="number">0</span>;  </span><br><span class="line">        <span class="type">String</span> <span class="variable">sign</span> <span class="operator">=</span> signUtil.getSign(str, str2, mm, str3, i);  </span><br><span class="line">        System.out.println(sign);  </span><br><span class="line">  </span><br><span class="line">    &#125;  </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>结果</p>
+</blockquote>
+<style>.gdhxrpqyqoxw{zoom:60%;}</style><img src="/2025/01/19/unidbg-%E5%AE%9E%E6%88%98%E6%9F%90%E5%AE%A2nsign/idea64_afAS2Ccglc.png" class="gdhxrpqyqoxw" alt="idea64_afAS2Ccglc">
+
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+        
+          <li><a href="/">Home</a></li>
+        
+          <li><a href="/archives/">Writing</a></li>
+        
+          <li><a href="/categories/">Category</a></li>
+        
+      </ul>
+    </div>
+
+    
+    
+      <div id="toc-footer" style="display: none">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%80-%E6%8A%93%E5%8C%85"><span class="toc-number">1.</span> <span class="toc-text">一. 抓包</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%8C-frida%E5%88%86%E6%9E%90"><span class="toc-number">2.</span> <span class="toc-text">二. frida分析</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-jadx%E5%AF%BB%E6%89%BE%E5%85%A5%E5%8F%A3%E7%82%B9"><span class="toc-number">2.1.</span> <span class="toc-text">1. jadx寻找入口点</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-frida-hook"><span class="toc-number">2.2.</span> <span class="toc-text">2. frida hook</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-ida%E5%88%86%E6%9E%90"><span class="toc-number">2.3.</span> <span class="toc-text">3. ida分析</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-%E8%B0%83%E7%94%A8"><span class="toc-number">2.4.</span> <span class="toc-text">4. 调用</span></a></li></ol></li></ol>
+      </div>
+    
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2025/01/19/unidbg-%E5%AE%9E%E6%88%98%E6%9F%90%E5%AE%A2nsign/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2025/01/19/unidbg-%E5%AE%9E%E6%88%98%E6%9F%90%E5%AE%A2nsign/&text=unidbg 实战某客nsign"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2025/01/19/unidbg-%E5%AE%9E%E6%88%98%E6%9F%90%E5%AE%A2nsign/&title=unidbg 实战某客nsign"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2025/01/19/unidbg-%E5%AE%9E%E6%88%98%E6%9F%90%E5%AE%A2nsign/&is_video=false&description=unidbg 实战某客nsign"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=unidbg 实战某客nsign&body=Check out this article: http://example.com/2025/01/19/unidbg-%E5%AE%9E%E6%88%98%E6%9F%90%E5%AE%A2nsign/"><i class="fa-solid fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2025/01/19/unidbg-%E5%AE%9E%E6%88%98%E6%9F%90%E5%AE%A2nsign/&title=unidbg 实战某客nsign"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2025/01/19/unidbg-%E5%AE%9E%E6%88%98%E6%9F%90%E5%AE%A2nsign/&title=unidbg 实战某客nsign"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2025/01/19/unidbg-%E5%AE%9E%E6%88%98%E6%9F%90%E5%AE%A2nsign/&title=unidbg 实战某客nsign"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2025/01/19/unidbg-%E5%AE%9E%E6%88%98%E6%9F%90%E5%AE%A2nsign/&title=unidbg 实战某客nsign"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2025/01/19/unidbg-%E5%AE%9E%E6%88%98%E6%9F%90%E5%AE%A2nsign/&name=unidbg 实战某客nsign&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2025/01/19/unidbg-%E5%AE%9E%E6%88%98%E6%9F%90%E5%AE%A2nsign/&t=unidbg 实战某客nsign"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fa-solid fa-bars fa-lg" aria-hidden="true"></i> Menu</a>
+        
+          <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fa-solid fa-list fa-lg" aria-hidden="true"></i> TOC</a>
+        
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fa-solid fa-share-alt fa-lg" aria-hidden="true"></i> Share</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2016-2025
+    x1a0g
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     --><!--
+       --><li><a href="/categories/">Category</a></li><!--
+     -->
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script>
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script>
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"Copy to clipboard!\">";
+    btn += '<i class="fa-regular fa-clone"></i>';
+    btn += '</span>';
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "Copied!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Baidu Analytics -->
+
+<!-- Cloudflare Analytics -->
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+</body>
+</html>

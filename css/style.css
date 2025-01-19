@@ -572,7 +572,7 @@ body {
   }
 }
 .max-width {
-  max-width: 48rem;
+  max-width: 64rem;
 }
 @media (max-width: 480px) {
   .px3 {
@@ -829,14 +829,14 @@ body {
   margin: 0;
 }
 #header-post #toc {
-  float: right;
+  float: left;
   clear: both;
   overflow: auto;
   margin-top: 1rem;
   padding-right: 2rem;
-  max-width: 20em;
+  max-width: 30em;
   max-height: calc(95vh - 7rem);
-  text-align: right;
+  text-align: left;
 }
 #header-post #toc a:hover {
   color: #d480aa;
