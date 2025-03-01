@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="1.前言 在Linux操作系统中，一切皆文件。那么什么是IO多路复用？  ​	它通过一种巧妙的方式，允许单个线程同时监控多个I&#x2F;O流的状态，从而极大地提升了系统的并发处理能力。无论是经典的select和poll，还是更高效的epoll，使得构建高性能服务器成为可能。 2. I&#x2F;O模型基础2.1. 文件描述符​	文件描述符（File Descriptor，简称FD）是操作系统用来">
+<meta property="og:type" content="article">
+<meta property="og:title" content="io多路复用">
+<meta property="og:url" content="http://example.com/2023/07/04/io%E5%A4%9A%E8%B7%AF%E5%A4%8D%E7%94%A8/index.html">
+<meta property="og:site_name" content="x1a0g&#39;s blog">
+<meta property="og:description" content="1.前言 在Linux操作系统中，一切皆文件。那么什么是IO多路复用？  ​	它通过一种巧妙的方式，允许单个线程同时监控多个I&#x2F;O流的状态，从而极大地提升了系统的并发处理能力。无论是经典的select和poll，还是更高效的epoll，使得构建高性能服务器成为可能。 2. I&#x2F;O模型基础2.1. 文件描述符​	文件描述符（File Descriptor，简称FD）是操作系统用来">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="http://example.com/2023/07/04/io%E5%A4%9A%E8%B7%AF%E5%A4%8D%E7%94%A8/image-20250301120451564-1740801895943-4.png">
+<meta property="og:image" content="http://example.com/2023/07/04/io%E5%A4%9A%E8%B7%AF%E5%A4%8D%E7%94%A8/image-20250301122519403-1740803121089-1.png">
+<meta property="og:image" content="http://example.com/2023/07/04/io%E5%A4%9A%E8%B7%AF%E5%A4%8D%E7%94%A8/image-20250301125051600-1740804653688-3.png">
+<meta property="og:image" content="http://example.com/2023/07/04/io%E5%A4%9A%E8%B7%AF%E5%A4%8D%E7%94%A8/1655985283663-67fc41cb-7566-4282-a40a-38ce0a682e61-1740805815003-7.webp">
+<meta property="og:image" content="http://example.com/2023/07/04/io%E5%A4%9A%E8%B7%AF%E5%A4%8D%E7%94%A8/1655985299871-56d38e7e-b6e4-40d6-95dc-998c88aae71a-1740806478462-11.webp">
+<meta property="article:published_time" content="2023-07-04T01:56:32.000Z">
+<meta property="article:modified_time" content="2025-03-01T05:22:03.092Z">
+<meta property="article:author" content="x1a0g">
+<meta property="article:tag" content="Linux">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/2023/07/04/io%E5%A4%9A%E8%B7%AF%E5%A4%8D%E7%94%A8/image-20250301120451564-1740801895943-4.png">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/favicon.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+        
+      
+    
+    <!-- title -->
+    <title>io多路复用</title>
+    <!-- async scripts -->
+    <!-- Google Analytics -->
+
+
+    <!-- Umami Analytics -->
+
+
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="Top" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fa-solid fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     --><!--
+       --><li><a href="/categories/">Category</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" aria-label="Previous post" href="/2025/01/19/unidbg-%E5%AE%9E%E6%88%98%E6%9F%90%E5%AE%A2nsign/"><i class="fa-solid fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" aria-label="Next post" href="/2023/01/30/next-js-AllInOne/"><i class="fa-solid fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="Back to top" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="Share post" href="#"><i class="fa-solid fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+      <span id="i-share" class="info" style="display:none;">Share post</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2023/07/04/io%E5%A4%9A%E8%B7%AF%E5%A4%8D%E7%94%A8/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2023/07/04/io%E5%A4%9A%E8%B7%AF%E5%A4%8D%E7%94%A8/&text=io多路复用"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2023/07/04/io%E5%A4%9A%E8%B7%AF%E5%A4%8D%E7%94%A8/&title=io多路复用"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2023/07/04/io%E5%A4%9A%E8%B7%AF%E5%A4%8D%E7%94%A8/&is_video=false&description=io多路复用"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=io多路复用&body=Check out this article: http://example.com/2023/07/04/io%E5%A4%9A%E8%B7%AF%E5%A4%8D%E7%94%A8/"><i class="fa-solid fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2023/07/04/io%E5%A4%9A%E8%B7%AF%E5%A4%8D%E7%94%A8/&title=io多路复用"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2023/07/04/io%E5%A4%9A%E8%B7%AF%E5%A4%8D%E7%94%A8/&title=io多路复用"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2023/07/04/io%E5%A4%9A%E8%B7%AF%E5%A4%8D%E7%94%A8/&title=io多路复用"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2023/07/04/io%E5%A4%9A%E8%B7%AF%E5%A4%8D%E7%94%A8/&title=io多路复用"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2023/07/04/io%E5%A4%9A%E8%B7%AF%E5%A4%8D%E7%94%A8/&name=io多路复用&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2023/07/04/io%E5%A4%9A%E8%B7%AF%E5%A4%8D%E7%94%A8/&t=io多路复用"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    
+    
+      <div id="toc">
+        <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#1-%E5%89%8D%E8%A8%80"><span class="toc-number">1.</span> <span class="toc-text">1.前言</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#2-I-O%E6%A8%A1%E5%9E%8B%E5%9F%BA%E7%A1%80"><span class="toc-number">2.</span> <span class="toc-text">2. I&#x2F;O模型基础</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#2-1-%E6%96%87%E4%BB%B6%E6%8F%8F%E8%BF%B0%E7%AC%A6"><span class="toc-number">2.1.</span> <span class="toc-text">2.1. 文件描述符</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-2-%E5%B8%B8%E8%A7%81%E7%9A%84I-O%E6%A8%A1%E5%9E%8B"><span class="toc-number">2.2.</span> <span class="toc-text">2.2. 常见的I&#x2F;O模型</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#2-2-1-%E9%98%BB%E5%A1%9EI-O%EF%BC%88Blocking-I-O%EF%BC%89"><span class="toc-number">2.2.1.</span> <span class="toc-text">2.2.1. 阻塞I&#x2F;O（Blocking I&#x2F;O）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-2-2-%E9%9D%9E%E9%98%BB%E5%A1%9EI-O%EF%BC%88Non-blocking-I-O%EF%BC%89"><span class="toc-number">2.2.2.</span> <span class="toc-text">2.2.2.非阻塞I&#x2F;O（Non-blocking I&#x2F;O）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-2-3-%E4%BF%A1%E5%8F%B7%E9%A9%B1%E5%8A%A8io"><span class="toc-number">2.2.3.</span> <span class="toc-text">2.2.3. 信号驱动io</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-3-4-I-O%E5%A4%9A%E8%B7%AF%E5%A4%8D%E7%94%A8%EF%BC%88I-O-Multiplexing%EF%BC%89"><span class="toc-number">2.2.4.</span> <span class="toc-text">2.3.4. I&#x2F;O多路复用（I&#x2F;O Multiplexing）</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#a-select"><span class="toc-number">2.2.4.1.</span> <span class="toc-text">a. select</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#b-epoll"><span class="toc-number">2.2.4.2.</span> <span class="toc-text">b. epoll</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-3-5-%E5%BC%82%E6%AD%A5I-O%EF%BC%88Asynchronous-I-O%EF%BC%89"><span class="toc-number">2.2.5.</span> <span class="toc-text">2.3.5. 异步I&#x2F;O（Asynchronous I&#x2F;O）</span></a></li></ol></li></ol></li></ol>
+      </div>
+    
+  </span>
+</div>
+
+    
+    <div class="content index py4 ">
+        
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle p-name" itemprop="name headline">
+        io多路复用
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author p-author h-card" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span class="p-name" itemprop="name">x1a0g</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2023-07-04T01:56:32.000Z" class="dt-published" itemprop="datePublished">2023-07-04</time>
+        
+      
+    </div>
+
+
+      
+    <div class="article-category">
+        <i class="fa-solid fa-archive"></i>
+        <a class="category-link" href="/categories/%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/">基础知识</a>
+    </div>
+
+
+      
+    <div class="article-tag">
+        <i class="fa-solid fa-tag"></i>
+        <a class="p-category" href="/tags/Linux/" rel="tag">Linux</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content e-content" itemprop="articleBody">
+    <h1 id="1-前言"><a href="#1-前言" class="headerlink" title="1.前言"></a>1.前言</h1><blockquote>
+<p>在Linux操作系统中，一切皆文件。那么什么是IO多路复用？</p>
+</blockquote>
+<p>​	它通过一种巧妙的方式，允许单个线程同时监控多个I&#x2F;O流的状态，从而极大地提升了系统的并发处理能力。无论是经典的<code>select</code>和<code>poll</code>，还是更高效的<code>epoll</code>，使得构建高性能服务器成为可能。</p>
+<h1 id="2-I-O模型基础"><a href="#2-I-O模型基础" class="headerlink" title="2. I&#x2F;O模型基础"></a>2. I&#x2F;O模型基础</h1><h2 id="2-1-文件描述符"><a href="#2-1-文件描述符" class="headerlink" title="2.1. 文件描述符"></a>2.1. 文件描述符</h2><p>​	文件描述符（<strong>File Descriptor，简称FD</strong>）是操作系统用来标识和管理<strong>打开文件</strong>或<strong>io资源</strong>的一个抽象概念。他是操作系统内核为每一个进程维护的一个非负整数，用于跟踪当前进程所打开的文件、网络连接、管道等io资源。</p>
+<p>​	文件描述符是操作系统与应用程序的一个桥梁，比如我们使用系统调用(open、socket)，内核会创建一个对应的数据结构，然后返回一个文件描述符作为唯一标识。</p>
+<p>每个进程都会默认分配3个标准的文件描述符分别为:</p>
+<ul>
+<li><strong>0（stdin）</strong> ：标准输入，通常对应键盘输入。</li>
+<li><strong>1（stdout）</strong> ：标准输出，通常对应屏幕输出。</li>
+<li><strong>2（stderr）</strong> ：标准错误输出，用于输出错误信息。</li>
+</ul>
+<p><strong>文件描述符的路径在: <code>/proc/进程号/fd</code></strong></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">root@ubuntu-2204:/proc/18902/fd# ll</span><br><span class="line">total 0</span><br><span class="line">dr-x------ 2 root root  0 Feb 23 05:31 ./</span><br><span class="line">dr-xr-xr-x 9 root root  0 Feb 23 05:31 ../</span><br><span class="line">lrwx------ 1 root root 64 Feb 23 05:39 0 -&gt; /dev/null   <span class="comment">#标准输入</span></span><br><span class="line">lrwx------ 1 root root 64 Feb 23 05:39 1 -&gt; /dev/null   <span class="comment">#标准输出</span></span><br><span class="line">lrwx------ 1 root root 64 Feb 23 05:39 2 -&gt; /dev/null   <span class="comment">#标准错误输出</span></span><br><span class="line">lrwx------ 1 root root 64 Feb 23 05:39 3 -&gt; <span class="string">&#x27;socket:[76046]&#x27;</span>  </span><br><span class="line">lrwx------ 1 root root 64 Feb 23 05:39 4 -&gt; <span class="string">&#x27;socket:[73371]&#x27;</span>  <span class="comment"># 表示该文件描述符指向了一个网络套接字，其内核inode编号为76046</span></span><br><span class="line">lrwx------ 1 root root 64 Feb 23 05:39 6 -&gt; <span class="string">&#x27;socket:[68014]&#x27;</span></span><br><span class="line">lrwx------ 1 root root 64 Feb 23 05:39 7 -&gt; <span class="string">&#x27;socket:[73380]&#x27;</span></span><br><span class="line">l-wx------ 1 root root 64 Feb 23 05:39 8 -&gt; /run/systemd/sessions/6.ref|</span><br></pre></td></tr></table></figure>
+
+<p><strong>进一步查看<code>socket:[76046]</code></strong></p>
+<blockquote>
+<p>可以使用lsof -p <pid></p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">root@ubuntu-2204:/proc/18902/fd# lsof -p 18902 | grep 4u</span><br><span class="line">sshd    18902 root    4u  IPv4              73371      0t0     TCP ubuntu-2204:ssh-&gt;192.168.70.1:56282 (ESTABLISHED)</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>或者cat &#x2F;proc&#x2F;net&#x2F;tcp</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">root@ubuntu-2204:/proc/18902/fd# <span class="built_in">cat</span> /proc/net/tcp | grep 73371</span><br><span class="line">   5: 8146A8C0:0016 0146A8C0:DBDA 01 00000064:00000000 01:00000017 00000000     0        0 73371 4 ffff9b9d4acc08c0 23 4 31 10 52         </span><br></pre></td></tr></table></figure>
+
+<h2 id="2-2-常见的I-O模型"><a href="#2-2-常见的I-O模型" class="headerlink" title="2.2. 常见的I&#x2F;O模型"></a>2.2. 常见的I&#x2F;O模型</h2><h3 id="2-2-1-阻塞I-O（Blocking-I-O）"><a href="#2-2-1-阻塞I-O（Blocking-I-O）" class="headerlink" title="2.2.1. 阻塞I&#x2F;O（Blocking I&#x2F;O）"></a>2.2.1. 阻塞I&#x2F;O（Blocking I&#x2F;O）</h3><blockquote>
+<p>阻塞io的核心思想就是一来一去，当一个进程发起io操作的时候如果数据尚未准备好或者操作尚未完成，那么此时进程会被阻塞，直到操作完成。</p>
+</blockquote>
+<p><strong>工作流程</strong></p>
+<ul>
+<li>发起io请求 (调用read)，此时操作系统<strong>阻塞等待</strong></li>
+<li>等待数据读取</li>
+<li>唤醒进程执行操作</li>
+</ul>
+<style>.apolfvhyadjk{}</style><img src="/2023/07/04/io%E5%A4%9A%E8%B7%AF%E5%A4%8D%E7%94%A8/image-20250301120451564-1740801895943-4.png" class="apolfvhyadjk" alt="image-20250301120451564">
+
+<p><strong>伪代码实现</strong></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">socket = <span class="number">3</span> <span class="comment">//假设socket启动  文件描述符为3</span></span><br><span class="line">bind(<span class="number">3</span>,<span class="number">8090</span>) <span class="comment">//绑定3号描述符为8090端口</span></span><br><span class="line">listen(<span class="number">3</span>) <span class="comment">//监听文件描述符3</span></span><br><span class="line">accpt(<span class="number">3</span>   <span class="comment">//阻塞描述符3，等待链接</span></span><br></pre></td></tr></table></figure>
+
+<p>当有一个链接进来 此时 accpt 会创建一个新的文件描述符用于接受数据 新创建的文件描述符<strong>仍为阻塞,伪代码</strong></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">accpt(<span class="number">3</span>,...) = <span class="number">5</span></span><br><span class="line">recv(<span class="number">5</span>)<span class="comment">//读取5的数据</span></span><br></pre></td></tr></table></figure>
+
+<p>那么此时 就影响了后续连接  必须开线程</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">socket = <span class="number">3</span></span><br><span class="line">bind(<span class="number">3</span>,<span class="number">8090</span>)</span><br><span class="line">listen(<span class="number">3</span>)</span><br><span class="line"><span class="keyword">while</span>(<span class="number">1</span>)&#123;</span><br><span class="line">	accpt(<span class="number">3</span>,   = <span class="number">5</span>  <span class="comment">//文件描述符重定向到5，就是和客户端建立socket连接</span></span><br><span class="line">  new thread-&gt;&#123;</span><br><span class="line">			recv(<span class="number">5</span>)</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>那么此时在没进来一个连接后，服务端会 clone() 一个线程去5，新的线程继续阻塞等待</p>
+<blockquote>
+<p>缺点：</p>
+</blockquote>
+<ul>
+<li>资源消耗大</li>
+</ul>
+<h3 id="2-2-2-非阻塞I-O（Non-blocking-I-O）"><a href="#2-2-2-非阻塞I-O（Non-blocking-I-O）" class="headerlink" title="2.2.2.非阻塞I&#x2F;O（Non-blocking I&#x2F;O）"></a>2.2.2.非阻塞I&#x2F;O（Non-blocking I&#x2F;O）</h3><blockquote>
+<p>为了改善阻塞io的缺陷，出现了NIO. NIO时代文件描述符不再是阻塞的了 没有数据连接文件描述符直接返回 -1</p>
+</blockquote>
+<p><strong>工作流程</strong></p>
+<style>.jaxveyyrbkyy{}</style><img src="/2023/07/04/io%E5%A4%9A%E8%B7%AF%E5%A4%8D%E7%94%A8/image-20250301122519403-1740803121089-1.png" class="jaxveyyrbkyy" alt="image-20250301122519403">
+
+<ul>
+<li>发起read系统调用</li>
+<li>数据未准备好返回-1</li>
+<li>一直轮询所有的文件描述符</li>
+<li>知道返回数据</li>
+</ul>
+<p><strong>伪代码实现</strong></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">fds[]</span><br><span class="line">socket() = <span class="number">3</span></span><br><span class="line">bind(<span class="number">3</span>,<span class="number">8090</span>)</span><br><span class="line">listen(<span class="number">3</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">while</span>(<span class="number">1</span>)&#123;</span><br><span class="line">	<span class="type">int</span> fd = accpt(<span class="number">3</span>, <span class="comment">//拿到文件描述符  没有连接就是 -1</span></span><br><span class="line"></span><br><span class="line">	<span class="keyword">if</span>(fd!=<span class="number">-1</span>)&#123;</span><br><span class="line">		fds.add(fd)</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="comment">//将所有的文件描述符表遍历一遍</span></span><br><span class="line">	<span class="keyword">for</span>（<span class="type">int</span> i=<span class="number">0</span>;i&lt;fds.size();i++）&#123;</span><br><span class="line">		<span class="type">int</span> recv = recv(i);</span><br><span class="line">		<span class="keyword">if</span>(recv!=<span class="number">-1</span>)&#123;</span><br><span class="line">			dosomething();</span><br><span class="line">		&#125;</span><br><span class="line"></span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>缺点:</p>
+</blockquote>
+<p><strong>这是一种客户端主动询问服务端的方式  每一次询问都需要遍历所有的文件描述符</strong></p>
+<p><strong>内核态用户态切换过于频繁</strong></p>
+<h3 id="2-2-3-信号驱动io"><a href="#2-2-3-信号驱动io" class="headerlink" title="2.2.3. 信号驱动io"></a>2.2.3. 信号驱动io</h3><blockquote>
+<p>这个东西可以说是一种基于回调机制的io模型,他会在<strong>客户端发送read调用后如果数据没有准备好，那么此时不会阻塞客户端，而是在内核中注册了一个信号处理函数，当数据准备完成后，发送一个信号给进程，进程收到信号后开始读取数据。</strong></p>
+</blockquote>
+<p>工作流程</p>
+<style>.elpzwkzdoylh{}</style><img src="/2023/07/04/io%E5%A4%9A%E8%B7%AF%E5%A4%8D%E7%94%A8/image-20250301125051600-1740804653688-3.png" class="elpzwkzdoylh" alt="image-20250301125051600">
+
+<blockquote>
+<p>缺点:</p>
+</blockquote>
+<p>回调机制，实现、开发应用难度大；</p>
+<h3 id="2-3-4-I-O多路复用（I-O-Multiplexing）"><a href="#2-3-4-I-O多路复用（I-O-Multiplexing）" class="headerlink" title="2.3.4. I&#x2F;O多路复用（I&#x2F;O Multiplexing）"></a>2.3.4. I&#x2F;O多路复用（I&#x2F;O Multiplexing）</h3><h4 id="a-select"><a href="#a-select" class="headerlink" title="a. select"></a>a. select</h4><p>在nio的基础上把文件描述符的集合，通过select发送到内核态去做便利</p>
+<p>Linux提供了一个<strong>多路复用器select</strong></p>
+<style>.jknkxtsherqb{}</style><img src="/2023/07/04/io%E5%A4%9A%E8%B7%AF%E5%A4%8D%E7%94%A8/1655985283663-67fc41cb-7566-4282-a40a-38ce0a682e61-1740805815003-7.webp" class="jknkxtsherqb" alt="image.png">
+
+<p>此时用户端已经无法解决多次遍历的问题 那么 只能内核发生变化</p>
+<ul>
+<li><p>select(fds) 将这么多的文件描述符集合 传到内核去遍历</p>
+</li>
+<li><p>那么此时用户态到内核态的转变就只有一次了</p>
+</li>
+<li><p>内核遍历完后会返回 m 个需要读取的集合</p>
+</li>
+<li><p>用户态在调用 recv 系统调用 此时 用户态到内核态的转化就成了 m 次 也就是返回给我需要读取的文件描述符的数量</p>
+</li>
+</ul>
+<blockquote>
+<p>此时存在的问题</p>
+</blockquote>
+<p>1、存在 select每次传输数据过大</p>
+<p>2、内核还是存在多次的无用遍历</p>
+<p>3、能监听的端口是有限的 <code>cat /proc/sys/fs/file-max</code>、查看</p>
+<h4 id="b-epoll"><a href="#b-epoll" class="headerlink" title="b. epoll"></a>b. epoll</h4><p>可以在内核中开辟一块儿空间，当一个文件描述符来了就添加到这块儿空间，这样就避免了数据过大的问题</p>
+<style>.qkdxoscolicl{}</style><img src="/2023/07/04/io%E5%A4%9A%E8%B7%AF%E5%A4%8D%E7%94%A8/1655985299871-56d38e7e-b6e4-40d6-95dc-998c88aae71a-1740806478462-11.webp" class="qkdxoscolicl" alt="image.png">
+
+<ul>
+<li><p>socket建立连接 文件描述符为3</p>
+</li>
+<li><p>此时 epoll_create() 文件描述符为6指向内核这片区域</p>
+</li>
+<li><p>然后执行epoll_ctl(fd3,add,fd6,accept)  将fd3添加到fd6的这块区域 事件是 accept</p>
+</li>
+<li><p>假如此时 又来一个fd8是读写事件  那么就是 epoll_ctl  将fd8添加到fd6</p>
+</li>
+<li><p>然后通过网卡的硬件中断  将发生事件的fd放到另一块儿空间</p>
+</li>
+<li><p>程序就是从这个空间获取读写操作</p>
+</li>
+</ul>
+<h3 id="2-3-5-异步I-O（Asynchronous-I-O）"><a href="#2-3-5-异步I-O（Asynchronous-I-O）" class="headerlink" title="2.3.5. 异步I&#x2F;O（Asynchronous I&#x2F;O）"></a>2.3.5. 异步I&#x2F;O（Asynchronous I&#x2F;O）</h3><ul>
+<li>应用程序提交一个 I&#x2F;O 请求后，操作系统接管该请求并在后台执行。</li>
+<li>当 I&#x2F;O 操作完成后，操作系统通过某种机制（如回调函数或事件通知）告知应用程序。</li>
+<li>在此期间，应用程序可以继续执行其他任务，而无需等待或轮询。</li>
+</ul>
+
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+        
+          <li><a href="/">Home</a></li>
+        
+          <li><a href="/archives/">Writing</a></li>
+        
+          <li><a href="/categories/">Category</a></li>
+        
+      </ul>
+    </div>
+
+    
+    
+      <div id="toc-footer" style="display: none">
+        <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#1-%E5%89%8D%E8%A8%80"><span class="toc-number">1.</span> <span class="toc-text">1.前言</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#2-I-O%E6%A8%A1%E5%9E%8B%E5%9F%BA%E7%A1%80"><span class="toc-number">2.</span> <span class="toc-text">2. I&#x2F;O模型基础</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#2-1-%E6%96%87%E4%BB%B6%E6%8F%8F%E8%BF%B0%E7%AC%A6"><span class="toc-number">2.1.</span> <span class="toc-text">2.1. 文件描述符</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-2-%E5%B8%B8%E8%A7%81%E7%9A%84I-O%E6%A8%A1%E5%9E%8B"><span class="toc-number">2.2.</span> <span class="toc-text">2.2. 常见的I&#x2F;O模型</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#2-2-1-%E9%98%BB%E5%A1%9EI-O%EF%BC%88Blocking-I-O%EF%BC%89"><span class="toc-number">2.2.1.</span> <span class="toc-text">2.2.1. 阻塞I&#x2F;O（Blocking I&#x2F;O）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-2-2-%E9%9D%9E%E9%98%BB%E5%A1%9EI-O%EF%BC%88Non-blocking-I-O%EF%BC%89"><span class="toc-number">2.2.2.</span> <span class="toc-text">2.2.2.非阻塞I&#x2F;O（Non-blocking I&#x2F;O）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-2-3-%E4%BF%A1%E5%8F%B7%E9%A9%B1%E5%8A%A8io"><span class="toc-number">2.2.3.</span> <span class="toc-text">2.2.3. 信号驱动io</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-3-4-I-O%E5%A4%9A%E8%B7%AF%E5%A4%8D%E7%94%A8%EF%BC%88I-O-Multiplexing%EF%BC%89"><span class="toc-number">2.2.4.</span> <span class="toc-text">2.3.4. I&#x2F;O多路复用（I&#x2F;O Multiplexing）</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#a-select"><span class="toc-number">2.2.4.1.</span> <span class="toc-text">a. select</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#b-epoll"><span class="toc-number">2.2.4.2.</span> <span class="toc-text">b. epoll</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-3-5-%E5%BC%82%E6%AD%A5I-O%EF%BC%88Asynchronous-I-O%EF%BC%89"><span class="toc-number">2.2.5.</span> <span class="toc-text">2.3.5. 异步I&#x2F;O（Asynchronous I&#x2F;O）</span></a></li></ol></li></ol></li></ol>
+      </div>
+    
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2023/07/04/io%E5%A4%9A%E8%B7%AF%E5%A4%8D%E7%94%A8/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2023/07/04/io%E5%A4%9A%E8%B7%AF%E5%A4%8D%E7%94%A8/&text=io多路复用"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2023/07/04/io%E5%A4%9A%E8%B7%AF%E5%A4%8D%E7%94%A8/&title=io多路复用"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2023/07/04/io%E5%A4%9A%E8%B7%AF%E5%A4%8D%E7%94%A8/&is_video=false&description=io多路复用"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=io多路复用&body=Check out this article: http://example.com/2023/07/04/io%E5%A4%9A%E8%B7%AF%E5%A4%8D%E7%94%A8/"><i class="fa-solid fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2023/07/04/io%E5%A4%9A%E8%B7%AF%E5%A4%8D%E7%94%A8/&title=io多路复用"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2023/07/04/io%E5%A4%9A%E8%B7%AF%E5%A4%8D%E7%94%A8/&title=io多路复用"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2023/07/04/io%E5%A4%9A%E8%B7%AF%E5%A4%8D%E7%94%A8/&title=io多路复用"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2023/07/04/io%E5%A4%9A%E8%B7%AF%E5%A4%8D%E7%94%A8/&title=io多路复用"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2023/07/04/io%E5%A4%9A%E8%B7%AF%E5%A4%8D%E7%94%A8/&name=io多路复用&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2023/07/04/io%E5%A4%9A%E8%B7%AF%E5%A4%8D%E7%94%A8/&t=io多路复用"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fa-solid fa-bars fa-lg" aria-hidden="true"></i> Menu</a>
+        
+          <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fa-solid fa-list fa-lg" aria-hidden="true"></i> TOC</a>
+        
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fa-solid fa-share-alt fa-lg" aria-hidden="true"></i> Share</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2016-2025
+    x1a0g
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     --><!--
+       --><li><a href="/categories/">Category</a></li><!--
+     -->
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script>
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script>
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"Copy to clipboard!\">";
+    btn += '<i class="fa-regular fa-clone"></i>';
+    btn += '</span>';
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "Copied!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Baidu Analytics -->
+
+<!-- Cloudflare Analytics -->
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+</body>
+</html>
