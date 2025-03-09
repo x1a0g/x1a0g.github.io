@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="JDBC（MySQL驱动）多版本的加载1、背景 在工作中遇到了如下需求  ​	在项目中，需要根据用户选择的Mysql版本，去选择对应的驱动，主要为MySQL5(项目中使用的)和MySQL8.0，然后根据连接的数据库去load数据库中的Information_schema拉取当前数据库的表名及其字段名称，在编码过程中发现如果使用mysql8.0的驱动去连接5的数据库，会出现一些奇怪的问题，比如说My">
+<meta property="og:type" content="article">
+<meta property="og:title" content="JDBC（MySQL驱动）多版本的加载">
+<meta property="og:url" content="http://example.com/2025/03/03/JDBC%E5%A4%9A%E7%89%88%E6%9C%AC%E7%9A%84%E5%8A%A0%E8%BD%BD%E4%B8%8E%E5%8D%B8%E8%BD%BD/index.html">
+<meta property="og:site_name" content="x1a0g&#39;s blog">
+<meta property="og:description" content="JDBC（MySQL驱动）多版本的加载1、背景 在工作中遇到了如下需求  ​	在项目中，需要根据用户选择的Mysql版本，去选择对应的驱动，主要为MySQL5(项目中使用的)和MySQL8.0，然后根据连接的数据库去load数据库中的Information_schema拉取当前数据库的表名及其字段名称，在编码过程中发现如果使用mysql8.0的驱动去连接5的数据库，会出现一些奇怪的问题，比如说My">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="http://example.com/2025/03/03/JDBC%E5%A4%9A%E7%89%88%E6%9C%AC%E7%9A%84%E5%8A%A0%E8%BD%BD%E4%B8%8E%E5%8D%B8%E8%BD%BD/idea64_UzRFB0JXcb-1741509660454-2-1741509662551-4.png">
+<meta property="article:published_time" content="2025-03-03T13:07:19.000Z">
+<meta property="article:modified_time" content="2025-03-09T08:41:52.628Z">
+<meta property="article:author" content="x1a0g">
+<meta property="article:tag" content="类加载">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/2025/03/03/JDBC%E5%A4%9A%E7%89%88%E6%9C%AC%E7%9A%84%E5%8A%A0%E8%BD%BD%E4%B8%8E%E5%8D%B8%E8%BD%BD/idea64_UzRFB0JXcb-1741509660454-2-1741509662551-4.png">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/favicon.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+        
+      
+    
+    <!-- title -->
+    <title>JDBC（MySQL驱动）多版本的加载</title>
+    <!-- async scripts -->
+    <!-- Google Analytics -->
+
+
+    <!-- Umami Analytics -->
+
+
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="Top" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fa-solid fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     --><!--
+       --><li><a href="/categories/">Category</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        
+        <li><a class="icon" aria-label="Next post" href="/2025/01/19/unidbg-%E5%AE%9E%E6%88%98%E6%9F%90%E5%AE%A2nsign/"><i class="fa-solid fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="Back to top" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="Share post" href="#"><i class="fa-solid fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+      <span id="i-share" class="info" style="display:none;">Share post</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2025/03/03/JDBC%E5%A4%9A%E7%89%88%E6%9C%AC%E7%9A%84%E5%8A%A0%E8%BD%BD%E4%B8%8E%E5%8D%B8%E8%BD%BD/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2025/03/03/JDBC%E5%A4%9A%E7%89%88%E6%9C%AC%E7%9A%84%E5%8A%A0%E8%BD%BD%E4%B8%8E%E5%8D%B8%E8%BD%BD/&text=JDBC（MySQL驱动）多版本的加载"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2025/03/03/JDBC%E5%A4%9A%E7%89%88%E6%9C%AC%E7%9A%84%E5%8A%A0%E8%BD%BD%E4%B8%8E%E5%8D%B8%E8%BD%BD/&title=JDBC（MySQL驱动）多版本的加载"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2025/03/03/JDBC%E5%A4%9A%E7%89%88%E6%9C%AC%E7%9A%84%E5%8A%A0%E8%BD%BD%E4%B8%8E%E5%8D%B8%E8%BD%BD/&is_video=false&description=JDBC（MySQL驱动）多版本的加载"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=JDBC（MySQL驱动）多版本的加载&body=Check out this article: http://example.com/2025/03/03/JDBC%E5%A4%9A%E7%89%88%E6%9C%AC%E7%9A%84%E5%8A%A0%E8%BD%BD%E4%B8%8E%E5%8D%B8%E8%BD%BD/"><i class="fa-solid fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2025/03/03/JDBC%E5%A4%9A%E7%89%88%E6%9C%AC%E7%9A%84%E5%8A%A0%E8%BD%BD%E4%B8%8E%E5%8D%B8%E8%BD%BD/&title=JDBC（MySQL驱动）多版本的加载"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2025/03/03/JDBC%E5%A4%9A%E7%89%88%E6%9C%AC%E7%9A%84%E5%8A%A0%E8%BD%BD%E4%B8%8E%E5%8D%B8%E8%BD%BD/&title=JDBC（MySQL驱动）多版本的加载"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2025/03/03/JDBC%E5%A4%9A%E7%89%88%E6%9C%AC%E7%9A%84%E5%8A%A0%E8%BD%BD%E4%B8%8E%E5%8D%B8%E8%BD%BD/&title=JDBC（MySQL驱动）多版本的加载"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2025/03/03/JDBC%E5%A4%9A%E7%89%88%E6%9C%AC%E7%9A%84%E5%8A%A0%E8%BD%BD%E4%B8%8E%E5%8D%B8%E8%BD%BD/&title=JDBC（MySQL驱动）多版本的加载"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2025/03/03/JDBC%E5%A4%9A%E7%89%88%E6%9C%AC%E7%9A%84%E5%8A%A0%E8%BD%BD%E4%B8%8E%E5%8D%B8%E8%BD%BD/&name=JDBC（MySQL驱动）多版本的加载&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2025/03/03/JDBC%E5%A4%9A%E7%89%88%E6%9C%AC%E7%9A%84%E5%8A%A0%E8%BD%BD%E4%B8%8E%E5%8D%B8%E8%BD%BD/&t=JDBC（MySQL驱动）多版本的加载"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    
+    
+      <div id="toc">
+        <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#JDBC%EF%BC%88MySQL%E9%A9%B1%E5%8A%A8%EF%BC%89%E5%A4%9A%E7%89%88%E6%9C%AC%E7%9A%84%E5%8A%A0%E8%BD%BD"><span class="toc-number">1.</span> <span class="toc-text">JDBC（MySQL驱动）多版本的加载</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1%E3%80%81%E8%83%8C%E6%99%AF"><span class="toc-number">1.1.</span> <span class="toc-text">1、背景</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2%E3%80%81%E7%B1%BB%E5%8A%A0%E8%BD%BD"><span class="toc-number">1.2.</span> <span class="toc-text">2、类加载</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3%E3%80%81%E7%B1%BB%E5%8A%A0%E8%BD%BD%E9%9A%94%E7%A6%BB"><span class="toc-number">1.3.</span> <span class="toc-text">3、类加载隔离</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4%E3%80%81%E4%BD%BF%E7%94%A8"><span class="toc-number">1.4.</span> <span class="toc-text">4、使用</span></a></li></ol></li></ol>
+      </div>
+    
+  </span>
+</div>
+
+    
+    <div class="content index py4 ">
+        
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle p-name" itemprop="name headline">
+        JDBC（MySQL驱动）多版本的加载
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author p-author h-card" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span class="p-name" itemprop="name">x1a0g</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2025-03-03T13:07:19.000Z" class="dt-published" itemprop="datePublished">2025-03-03</time>
+        
+      
+    </div>
+
+
+      
+    <div class="article-category">
+        <i class="fa-solid fa-archive"></i>
+        <a class="category-link" href="/categories/%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/">基础知识</a>
+    </div>
+
+
+      
+    <div class="article-tag">
+        <i class="fa-solid fa-tag"></i>
+        <a class="p-category" href="/tags/%E7%B1%BB%E5%8A%A0%E8%BD%BD/" rel="tag">类加载</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content e-content" itemprop="articleBody">
+    <h1 id="JDBC（MySQL驱动）多版本的加载"><a href="#JDBC（MySQL驱动）多版本的加载" class="headerlink" title="JDBC（MySQL驱动）多版本的加载"></a>JDBC（MySQL驱动）多版本的加载</h1><h2 id="1、背景"><a href="#1、背景" class="headerlink" title="1、背景"></a>1、背景</h2><blockquote>
+<p>在工作中遇到了如下需求</p>
+</blockquote>
+<p>​	在项目中，需要根据用户选择的Mysql版本，去选择对应的驱动，主要为MySQL5(项目中使用的)和MySQL8.0，然后根据连接的数据库去load数据库中的Information_schema拉取当前数据库的表名及其字段名称，在编码过程中发现如果使用mysql8.0的驱动去连接5的数据库，会出现一些奇怪的问题，比如说MySQL8的<strong>连接加密方式</strong>与5是不一致的，且8默认启动了ssl和一些其他问题。故需要解决以下问题:</p>
+<ul>
+<li>驱动的加载与卸载</li>
+<li>MySQL8和MySQL5驱动的隔离加载</li>
+</ul>
+<h2 id="2、类加载"><a href="#2、类加载" class="headerlink" title="2、类加载"></a>2、类加载</h2><p>代码位于: <code>java.lang.ClassLoader</code></p>
+<p>在jvm中，类加载机制通常是根据双亲委派机制进行的，所以需要首先看一下类加载的核心代码</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">protected</span> Class&lt;?&gt; loadClass(String name, <span class="type">boolean</span> resolve)</span><br><span class="line">    <span class="keyword">throws</span> ClassNotFoundException</span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment">//加锁防止多线程并发加载同一个类</span></span><br><span class="line">    <span class="keyword">synchronized</span> (getClassLoadingLock(name)) &#123;</span><br><span class="line">        <span class="comment">// 首先检查类是否已经被加载</span></span><br><span class="line">        Class&lt;?&gt; c = findLoadedClass(name);</span><br><span class="line">        <span class="keyword">if</span> (c == <span class="literal">null</span>) &#123;</span><br><span class="line">            <span class="comment">// 记录开始时间用于统计</span></span><br><span class="line">            <span class="type">long</span> <span class="variable">t0</span> <span class="operator">=</span> System.nanoTime();</span><br><span class="line">            <span class="keyword">try</span> &#123;</span><br><span class="line">                <span class="comment">// 先委托给父类加载器加载</span></span><br><span class="line">                <span class="keyword">if</span> (parent != <span class="literal">null</span>) &#123;</span><br><span class="line">                    c = parent.loadClass(name, <span class="literal">false</span>);</span><br><span class="line">                &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                    c = findBootstrapClassOrNull(name);</span><br><span class="line">                &#125;</span><br><span class="line">            &#125; <span class="keyword">catch</span> (ClassNotFoundException e) &#123;</span><br><span class="line">                <span class="comment">// 父类加载器无法加载时会抛出异常</span></span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            <span class="comment">// 如果父类加载器无法加载，则尝试自己加载</span></span><br><span class="line">            <span class="keyword">if</span> (c == <span class="literal">null</span>) &#123;</span><br><span class="line">                c = findClass(name);</span><br><span class="line">                <span class="comment">//计算类加载的时间</span></span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span> (resolve) &#123;</span><br><span class="line">            resolveClass(c);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> c;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>类加载map结构如下:</p>
+</blockquote>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">final</span> ConcurrentHashMap&lt;String, Class&lt;?&gt;&gt; classes = <span class="keyword">new</span> <span class="title class_">ConcurrentHashMap</span>&lt;&gt;();</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>key为类的权限定名+类加载器</li>
+<li>value为类的class对象</li>
+</ul>
+<p>这个实现体现了双亲委派的三个核心原则：</p>
+<ol>
+<li><strong>缓存</strong>优先 ：首先检查类是否已经被加载（ findLoadedClass ）</li>
+<li>向上委派 ：如果类未加载，先委托给父类加载器（ parent.loadClass ）或启动类加载器（ findBootstrapClassOrNull ）</li>
+<li>自己加载 ：只有当父类加载器无法加载时，才会调用自己的 findClass 方法进行加载<br>这种机制的主要优点：</li>
+</ol>
+<ul>
+<li>确保类加载的层次性和唯一性</li>
+<li>保证 Java 核心类的安全性（防止核心类被篡改）</li>
+<li>避免类的重复加载</li>
+</ul>
+<blockquote>
+<p><strong>得出结论:</strong></p>
+</blockquote>
+<p>​	如果MySQL5的包首先加载，假如此时再去加载MySQL8的相关类，此时会出现有权限定名相同的情况，类已经被加载到内存中，不会再去加载MySQL8中的相关类，所以会出现问题。</p>
+<h2 id="3、类加载隔离"><a href="#3、类加载隔离" class="headerlink" title="3、类加载隔离"></a>3、类加载隔离</h2><p>通常jvm在加载外部类的时候会使用<code>URLclassLoader</code></p>
+<p>  <strong>此时我已经通过maven引入MySQL8，当我使用代码再度加载MySQL5时候如下:</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">  </span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Testxxxx</span> &#123;</span><br><span class="line">    <span class="comment">//此时我已经通过maven引入MySQL8</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> <span class="keyword">static</span> <span class="type">String</span> <span class="variable">driver</span> <span class="operator">=</span> <span class="string">&quot;com.mysql.jdbc.Driver&quot;</span>;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> <span class="keyword">static</span> <span class="type">String</span> <span class="variable">driverPath5</span> <span class="operator">=</span> <span class="string">&quot;\\lib\\mysql-connector-java-5.1.45.jar&quot;</span>;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> Exception &#123;</span><br><span class="line">        <span class="type">Driver</span> <span class="variable">driver8</span> <span class="operator">=</span> (Driver) Class.forName(driver).newInstance();</span><br><span class="line">        </span><br><span class="line">        <span class="type">URL</span> <span class="variable">url</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">File</span>(driverPath5).toURI().toURL();</span><br><span class="line">        URL[] urls = <span class="keyword">new</span> <span class="title class_">URL</span>[]&#123;url&#125;;</span><br><span class="line">        <span class="type">URLClassLoader</span> <span class="variable">ucl</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">URLClassLoader</span>(urls);</span><br><span class="line">        Class&lt;?&gt; aClass = ucl.loadClass(driver);</span><br><span class="line">        <span class="type">Driver</span> <span class="variable">driver5</span> <span class="operator">=</span> (Driver) ucl.loadClass(driver).newInstance();</span><br><span class="line"></span><br><span class="line">        System.out.println(<span class="string">&quot;mysql5类加载器是:&quot;</span>+driver5.getClass().getClassLoader());</span><br><span class="line">        System.out.println(<span class="string">&quot;mysql8类加载器是:&quot;</span>+driver8.getClass().getClassLoader());</span><br><span class="line">        System.out.println(driver8.getClass().equals(driver5.getClass())); <span class="comment">//验证是否为加载的同一个类</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">//===============res==================</span></span><br><span class="line">Loading class `com.mysql.jdbc.Driver<span class="string">&#x27;. This is deprecated. The new driver class is `com.mysql.cj.jdbc.Driver&#x27;</span>. The driver is automatically registered via the SPI and manual loading of the driver <span class="keyword">class</span> <span class="title class_">is</span> generally unnecessary.</span><br><span class="line">mysql5类加载器是:jdk.internal.loader.ClassLoaders$AppClassLoader@36baf30c</span><br><span class="line">mysql8类加载器是:jdk.internal.loader.ClassLoaders$AppClassLoader@36baf30c</span><br><span class="line"><span class="literal">true</span></span><br></pre></td></tr></table></figure>
+
+<p>由上述可得：</p>
+<ul>
+<li>由于双亲委派机制的存在，我们在加载同一个类（<strong>权限定名相同</strong>）只会加载一次</li>
+<li>URLClassLoader的方式并不会实现类加载的隔离</li>
+</ul>
+<blockquote>
+<p>实现思路</p>
+</blockquote>
+<p>​	在jvm中加载类的时候会有一个缓存的空间用于记录当前类是否类同一个类加载器加载，在上方的内容中也描述过  ，这个map的 <code>key</code> 为类的<strong>权限定名+类加载器</strong>计算出来的的，所以可以说<strong>加入一个类的权限定名相同，但是类加载器不同也是可以实现类的隔离的</strong>。但是因为URLClassLoader是基于双亲委派的，所以无法实现。</p>
+<p>​	也就是说，我们需要打破这个双亲委派机制需要<strong>自定义一个类加载器来重写<code>loadclass</code>方法</strong>，实现<strong>优先</strong>使用<strong>自己的类加载器</strong>去加载mysql5的相关类，从而实现<strong>类隔离</strong>。</p>
+<p>代码如下:</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">RhClassLoader</span> <span class="keyword">extends</span> <span class="title class_">ClassLoader</span>&#123;</span><br><span class="line">    <span class="keyword">private</span> String jarPath;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">RhClassLoader</span><span class="params">(String jarPath)</span> &#123;</span><br><span class="line">        <span class="built_in">this</span>.jarPath = jarPath;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> Class&lt;?&gt; loadClass(String name) <span class="keyword">throws</span> ClassNotFoundException &#123;</span><br><span class="line">        <span class="comment">// 首先检查类是否已经被加载</span></span><br><span class="line">        Class&lt;?&gt; loadedClass = findLoadedClass(name);</span><br><span class="line">        <span class="keyword">if</span> (loadedClass != <span class="literal">null</span>) &#123;</span><br><span class="line">            <span class="keyword">return</span> loadedClass;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">// 优先尝试自己加载</span></span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="type">byte</span>[] classData = getClassData(name);</span><br><span class="line">            <span class="keyword">if</span> (classData != <span class="literal">null</span>) &#123;</span><br><span class="line">                <span class="keyword">return</span> defineClass(name, classData, <span class="number">0</span>, classData.length);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">            <span class="comment">// 加载失败，记录日志</span></span><br><span class="line">            System.out.println(<span class="string">&quot;自定义加载失败，尝试父加载器: &quot;</span> + name);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> <span class="built_in">super</span>.loadClass(name);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="type">byte</span>[] getClassData(String className) &#123;</span><br><span class="line">        <span class="comment">//JarFile可以读取jar包下的class文件</span></span><br><span class="line">        <span class="keyword">try</span> (<span class="type">JarFile</span> <span class="variable">jarFile</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">JarFile</span>(jarPath)) &#123;</span><br><span class="line">            <span class="type">String</span> <span class="variable">entryName</span> <span class="operator">=</span> className.replace(<span class="string">&#x27;.&#x27;</span>, <span class="string">&#x27;/&#x27;</span>) + <span class="string">&quot;.class&quot;</span>;</span><br><span class="line">            <span class="type">JarEntry</span> <span class="variable">entry</span> <span class="operator">=</span> jarFile.getJarEntry(entryName);</span><br><span class="line"></span><br><span class="line">            <span class="keyword">if</span> (entry != <span class="literal">null</span>) &#123;</span><br><span class="line">                <span class="keyword">try</span> (<span class="type">InputStream</span> <span class="variable">is</span> <span class="operator">=</span> jarFile.getInputStream(entry);</span><br><span class="line">                     <span class="type">ByteArrayOutputStream</span> <span class="variable">baos</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ByteArrayOutputStream</span>()) &#123;</span><br><span class="line">                    <span class="type">byte</span>[] buffer = <span class="keyword">new</span> <span class="title class_">byte</span>[<span class="number">1024</span>];</span><br><span class="line">                    <span class="type">int</span> len;</span><br><span class="line">                    <span class="keyword">while</span> ((len = is.read(buffer)) != -<span class="number">1</span>) &#123;</span><br><span class="line">                        baos.write(buffer, <span class="number">0</span>, len);</span><br><span class="line">                    &#125;</span><br><span class="line">                    <span class="keyword">return</span> baos.toByteArray();</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125; <span class="keyword">catch</span> (IOException e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">null</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">null</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>使用方式</p>
+</blockquote>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">RhClassLoader</span> <span class="variable">rhClassLoader</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">RhClassLoader</span>(driverPath5);</span><br><span class="line"><span class="type">Driver</span> <span class="variable">driver5</span> <span class="operator">=</span> (Driver) rhClassLoader.loadClass(driver).newInstance();</span><br></pre></td></tr></table></figure>
+
+<p>这样也存在问题就是<strong>在每一次调用的时候都需要声明一个新的类加载器，从而每一次都会加载新的类元信息进入元空间，所以可以将其改造为单例方式</strong>(弄一个<strong>类加载器池</strong>也可以解决)</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.east.cld;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.io.*;</span><br><span class="line"><span class="keyword">import</span> java.net.MalformedURLException;</span><br><span class="line"><span class="keyword">import</span> java.net.URL;</span><br><span class="line"><span class="keyword">import</span> java.util.jar.JarEntry;</span><br><span class="line"><span class="keyword">import</span> java.util.jar.JarFile;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">RhClassLoader</span> <span class="keyword">extends</span> <span class="title class_">ClassLoader</span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> String jarPath;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">volatile</span> RhClassLoader instance;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="type">Object</span> <span class="variable">lock</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Object</span>();</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="title function_">RhClassLoader</span><span class="params">(String jarPath)</span> &#123;</span><br><span class="line">        RhClassLoader.jarPath = jarPath;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">init</span><span class="params">(String path)</span> &#123;</span><br><span class="line">        jarPath = path;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> RhClassLoader <span class="title function_">getInstance</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">if</span> (jarPath == <span class="literal">null</span>) &#123;</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">IllegalStateException</span>(<span class="string">&quot;请先调用init方法初始化路径&quot;</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span> (instance == <span class="literal">null</span>) &#123;</span><br><span class="line">            <span class="keyword">synchronized</span> (lock) &#123;</span><br><span class="line">                <span class="keyword">if</span> (instance == <span class="literal">null</span>) &#123;</span><br><span class="line">                    <span class="keyword">try</span> &#123;</span><br><span class="line">                        instance = <span class="keyword">new</span> <span class="title class_">RhClassLoader</span>(jarPath);</span><br><span class="line">                    &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">                        <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">RuntimeException</span>(e);</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> instance;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> InputStream <span class="title function_">getResourceAsStream</span><span class="params">(String name)</span> &#123;</span><br><span class="line">        <span class="keyword">try</span> (<span class="type">JarFile</span> <span class="variable">jarFile</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">JarFile</span>(jarPath)) &#123;</span><br><span class="line">            <span class="type">JarEntry</span> <span class="variable">entry</span> <span class="operator">=</span> jarFile.getJarEntry(name);</span><br><span class="line">            <span class="keyword">if</span> (entry != <span class="literal">null</span>) &#123;</span><br><span class="line">                <span class="keyword">return</span> jarFile.getInputStream(entry);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125; <span class="keyword">catch</span> (IOException e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> <span class="built_in">super</span>.getResourceAsStream(name);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">protected</span> URL <span class="title function_">findResource</span><span class="params">(String name)</span> &#123;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="type">File</span> <span class="variable">file</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">File</span>(jarPath);</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">URL</span>(<span class="string">&quot;jar:file:&quot;</span> + file.getAbsolutePath() + <span class="string">&quot;!/&quot;</span> + name);</span><br><span class="line">        &#125; <span class="keyword">catch</span> (MalformedURLException e) &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">null</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> Class&lt;?&gt; loadClass(String name) <span class="keyword">throws</span> ClassNotFoundException &#123;</span><br><span class="line">        <span class="comment">// 首先检查类是否已经被加载</span></span><br><span class="line">        Class&lt;?&gt; loadedClass = findLoadedClass(name);</span><br><span class="line">        <span class="keyword">if</span> (loadedClass != <span class="literal">null</span>) &#123;</span><br><span class="line">            <span class="keyword">return</span> loadedClass;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">// 优先尝试自己加载</span></span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="type">byte</span>[] classData = getClassData(name);</span><br><span class="line">            <span class="keyword">if</span> (classData != <span class="literal">null</span>) &#123;</span><br><span class="line">                <span class="keyword">return</span> defineClass(name, classData, <span class="number">0</span>, classData.length);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">            <span class="comment">// 加载失败，记录日志</span></span><br><span class="line">            e.printStackTrace();</span><br><span class="line">            System.out.println(<span class="string">&quot;自定义加载失败，尝试父加载器: &quot;</span> + name);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> <span class="built_in">super</span>.loadClass(name);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="type">byte</span>[] getClassData(String className) &#123;</span><br><span class="line">        <span class="comment">//JarFile可以读取jar包下的class文件</span></span><br><span class="line">        <span class="keyword">try</span> (<span class="type">JarFile</span> <span class="variable">jarFile</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">JarFile</span>(jarPath)) &#123;</span><br><span class="line">            <span class="type">String</span> <span class="variable">entryName</span> <span class="operator">=</span> className.replace(<span class="string">&#x27;.&#x27;</span>, <span class="string">&#x27;/&#x27;</span>) + <span class="string">&quot;.class&quot;</span>;</span><br><span class="line">            <span class="type">JarEntry</span> <span class="variable">entry</span> <span class="operator">=</span> jarFile.getJarEntry(entryName);</span><br><span class="line"></span><br><span class="line">            <span class="keyword">if</span> (entry != <span class="literal">null</span>) &#123;</span><br><span class="line">                <span class="keyword">try</span> (<span class="type">InputStream</span> <span class="variable">is</span> <span class="operator">=</span> jarFile.getInputStream(entry);</span><br><span class="line">                     <span class="type">ByteArrayOutputStream</span> <span class="variable">baos</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ByteArrayOutputStream</span>()) &#123;</span><br><span class="line">                    <span class="type">byte</span>[] buffer = <span class="keyword">new</span> <span class="title class_">byte</span>[<span class="number">1024</span>];</span><br><span class="line">                    <span class="type">int</span> len;</span><br><span class="line">                    <span class="keyword">while</span> ((len = is.read(buffer)) != -<span class="number">1</span>) &#123;</span><br><span class="line">                        baos.write(buffer, <span class="number">0</span>, len);</span><br><span class="line">                    &#125;</span><br><span class="line">                    <span class="keyword">return</span> baos.toByteArray();</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125; <span class="keyword">catch</span> (IOException e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">null</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">null</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>内存分析 ：</p>
+<ul>
+<li>非单例：每个类加载器都会在元空间中创建类的副本</li>
+<li>单例：相同的类只会被加载一次，共享同一份元数据</li>
+</ul>
+<p>但要注意 ：</p>
+<ul>
+<li>单例类加载器本身不会被GC回收</li>
+<li>需要合理管理加载的类资源</li>
+</ul>
+<h2 id="4、使用"><a href="#4、使用" class="headerlink" title="4、使用"></a>4、使用</h2><p>DriverManger使用时候存在问题</p>
+<p>有两种情况</p>
+<ol>
+<li>本身的系统已经加载了一个mysql驱动</li>
+<li>本身的系统可能使用的postgresql没有加载MySQL驱动</li>
+</ol>
+<p>DriverManger注册的驱动会在一个<code>private static final CopyOnWriteArrayList&lt;DriverInfo&gt; registeredDrivers = new CopyOnWriteArrayList&lt;&gt;();</code> 中，但是我们在<code>DriverManager.getConnection(JDBC_URL, USERNAME, PASSWORD);</code> 无法指定我们自己加载驱动，所以不适用与当前的情况，解决方式如下:</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Testxxxx</span> &#123;</span><br><span class="line">    <span class="comment">//此时我已经通过maven引入MySQL8</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> <span class="keyword">static</span> <span class="type">String</span> <span class="variable">driver</span> <span class="operator">=</span> <span class="string">&quot;com.mysql.jdbc.Driver&quot;</span>;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> <span class="keyword">static</span> <span class="type">String</span> <span class="variable">driverPath5</span> <span class="operator">=</span> <span class="string">&quot;\\lib\\mysql-connector-java-8.0.25.jar&quot;</span>;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="type">String</span> <span class="variable">JDBC_URL</span> <span class="operator">=</span> <span class="string">&quot;jdbc:mysql://192.168.70.129:3306&quot;</span>;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="type">String</span> <span class="variable">USERNAME</span> <span class="operator">=</span> <span class="string">&quot;root&quot;</span>;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="type">String</span> <span class="variable">PASSWORD</span> <span class="operator">=</span> <span class="string">&quot;123456&quot;</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> Exception &#123;</span><br><span class="line">        <span class="type">Connection</span> <span class="variable">connection</span> <span class="operator">=</span> DriverManager.getConnection(JDBC_URL+<span class="string">&quot;?useSSL=false&quot;</span>, USERNAME, PASSWORD);</span><br><span class="line">        System.out.println(<span class="string">&quot;driver5:&quot;</span>+connection.getMetaData().getDriverVersion());</span><br><span class="line"></span><br><span class="line">        RhClassLoader.init(driverPath5);</span><br><span class="line">        <span class="type">RhClassLoader</span> <span class="variable">rhClassLoader</span> <span class="operator">=</span> RhClassLoader.getInstance();</span><br><span class="line">        <span class="type">Driver</span> <span class="variable">driver5</span> <span class="operator">=</span> (Driver) rhClassLoader.loadClass(driver).newInstance();</span><br><span class="line">        <span class="type">Properties</span> <span class="variable">properties</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Properties</span>();</span><br><span class="line">        properties.put(<span class="string">&quot;user&quot;</span>, <span class="string">&quot;root&quot;</span>);</span><br><span class="line">        properties.put(<span class="string">&quot;password&quot;</span>, <span class="string">&quot;123456&quot;</span>);</span><br><span class="line">        <span class="comment">// 添加 useSSL=false 参数</span></span><br><span class="line">        properties.put(<span class="string">&quot;useSSL&quot;</span>, <span class="string">&quot;false&quot;</span>);</span><br><span class="line">        <span class="type">Connection</span> <span class="variable">connect</span> <span class="operator">=</span> driver5.connect(JDBC_URL, properties);</span><br><span class="line"></span><br><span class="line">        System.out.println(<span class="string">&quot;driver8:&quot;</span>+connect.getMetaData().getDriverVersion());</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>结果如下:</p>
+<style>.usboclozqizu{}</style><img src="/2025/03/03/JDBC%E5%A4%9A%E7%89%88%E6%9C%AC%E7%9A%84%E5%8A%A0%E8%BD%BD%E4%B8%8E%E5%8D%B8%E8%BD%BD/idea64_UzRFB0JXcb-1741509660454-2-1741509662551-4.png" class="usboclozqizu" alt="idea64_UzRFB0JXcb">
+
+
+
+<blockquote>
+<p>参考: <a target="_blank" rel="noopener" href="https://www.zybuluo.com/Catyee/note/1794751">https://www.zybuluo.com/Catyee/note/1794751</a></p>
+</blockquote>
+
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+        
+          <li><a href="/">Home</a></li>
+        
+          <li><a href="/archives/">Writing</a></li>
+        
+          <li><a href="/categories/">Category</a></li>
+        
+      </ul>
+    </div>
+
+    
+    
+      <div id="toc-footer" style="display: none">
+        <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#JDBC%EF%BC%88MySQL%E9%A9%B1%E5%8A%A8%EF%BC%89%E5%A4%9A%E7%89%88%E6%9C%AC%E7%9A%84%E5%8A%A0%E8%BD%BD"><span class="toc-number">1.</span> <span class="toc-text">JDBC（MySQL驱动）多版本的加载</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1%E3%80%81%E8%83%8C%E6%99%AF"><span class="toc-number">1.1.</span> <span class="toc-text">1、背景</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2%E3%80%81%E7%B1%BB%E5%8A%A0%E8%BD%BD"><span class="toc-number">1.2.</span> <span class="toc-text">2、类加载</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3%E3%80%81%E7%B1%BB%E5%8A%A0%E8%BD%BD%E9%9A%94%E7%A6%BB"><span class="toc-number">1.3.</span> <span class="toc-text">3、类加载隔离</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4%E3%80%81%E4%BD%BF%E7%94%A8"><span class="toc-number">1.4.</span> <span class="toc-text">4、使用</span></a></li></ol></li></ol>
+      </div>
+    
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2025/03/03/JDBC%E5%A4%9A%E7%89%88%E6%9C%AC%E7%9A%84%E5%8A%A0%E8%BD%BD%E4%B8%8E%E5%8D%B8%E8%BD%BD/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2025/03/03/JDBC%E5%A4%9A%E7%89%88%E6%9C%AC%E7%9A%84%E5%8A%A0%E8%BD%BD%E4%B8%8E%E5%8D%B8%E8%BD%BD/&text=JDBC（MySQL驱动）多版本的加载"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2025/03/03/JDBC%E5%A4%9A%E7%89%88%E6%9C%AC%E7%9A%84%E5%8A%A0%E8%BD%BD%E4%B8%8E%E5%8D%B8%E8%BD%BD/&title=JDBC（MySQL驱动）多版本的加载"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2025/03/03/JDBC%E5%A4%9A%E7%89%88%E6%9C%AC%E7%9A%84%E5%8A%A0%E8%BD%BD%E4%B8%8E%E5%8D%B8%E8%BD%BD/&is_video=false&description=JDBC（MySQL驱动）多版本的加载"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=JDBC（MySQL驱动）多版本的加载&body=Check out this article: http://example.com/2025/03/03/JDBC%E5%A4%9A%E7%89%88%E6%9C%AC%E7%9A%84%E5%8A%A0%E8%BD%BD%E4%B8%8E%E5%8D%B8%E8%BD%BD/"><i class="fa-solid fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2025/03/03/JDBC%E5%A4%9A%E7%89%88%E6%9C%AC%E7%9A%84%E5%8A%A0%E8%BD%BD%E4%B8%8E%E5%8D%B8%E8%BD%BD/&title=JDBC（MySQL驱动）多版本的加载"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2025/03/03/JDBC%E5%A4%9A%E7%89%88%E6%9C%AC%E7%9A%84%E5%8A%A0%E8%BD%BD%E4%B8%8E%E5%8D%B8%E8%BD%BD/&title=JDBC（MySQL驱动）多版本的加载"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2025/03/03/JDBC%E5%A4%9A%E7%89%88%E6%9C%AC%E7%9A%84%E5%8A%A0%E8%BD%BD%E4%B8%8E%E5%8D%B8%E8%BD%BD/&title=JDBC（MySQL驱动）多版本的加载"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2025/03/03/JDBC%E5%A4%9A%E7%89%88%E6%9C%AC%E7%9A%84%E5%8A%A0%E8%BD%BD%E4%B8%8E%E5%8D%B8%E8%BD%BD/&title=JDBC（MySQL驱动）多版本的加载"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2025/03/03/JDBC%E5%A4%9A%E7%89%88%E6%9C%AC%E7%9A%84%E5%8A%A0%E8%BD%BD%E4%B8%8E%E5%8D%B8%E8%BD%BD/&name=JDBC（MySQL驱动）多版本的加载&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2025/03/03/JDBC%E5%A4%9A%E7%89%88%E6%9C%AC%E7%9A%84%E5%8A%A0%E8%BD%BD%E4%B8%8E%E5%8D%B8%E8%BD%BD/&t=JDBC（MySQL驱动）多版本的加载"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fa-solid fa-bars fa-lg" aria-hidden="true"></i> Menu</a>
+        
+          <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fa-solid fa-list fa-lg" aria-hidden="true"></i> TOC</a>
+        
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fa-solid fa-share-alt fa-lg" aria-hidden="true"></i> Share</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2016-2025
+    x1a0g
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     --><!--
+       --><li><a href="/categories/">Category</a></li><!--
+     -->
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script>
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script>
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"Copy to clipboard!\">";
+    btn += '<i class="fa-regular fa-clone"></i>';
+    btn += '</span>';
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "Copied!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Baidu Analytics -->
+
+<!-- Cloudflare Analytics -->
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+</body>
+</html>
