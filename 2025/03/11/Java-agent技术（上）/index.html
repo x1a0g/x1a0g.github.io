@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="Java agent技术0x1、基础知识a. 什么是java agent？ Java本身提供了跨平台的能力，其关键实现就是将java代码编译成字节码的方式，之后对于不同的操作系统，实现不同的虚拟机，从而实现所说的一次编译到处运行。而java agent就是jvm提供的一种在运行时修改字节码的技术。  这种技术的应用相对来说也是比较广泛，比如热加载、流量录制、记录请求链路等等 b. 如何使用? 在j">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Java agent技术（上）">
+<meta property="og:url" content="http://example.com/2025/03/11/Java-agent%E6%8A%80%E6%9C%AF%EF%BC%88%E4%B8%8A%EF%BC%89/index.html">
+<meta property="og:site_name" content="x1a0g&#39;s blog">
+<meta property="og:description" content="Java agent技术0x1、基础知识a. 什么是java agent？ Java本身提供了跨平台的能力，其关键实现就是将java代码编译成字节码的方式，之后对于不同的操作系统，实现不同的虚拟机，从而实现所说的一次编译到处运行。而java agent就是jvm提供的一种在运行时修改字节码的技术。  这种技术的应用相对来说也是比较广泛，比如热加载、流量录制、记录请求链路等等 b. 如何使用? 在j">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="http://example.com/2025/03/11/Java-agent%E6%8A%80%E6%9C%AF%EF%BC%88%E4%B8%8A%EF%BC%89/idea64_vzF7s8wTwd.png">
+<meta property="article:published_time" content="2025-03-11T13:19:15.000Z">
+<meta property="article:modified_time" content="2025-03-12T14:07:35.923Z">
+<meta property="article:author" content="x1a0g">
+<meta property="article:tag" content="java agent">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/2025/03/11/Java-agent%E6%8A%80%E6%9C%AF%EF%BC%88%E4%B8%8A%EF%BC%89/idea64_vzF7s8wTwd.png">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/favicon.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+        
+      
+    
+    <!-- title -->
+    <title>Java agent技术（上）</title>
+    <!-- async scripts -->
+    <!-- Google Analytics -->
+
+
+    <!-- Umami Analytics -->
+
+
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="Top" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fa-solid fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     --><!--
+       --><li><a href="/categories/">Category</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        
+        <li><a class="icon" aria-label="Next post" href="/2025/03/03/JDBC%E5%A4%9A%E7%89%88%E6%9C%AC%E7%9A%84%E5%8A%A0%E8%BD%BD%E4%B8%8E%E5%8D%B8%E8%BD%BD/"><i class="fa-solid fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="Back to top" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="Share post" href="#"><i class="fa-solid fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+      <span id="i-share" class="info" style="display:none;">Share post</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2025/03/11/Java-agent%E6%8A%80%E6%9C%AF%EF%BC%88%E4%B8%8A%EF%BC%89/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2025/03/11/Java-agent%E6%8A%80%E6%9C%AF%EF%BC%88%E4%B8%8A%EF%BC%89/&text=Java agent技术（上）"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2025/03/11/Java-agent%E6%8A%80%E6%9C%AF%EF%BC%88%E4%B8%8A%EF%BC%89/&title=Java agent技术（上）"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2025/03/11/Java-agent%E6%8A%80%E6%9C%AF%EF%BC%88%E4%B8%8A%EF%BC%89/&is_video=false&description=Java agent技术（上）"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Java agent技术（上）&body=Check out this article: http://example.com/2025/03/11/Java-agent%E6%8A%80%E6%9C%AF%EF%BC%88%E4%B8%8A%EF%BC%89/"><i class="fa-solid fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2025/03/11/Java-agent%E6%8A%80%E6%9C%AF%EF%BC%88%E4%B8%8A%EF%BC%89/&title=Java agent技术（上）"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2025/03/11/Java-agent%E6%8A%80%E6%9C%AF%EF%BC%88%E4%B8%8A%EF%BC%89/&title=Java agent技术（上）"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2025/03/11/Java-agent%E6%8A%80%E6%9C%AF%EF%BC%88%E4%B8%8A%EF%BC%89/&title=Java agent技术（上）"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2025/03/11/Java-agent%E6%8A%80%E6%9C%AF%EF%BC%88%E4%B8%8A%EF%BC%89/&title=Java agent技术（上）"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2025/03/11/Java-agent%E6%8A%80%E6%9C%AF%EF%BC%88%E4%B8%8A%EF%BC%89/&name=Java agent技术（上）&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2025/03/11/Java-agent%E6%8A%80%E6%9C%AF%EF%BC%88%E4%B8%8A%EF%BC%89/&t=Java agent技术（上）"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    
+    
+      <div id="toc">
+        <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#Java-agent%E6%8A%80%E6%9C%AF"><span class="toc-number">1.</span> <span class="toc-text">Java agent技术</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#0x1%E3%80%81%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86"><span class="toc-number">1.1.</span> <span class="toc-text">0x1、基础知识</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#a-%E4%BB%80%E4%B9%88%E6%98%AFjava-agent%EF%BC%9F"><span class="toc-number">1.1.1.</span> <span class="toc-text">a. 什么是java agent？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#b-%E5%A6%82%E4%BD%95%E4%BD%BF%E7%94%A8"><span class="toc-number">1.1.2.</span> <span class="toc-text">b. 如何使用?</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#c-Instrumentation-%E7%B1%BB"><span class="toc-number">1.1.3.</span> <span class="toc-text">c. Instrumentation 类</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#d-premain-%E5%92%8C-agentmain"><span class="toc-number">1.1.4.</span> <span class="toc-text">d. premain() 和  agentmain()</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#e-MANIFEST-MF"><span class="toc-number">1.1.5.</span> <span class="toc-text">e. MANIFEST.MF</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#0x2%E3%80%81Hello-World"><span class="toc-number">1.2.</span> <span class="toc-text">0x2、Hello World</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#a-java-agent%E7%BC%96%E5%86%99%E6%B5%81%E7%A8%8B"><span class="toc-number">1.2.1.</span> <span class="toc-text">a. java agent编写流程</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#b-%E7%BC%96%E7%A0%81"><span class="toc-number">1.2.2.</span> <span class="toc-text">b. 编码</span></a></li></ol></li></ol></li></ol>
+      </div>
+    
+  </span>
+</div>
+
+    
+    <div class="content index py4 ">
+        
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle p-name" itemprop="name headline">
+        Java agent技术（上）
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author p-author h-card" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span class="p-name" itemprop="name">x1a0g</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2025-03-11T13:19:15.000Z" class="dt-published" itemprop="datePublished">2025-03-11</time>
+        
+      
+    </div>
+
+
+      
+    <div class="article-category">
+        <i class="fa-solid fa-archive"></i>
+        <a class="category-link" href="/categories/%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/">基础知识</a>
+    </div>
+
+
+      
+    <div class="article-tag">
+        <i class="fa-solid fa-tag"></i>
+        <a class="p-category" href="/tags/java-agent/" rel="tag">java agent</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content e-content" itemprop="articleBody">
+    <h1 id="Java-agent技术"><a href="#Java-agent技术" class="headerlink" title="Java agent技术"></a>Java agent技术</h1><h2 id="0x1、基础知识"><a href="#0x1、基础知识" class="headerlink" title="0x1、基础知识"></a>0x1、基础知识</h2><h3 id="a-什么是java-agent？"><a href="#a-什么是java-agent？" class="headerlink" title="a. 什么是java agent？"></a><strong>a. 什么是java agent？</strong></h3><blockquote>
+<p>Java本身提供了跨平台的能力，其关键实现就是将java代码编译成字节码的方式，之后对于不同的操作系统，实现不同的虚拟机，从而实现所说的一次编译到处运行。而java agent就是jvm提供的一种在运行时修改字节码的技术。</p>
+</blockquote>
+<p>这种技术的应用相对来说也是比较广泛，比如热加载、流量录制、记录请求链路等等</p>
+<h3 id="b-如何使用"><a href="#b-如何使用" class="headerlink" title="b. 如何使用?"></a><strong>b. 如何使用?</strong></h3><ol>
+<li>在jvm启动的时候直接指定agent，这种方式我们通常用的多一点</li>
+</ol>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">java -javaagent:aaaa/agent.jar -jar dsp.jar</span><br></pre></td></tr></table></figure>
+
+<ol start="2">
+<li>在java代码中通过编码的方式动态挂载</li>
+</ol>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">VirtualMachine</span> <span class="variable">jvm</span> <span class="operator">=</span> VirtualMachine.attach(<span class="string">&quot;挂载到哪个jvm的进程的id&quot;</span>);</span><br><span class="line">jvm.loadAgent(<span class="string">&quot;/home/agent.jar&quot;</span>); <span class="comment">// agent jar包的路径</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="c-Instrumentation-类"><a href="#c-Instrumentation-类" class="headerlink" title="c. Instrumentation 类"></a><strong>c. Instrumentation 类</strong></h3><p><code>Instrumentation </code> 位于<code>java.lang.instrument</code>下是java5引入的一个接口，主要用于字节码操作，包含以下几个关键功能</p>
+<ul>
+<li>可以在类加载时修改字节码</li>
+<li>可以在运行时生成新的类</li>
+<li>可以获取jvm的信息</li>
+</ul>
+<p><code>Instrumentation</code>常用接口如下:</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">void</span> <span class="title function_">addTransformer</span><span class="params">(ClassFileTransformer transformer, <span class="type">boolean</span> canRetransform)</span>;<span class="comment">//增加一个Class 文件的转换器，转换器用于改变 Class 二进制流的数据，参数 canRetransform 设置是否允许重新转换。</span></span><br><span class="line"><span class="keyword">void</span> <span class="title function_">redefineClasses</span><span class="params">(ClassDefinition... definitions)</span> hrows ClassNotFoundException, UnmodifiableClassException;<span class="comment">//在类加载之前，重新定义 Class 文件，ClassDefinition 表示对一个类新的定义，如果在类加载之后，需要使用 retransformClasses 方法重新定义。</span></span><br><span class="line"><span class="type">boolean</span> <span class="title function_">removeTransformer</span><span class="params">(ClassFileTransformer transformer)</span>;<span class="comment">//删除一个类转换器</span></span><br><span class="line"><span class="keyword">void</span> <span class="title function_">retransformClasses</span><span class="params">(Class&lt;?&gt;... classes)</span> <span class="keyword">throws</span> UnmodifiableClassException<span class="comment">//在类加载之后，重新定义 Class。这个很重要，该方法是1.6 之后加入的，事实上，该方法是 update 了一个类。</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="d-premain-和-agentmain"><a href="#d-premain-和-agentmain" class="headerlink" title="d. premain() 和  agentmain()"></a><strong>d. premain() 和  agentmain()</strong></h3><p>java agent要求指定的类必须包含<code>premain</code> 或者 <code>agentmain</code> 作为程序的入口，区别如下</p>
+<ul>
+<li><code>premain</code>  在jvm<strong>启动时</strong>执行，在<strong>类加载器加载类之前</strong>进行增强，属于静态加载</li>
+<li><code>agentmain</code> 在jvm<strong>运行时</strong>通过attach的方式加载agent,<strong>hotspot独有</strong>，属于<strong>动态加载</strong></li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">premain</span><span class="params">(String agentArgs, Instrumentation inst)</span></span><br><span class="line">    </span><br><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">premain</span><span class="params">(String agentArgs)</span></span><br></pre></td></tr></table></figure>
+
+<p><code>premain</code>的签名方式有上述两种，优先走第一种参数中包含<code>Instrumentation</code> 的，第一种没有才会走第二种，第一种成功忽略第二种</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">agentmain</span><span class="params">(String agentArgs, Instrumentation inst)</span>&#123;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><code>agentmain</code> 则提供了一种签名方式</p>
+<h3 id="e-MANIFEST-MF"><a href="#e-MANIFEST-MF" class="headerlink" title="e. MANIFEST.MF"></a>e. MANIFEST.MF</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">Manifest-Version: <span class="number">1.0</span></span><br><span class="line">Can-Redefine-Classes: <span class="literal">true</span>  <span class="comment">//是否能重新定义类 通常为true</span></span><br><span class="line">Can-Retransform-Classes: <span class="literal">true</span> <span class="comment">//是否能重新转换类 通常为true</span></span><br><span class="line">Premain-Class: cn.xxx.XaAgent  <span class="comment">//必须包含指定包含premain方法的全限定名（最后一行需要空行）</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h2 id="0x2、Hello-World"><a href="#0x2、Hello-World" class="headerlink" title="0x2、Hello World"></a>0x2、Hello World</h2><h3 id="a-java-agent编写流程"><a href="#a-java-agent编写流程" class="headerlink" title="a. java agent编写流程"></a>a. java agent编写流程</h3><ul>
+<li>定义一个 MANIFEST.MF文件</li>
+<li>定义一个类其中包含<code>premain</code>方法，然后在<code>MANIFEST.MF</code> 定义相关路径</li>
+<li>打包</li>
+<li><code>java -javaagent</code> 使用即可</li>
+</ul>
+<h3 id="b-编码"><a href="#b-编码" class="headerlink" title="b. 编码"></a>b. 编码</h3><blockquote>
+<p>核心代码</p>
+</blockquote>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">TestAgent</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">premain</span><span class="params">(String agentArgs, Instrumentation inst)</span>&#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;=====================premain======参数============&gt;&quot;</span>+agentArgs);</span><br><span class="line">        inst.addTransformer(<span class="keyword">new</span> <span class="title class_">ClassFileTransformer</span>() &#123;</span><br><span class="line">            <span class="meta">@Override</span></span><br><span class="line">            <span class="keyword">public</span> <span class="type">byte</span>[] transform(ClassLoader loader, String className,</span><br><span class="line">                                    Class&lt;?&gt; classBeingRedefined, ProtectionDomain protectionDomain,</span><br><span class="line">                                    <span class="type">byte</span>[] classfileBuffer) <span class="keyword">throws</span> IllegalClassFormatException &#123;</span><br><span class="line">                System.out.println(<span class="string">&quot;load class &quot;</span> + className);</span><br><span class="line">                <span class="keyword">return</span> classfileBuffer;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;,<span class="literal">true</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>MANIFEST.MF文件</p>
+</blockquote>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">Manifest-Version: <span class="number">1.0</span></span><br><span class="line">Can-Redefine-Classes: <span class="literal">true</span></span><br><span class="line">Can-Retransform-Classes: <span class="literal">true</span></span><br><span class="line">Premain-Class: com.east.test.TestAgent</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>maven 指定配置文件位置</p>
+</blockquote>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">build</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">plugins</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">plugin</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.apache.maven.plugins<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>maven-jar-plugin<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">configuration</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">archive</span>&gt;</span></span><br><span class="line">                    <span class="tag">&lt;<span class="name">manifestFile</span>&gt;</span>src/main/resources/MANIFEST.MF<span class="tag">&lt;/<span class="name">manifestFile</span>&gt;</span> </span><br><span class="line">                <span class="tag">&lt;/<span class="name">archive</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;/<span class="name">configuration</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">plugin</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">plugins</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">build</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>打成jar包</p>
+</blockquote>
+<p>在另一个项目中配置使用即可</p>
+<style>.hlgzcrymuykw{}</style><img src="/2025/03/11/Java-agent%E6%8A%80%E6%9C%AF%EF%BC%88%E4%B8%8A%EF%BC%89/idea64_vzF7s8wTwd.png" class="hlgzcrymuykw" alt="idea64_vzF7s8wTwd">
+
+
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+        
+          <li><a href="/">Home</a></li>
+        
+          <li><a href="/archives/">Writing</a></li>
+        
+          <li><a href="/categories/">Category</a></li>
+        
+      </ul>
+    </div>
+
+    
+    
+      <div id="toc-footer" style="display: none">
+        <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#Java-agent%E6%8A%80%E6%9C%AF"><span class="toc-number">1.</span> <span class="toc-text">Java agent技术</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#0x1%E3%80%81%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86"><span class="toc-number">1.1.</span> <span class="toc-text">0x1、基础知识</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#a-%E4%BB%80%E4%B9%88%E6%98%AFjava-agent%EF%BC%9F"><span class="toc-number">1.1.1.</span> <span class="toc-text">a. 什么是java agent？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#b-%E5%A6%82%E4%BD%95%E4%BD%BF%E7%94%A8"><span class="toc-number">1.1.2.</span> <span class="toc-text">b. 如何使用?</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#c-Instrumentation-%E7%B1%BB"><span class="toc-number">1.1.3.</span> <span class="toc-text">c. Instrumentation 类</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#d-premain-%E5%92%8C-agentmain"><span class="toc-number">1.1.4.</span> <span class="toc-text">d. premain() 和  agentmain()</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#e-MANIFEST-MF"><span class="toc-number">1.1.5.</span> <span class="toc-text">e. MANIFEST.MF</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#0x2%E3%80%81Hello-World"><span class="toc-number">1.2.</span> <span class="toc-text">0x2、Hello World</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#a-java-agent%E7%BC%96%E5%86%99%E6%B5%81%E7%A8%8B"><span class="toc-number">1.2.1.</span> <span class="toc-text">a. java agent编写流程</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#b-%E7%BC%96%E7%A0%81"><span class="toc-number">1.2.2.</span> <span class="toc-text">b. 编码</span></a></li></ol></li></ol></li></ol>
+      </div>
+    
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2025/03/11/Java-agent%E6%8A%80%E6%9C%AF%EF%BC%88%E4%B8%8A%EF%BC%89/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2025/03/11/Java-agent%E6%8A%80%E6%9C%AF%EF%BC%88%E4%B8%8A%EF%BC%89/&text=Java agent技术（上）"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2025/03/11/Java-agent%E6%8A%80%E6%9C%AF%EF%BC%88%E4%B8%8A%EF%BC%89/&title=Java agent技术（上）"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2025/03/11/Java-agent%E6%8A%80%E6%9C%AF%EF%BC%88%E4%B8%8A%EF%BC%89/&is_video=false&description=Java agent技术（上）"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Java agent技术（上）&body=Check out this article: http://example.com/2025/03/11/Java-agent%E6%8A%80%E6%9C%AF%EF%BC%88%E4%B8%8A%EF%BC%89/"><i class="fa-solid fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2025/03/11/Java-agent%E6%8A%80%E6%9C%AF%EF%BC%88%E4%B8%8A%EF%BC%89/&title=Java agent技术（上）"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2025/03/11/Java-agent%E6%8A%80%E6%9C%AF%EF%BC%88%E4%B8%8A%EF%BC%89/&title=Java agent技术（上）"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2025/03/11/Java-agent%E6%8A%80%E6%9C%AF%EF%BC%88%E4%B8%8A%EF%BC%89/&title=Java agent技术（上）"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2025/03/11/Java-agent%E6%8A%80%E6%9C%AF%EF%BC%88%E4%B8%8A%EF%BC%89/&title=Java agent技术（上）"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2025/03/11/Java-agent%E6%8A%80%E6%9C%AF%EF%BC%88%E4%B8%8A%EF%BC%89/&name=Java agent技术（上）&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2025/03/11/Java-agent%E6%8A%80%E6%9C%AF%EF%BC%88%E4%B8%8A%EF%BC%89/&t=Java agent技术（上）"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fa-solid fa-bars fa-lg" aria-hidden="true"></i> Menu</a>
+        
+          <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fa-solid fa-list fa-lg" aria-hidden="true"></i> TOC</a>
+        
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fa-solid fa-share-alt fa-lg" aria-hidden="true"></i> Share</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2016-2025
+    x1a0g
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     --><!--
+       --><li><a href="/categories/">Category</a></li><!--
+     -->
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script>
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script>
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"Copy to clipboard!\">";
+    btn += '<i class="fa-regular fa-clone"></i>';
+    btn += '</span>';
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "Copied!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Baidu Analytics -->
+
+<!-- Cloudflare Analytics -->
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+</body>
+</html>
