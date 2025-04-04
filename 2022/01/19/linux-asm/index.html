@@ -557,15 +557,15 @@
 </thead>
 <tbody><tr>
 <td>1</td>
-<td><strong>当两个字节相乘时 −</strong><br><br>被乘数在AL寄存器中，乘数是内存中或另一个寄存器中的一个字节。 该产品在 AX 中。 乘积的高8位存放在AH中，低8位存放在AL中。<br><br><style>.ovejliuqdzih{}</style><img src="/2022/01/19/linux-asm/arithmetic1.jpg" class="ovejliuqdzih" alt="Arithmetic1"></td>
+<td><strong>当两个字节相乘时 −</strong><br><br>被乘数在AL寄存器中，乘数是内存中或另一个寄存器中的一个字节。 该产品在 AX 中。 乘积的高8位存放在AH中，低8位存放在AL中。<br><br><style>.cvqgucchftcl{}</style><img src="/2022/01/19/linux-asm/arithmetic1.jpg" class="cvqgucchftcl" alt="Arithmetic1"></td>
 </tr>
 <tr>
 <td>2</td>
-<td><strong>当两个单字值相乘时 −</strong><br><br>被乘数应该在AX寄存器中，乘数是内存或另一个寄存器中的一个字。 例如，对于像MUL DX这样的指令，您必须将乘数存储在DX中，将被乘数存储在AX中。<br><br>生成的结果是一个双字，需要两个寄存器。 高位（最左边）部分存储在 DX 中，低位（最右边）部分存储在 AX 中。<br><br><style>.ekcjunudmqvi{}</style><img src="/2022/01/19/linux-asm/arithmetic2.jpg" class="ekcjunudmqvi" alt="Arithmetic2"></td>
+<td><strong>当两个单字值相乘时 −</strong><br><br>被乘数应该在AX寄存器中，乘数是内存或另一个寄存器中的一个字。 例如，对于像MUL DX这样的指令，您必须将乘数存储在DX中，将被乘数存储在AX中。<br><br>生成的结果是一个双字，需要两个寄存器。 高位（最左边）部分存储在 DX 中，低位（最右边）部分存储在 AX 中。<br><br><style>.isbxfiraidop{}</style><img src="/2022/01/19/linux-asm/arithmetic2.jpg" class="isbxfiraidop" alt="Arithmetic2"></td>
 </tr>
 <tr>
 <td>3</td>
-<td><strong>当两个双字值相乘时−</strong><br><br>当两个双字值相乘时，被乘数应位于 EAX 中，乘数是存储在内存或另一个寄存器中的双字值。 生成的乘积存储在 EDX:EAX 寄存器中，即高位 32 位存储在 EDX 寄存器中，低位 32 位存储在 EAX 寄存器中。<br><br><style>.ladtutuhoctt{}</style><img src="/2022/01/19/linux-asm/arithmetic3.jpg" class="ladtutuhoctt" alt="Arithmetic3"></td>
+<td><strong>当两个双字值相乘时−</strong><br><br>当两个双字值相乘时，被乘数应位于 EAX 中，乘数是存储在内存或另一个寄存器中的双字值。 生成的乘积存储在 EDX:EAX 寄存器中，即高位 32 位存储在 EDX 寄存器中，低位 32 位存储在 EAX 寄存器中。<br><br><style>.mnpxtyxdktdu{}</style><img src="/2022/01/19/linux-asm/arithmetic3.jpg" class="mnpxtyxdktdu" alt="Arithmetic3"></td>
 </tr>
 </tbody></table>
 <p>hvb-]&#96;&#96;&#96;z80<br>MOV AL, 10<br>MOV DL, 25<br>MUL DL</p>

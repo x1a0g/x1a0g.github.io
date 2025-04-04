@@ -6,12 +6,12 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="HandheldFriendly" content="True">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
-    <meta name="description" content="环境   frida16去特征版   java8 unidbg  一. 抓包抓包使用小黄鸟， 配置相关证书，配置ssl unpining .isrslrofogtc{zoom:50%;} lsposed中启动即可。  抓包结果如下,接口请求头中需要添加nsign进行验签  .mttunhdisyyk{zoom:80%;}  二. frida分析1. jadx寻找入口点在jadx载入这个apk后，">
+    <meta name="description" content="环境   frida16去特征版   java8 unidbg  一. 抓包抓包使用小黄鸟， 配置相关证书，配置ssl unpining .rxfwscnuqrhp{zoom:50%;} lsposed中启动即可。  抓包结果如下,接口请求头中需要添加nsign进行验签  .rrmgzgvkcwcv{zoom:80%;}  二. frida分析1. jadx寻找入口点在jadx载入这个apk后，">
 <meta property="og:type" content="article">
 <meta property="og:title" content="unidbg 实战某客nsign">
 <meta property="og:url" content="http://example.com/2025/01/19/unidbg-%E5%AE%9E%E6%88%98%E6%9F%90%E5%AE%A2nsign/index.html">
 <meta property="og:site_name" content="x1a0g&#39;s blog">
-<meta property="og:description" content="环境   frida16去特征版   java8 unidbg  一. 抓包抓包使用小黄鸟， 配置相关证书，配置ssl unpining .isrslrofogtc{zoom:50%;} lsposed中启动即可。  抓包结果如下,接口请求头中需要添加nsign进行验签  .mttunhdisyyk{zoom:80%;}  二. frida分析1. jadx寻找入口点在jadx载入这个apk后，">
+<meta property="og:description" content="环境   frida16去特征版   java8 unidbg  一. 抓包抓包使用小黄鸟， 配置相关证书，配置ssl unpining .rxfwscnuqrhp{zoom:50%;} lsposed中启动即可。  抓包结果如下,接口请求头中需要添加nsign进行验签  .rrmgzgvkcwcv{zoom:80%;}  二. frida分析1. jadx寻找入口点在jadx载入这个apk后，">
 <meta property="og:locale" content="en_US">
 <meta property="og:image" content="http://example.com/2025/01/19/unidbg-%E5%AE%9E%E6%88%98%E6%9F%90%E5%AE%A2nsign/Obsidian_FVOQ0hi3et.png">
 <meta property="og:image" content="http://example.com/2025/01/19/unidbg-%E5%AE%9E%E6%88%98%E6%9F%90%E5%AE%A2nsign/Obsidian_Qvu12zTLhP.png">
@@ -181,18 +181,18 @@
 <li>unidbg</li>
 </ul>
 <h2 id="一-抓包"><a href="#一-抓包" class="headerlink" title="一. 抓包"></a>一. 抓包</h2><p>抓包使用小黄鸟， 配置相关证书，配置ssl unpining</p>
-<style>.isrslrofogtc{zoom:50%;}</style><img src="/2025/01/19/unidbg-%E5%AE%9E%E6%88%98%E6%9F%90%E5%AE%A2nsign/Obsidian_FVOQ0hi3et.png" class="isrslrofogtc" alt="Obsidian_FVOQ0hi3et">
+<style>.rxfwscnuqrhp{zoom:50%;}</style><img src="/2025/01/19/unidbg-%E5%AE%9E%E6%88%98%E6%9F%90%E5%AE%A2nsign/Obsidian_FVOQ0hi3et.png" class="rxfwscnuqrhp" alt="Obsidian_FVOQ0hi3et">
 <p>lsposed中启动即可。</p>
 <blockquote>
 <p>抓包结果如下,接口请求头中需要添加nsign进行验签</p>
 </blockquote>
-<style>.mttunhdisyyk{zoom:80%;}</style><img src="/2025/01/19/unidbg-%E5%AE%9E%E6%88%98%E6%9F%90%E5%AE%A2nsign/Obsidian_Qvu12zTLhP.png" class="mttunhdisyyk" alt="Obsidian_Qvu12zTLhP">
+<style>.rrmgzgvkcwcv{zoom:80%;}</style><img src="/2025/01/19/unidbg-%E5%AE%9E%E6%88%98%E6%9F%90%E5%AE%A2nsign/Obsidian_Qvu12zTLhP.png" class="rrmgzgvkcwcv" alt="Obsidian_Qvu12zTLhP">
 
 <h2 id="二-frida分析"><a href="#二-frida分析" class="headerlink" title="二. frida分析"></a>二. frida分析</h2><h3 id="1-jadx寻找入口点"><a href="#1-jadx寻找入口点" class="headerlink" title="1. jadx寻找入口点"></a>1. jadx寻找入口点</h3><p><strong>在jadx载入这个apk后，就需要找到sign生成的位置，通常来说，从一个正向开发的角度来讲，如果我在绝大多数的api都需要添加一个sign校验，那么一个一个加显然是费时费力的，所以如果我是开发者，通常来说会使用aop的形式或者定义一个interceptor，在过滤器filter之后，controller之前定义去实现这个功能。</strong></p>
 <blockquote>
 <p>故 搜索一下interpector</p>
 </blockquote>
-<style>.gffsujegdqdn{zoom:60%;}</style><img src="/2025/01/19/unidbg-%E5%AE%9E%E6%88%98%E6%9F%90%E5%AE%A2nsign/Obsidian_xQyQ2sDAAI.png" class="gffsujegdqdn" alt="Obsidian_xQyQ2sDAAI">
+<style>.xonhuzmimpxk{zoom:60%;}</style><img src="/2025/01/19/unidbg-%E5%AE%9E%E6%88%98%E6%9F%90%E5%AE%A2nsign/Obsidian_xQyQ2sDAAI.png" class="xonhuzmimpxk" alt="Obsidian_xQyQ2sDAAI">
 
 <p>找到关键位置，之后进入找到sign在请求头中添加nsign的代码</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">c = SignUtil.c(path, c2, b2, uuid);</span><br><span class="line">newBuilder2.add(<span class="string">&quot;nsign&quot;</span>, c);</span><br><span class="line"><span class="type">UserProfile</span> <span class="variable">userProfile</span> <span class="operator">=</span> UserProfileProtocol.getUserProfile();</span><br></pre></td></tr></table></figure>
@@ -207,14 +207,14 @@
 <figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">hookTest1</span>(<span class="params"></span>)&#123;  </span><br><span class="line">    <span class="keyword">let</span> <span class="title class_">SignUtil</span> = <span class="title class_">Java</span>.<span class="title function_">use</span>(<span class="string">&quot;com.xxx.xxx.sign.SignUtil&quot;</span>);  </span><br><span class="line">    <span class="title class_">SignUtil</span>[<span class="string">&quot;getSign&quot;</span>].<span class="property">implementation</span> = <span class="keyword">function</span> (<span class="params">str, str2, map, str3, i</span>) &#123;  </span><br><span class="line">        <span class="keyword">var</span> <span class="title class_">Gson</span> = <span class="title class_">Java</span>.<span class="title function_">use</span>(<span class="string">&#x27;com.google.gson.Gson&#x27;</span>).$new();  </span><br><span class="line">        <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&quot;map -&gt; &quot;</span> + <span class="title class_">Gson</span>.<span class="title function_">toJsonTree</span>(map).<span class="title function_">getAsJsonObject</span>());  </span><br><span class="line">        <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">`SignUtil.getSign is called: str=<span class="subst">$&#123;str&#125;</span>, str2=<span class="subst">$&#123;str2&#125;</span>, map=<span class="subst">$&#123;map&#125;</span>, str3=<span class="subst">$&#123;str3&#125;</span>, i=<span class="subst">$&#123;i&#125;</span>`</span>);  </span><br><span class="line">        <span class="keyword">let</span> result = <span class="variable language_">this</span>[<span class="string">&quot;getSign&quot;</span>](str, str2, map, str3, i);  </span><br><span class="line">        <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">`SignUtil.getSign result=<span class="subst">$&#123;result&#125;</span>`</span>);  </span><br><span class="line">        <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;------------------------------&#x27;</span>);  </span><br><span class="line">        <span class="keyword">return</span> result;  </span><br><span class="line">    &#125;;  </span><br><span class="line">&#125;  </span><br><span class="line">  </span><br><span class="line"><span class="keyword">function</span> <span class="title function_">main</span>(<span class="params"></span>)&#123;  </span><br><span class="line">    <span class="title class_">Java</span>.<span class="title function_">perform</span>(<span class="keyword">function</span>(<span class="params"></span>)&#123;  </span><br><span class="line">        <span class="title function_">hookTest1</span>();  </span><br><span class="line">    &#125;);  </span><br><span class="line">&#125;  </span><br><span class="line"><span class="title function_">setImmediate</span>(main);</span><br></pre></td></tr></table></figure>
 
 <p>结果如下:</p>
-<style>.xtevluzigsww{zoom:60%;}</style><img src="/2025/01/19/unidbg-%E5%AE%9E%E6%88%98%E6%9F%90%E5%AE%A2nsign/Obsidian_t19JB3I1oR.png" class="xtevluzigsww" alt="Obsidian_t19JB3I1oR">
+<style>.iivespechsqt{zoom:60%;}</style><img src="/2025/01/19/unidbg-%E5%AE%9E%E6%88%98%E6%9F%90%E5%AE%A2nsign/Obsidian_t19JB3I1oR.png" class="iivespechsqt" alt="Obsidian_t19JB3I1oR">
 <p>让gpt把map参数的值转换一下</p>
 <figure class="highlight http"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  &quot;app&quot;: &quot;xxxxxx&quot;,</span><br><span class="line">  &quot;from&quot;: &quot;mobile&quot;,</span><br><span class="line">  &quot;pm&quot;: &quot;b276&quot;,</span><br><span class="line">  &quot;city_id&quot;: &quot;14&quot;,</span><br><span class="line">  ...</span><br><span class="line">  &quot;cid&quot;: []</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <h3 id="3-ida分析"><a href="#3-ida分析" class="headerlink" title="3. ida分析"></a>3. ida分析</h3><blockquote>
 <p>载入ida可以在导出表中发现几个函数，就是此次unidbg调用的目标</p>
 </blockquote>
-<style>.bembgyhsueow{zoom:60%;}</style><img src="/2025/01/19/unidbg-%E5%AE%9E%E6%88%98%E6%9F%90%E5%AE%A2nsign/Obsidian_8j99Ka6CrF.png" class="bembgyhsueow" alt="Obsidian_8j99Ka6CrF">
+<style>.auimbtcstpwb{zoom:60%;}</style><img src="/2025/01/19/unidbg-%E5%AE%9E%E6%88%98%E6%9F%90%E5%AE%A2nsign/Obsidian_8j99Ka6CrF.png" class="auimbtcstpwb" alt="Obsidian_8j99Ka6CrF">
 
 <h3 id="4-调用"><a href="#4-调用" class="headerlink" title="4. 调用"></a>4. 调用</h3><blockquote>
 <p>通过unidbg正常补环境调用成功</p>
@@ -224,7 +224,7 @@
 <blockquote>
 <p>结果</p>
 </blockquote>
-<style>.nilotitvypon{zoom:60%;}</style><img src="/2025/01/19/unidbg-%E5%AE%9E%E6%88%98%E6%9F%90%E5%AE%A2nsign/idea64_afAS2Ccglc.png" class="nilotitvypon" alt="idea64_afAS2Ccglc">
+<style>.vfcbutmwlutv{zoom:60%;}</style><img src="/2025/01/19/unidbg-%E5%AE%9E%E6%88%98%E6%9F%90%E5%AE%A2nsign/idea64_afAS2Ccglc.png" class="vfcbutmwlutv" alt="idea64_afAS2Ccglc">
 
   </div>
 </article>
