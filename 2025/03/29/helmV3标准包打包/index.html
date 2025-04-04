@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="1、什么是helm官网  https:&#x2F;&#x2F;helm.sh&#x2F;zh&#x2F;docs&#x2F;    Helm是**一个用于Kubernetes的包管理工具，它主要用于简化在Kubernetes集群中部署和管理应用程序的过程**类似于yum和apt  Helm存在以下特点：  简化部署流程：Helm通过提供一种方式来定义、安装和升级应用程序，使得部署过程更加高效和一致。使用Helm，开发者可以描述应用程序所需的所有资">
+<meta property="og:type" content="article">
+<meta property="og:title" content="helmV3标准包打包">
+<meta property="og:url" content="http://example.com/2025/03/29/helmV3%E6%A0%87%E5%87%86%E5%8C%85%E6%89%93%E5%8C%85/index.html">
+<meta property="og:site_name" content="x1a0g&#39;s blog">
+<meta property="og:description" content="1、什么是helm官网  https:&#x2F;&#x2F;helm.sh&#x2F;zh&#x2F;docs&#x2F;    Helm是**一个用于Kubernetes的包管理工具，它主要用于简化在Kubernetes集群中部署和管理应用程序的过程**类似于yum和apt  Helm存在以下特点：  简化部署流程：Helm通过提供一种方式来定义、安装和升级应用程序，使得部署过程更加高效和一致。使用Helm，开发者可以描述应用程序所需的所有资">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="http://example.com/2025/03/29/helmV3%E6%A0%87%E5%87%86%E5%8C%85%E6%89%93%E5%8C%85/1714009200848-30b0de4e-e036-4183-9086-5e95b402ebc4.png">
+<meta property="og:image" content="http://example.com/2025/03/29/helmV3%E6%A0%87%E5%87%86%E5%8C%85%E6%89%93%E5%8C%85/Typora_SVzf4hFJ6P.png">
+<meta property="og:image" content="http://example.com/2025/03/29/helmV3%E6%A0%87%E5%87%86%E5%8C%85%E6%89%93%E5%8C%85/Typora_0o68mAFi6W.png">
+<meta property="og:image" content="http://example.com/2025/03/29/helmV3%E6%A0%87%E5%87%86%E5%8C%85%E6%89%93%E5%8C%85/Typora_GNgClI144D.png">
+<meta property="og:image" content="http://example.com/2025/03/29/helmV3%E6%A0%87%E5%87%86%E5%8C%85%E6%89%93%E5%8C%85/Typora_mP5fWdKIBS.png">
+<meta property="og:image" content="http://example.com/2025/03/29/helmV3%E6%A0%87%E5%87%86%E5%8C%85%E6%89%93%E5%8C%85/Typora_njOsQhJgNF.png">
+<meta property="og:image" content="http://example.com/2025/03/29/helmV3%E6%A0%87%E5%87%86%E5%8C%85%E6%89%93%E5%8C%85/Typora_afTcq81HRU.png">
+<meta property="og:image" content="http://example.com/2025/03/29/helmV3%E6%A0%87%E5%87%86%E5%8C%85%E6%89%93%E5%8C%85/1713951962335-92561735-5335-40ff-890d-b98fe341880d.png">
+<meta property="og:image" content="http://example.com/2025/03/29/helmV3%E6%A0%87%E5%87%86%E5%8C%85%E6%89%93%E5%8C%85/1713951973686-40a0fd3e-b3a3-4122-8663-eac0c20a7317.png">
+<meta property="og:image" content="http://example.com/2025/03/29/helmV3%E6%A0%87%E5%87%86%E5%8C%85%E6%89%93%E5%8C%85/1713951984715-0a1b9253-fcf3-4228-8db5-56099769f40b.png">
+<meta property="article:published_time" content="2025-03-29T00:32:21.000Z">
+<meta property="article:modified_time" content="2025-04-04T05:27:18.178Z">
+<meta property="article:author" content="x1a0g">
+<meta property="article:tag" content="k8s">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/2025/03/29/helmV3%E6%A0%87%E5%87%86%E5%8C%85%E6%89%93%E5%8C%85/1714009200848-30b0de4e-e036-4183-9086-5e95b402ebc4.png">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/favicon.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+        
+      
+    
+    <!-- title -->
+    <title>helmV3标准包打包</title>
+    <!-- async scripts -->
+    <!-- Google Analytics -->
+
+
+    <!-- Umami Analytics -->
+
+
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="Top" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fa-solid fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     --><!--
+       --><li><a href="/categories/">Category</a></li><!--
+     --><!--
+       --><li><a href="/tags/">tags</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" aria-label="Previous post" href="/2025/04/04/IO%E5%A4%9A%E8%B7%AF%E5%A4%8D%E7%94%A8%E4%BB%A3%E7%A0%81%E5%AE%9E%E7%8E%B0/"><i class="fa-solid fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" aria-label="Next post" href="/2025/03/22/kubernetes%E5%92%8Ckubesphere%E9%83%A8%E7%BD%B2%E5%AE%89%E8%A3%85/"><i class="fa-solid fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="Back to top" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="Share post" href="#"><i class="fa-solid fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+      <span id="i-share" class="info" style="display:none;">Share post</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2025/03/29/helmV3%E6%A0%87%E5%87%86%E5%8C%85%E6%89%93%E5%8C%85/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2025/03/29/helmV3%E6%A0%87%E5%87%86%E5%8C%85%E6%89%93%E5%8C%85/&text=helmV3标准包打包"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2025/03/29/helmV3%E6%A0%87%E5%87%86%E5%8C%85%E6%89%93%E5%8C%85/&title=helmV3标准包打包"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2025/03/29/helmV3%E6%A0%87%E5%87%86%E5%8C%85%E6%89%93%E5%8C%85/&is_video=false&description=helmV3标准包打包"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=helmV3标准包打包&body=Check out this article: http://example.com/2025/03/29/helmV3%E6%A0%87%E5%87%86%E5%8C%85%E6%89%93%E5%8C%85/"><i class="fa-solid fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2025/03/29/helmV3%E6%A0%87%E5%87%86%E5%8C%85%E6%89%93%E5%8C%85/&title=helmV3标准包打包"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2025/03/29/helmV3%E6%A0%87%E5%87%86%E5%8C%85%E6%89%93%E5%8C%85/&title=helmV3标准包打包"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2025/03/29/helmV3%E6%A0%87%E5%87%86%E5%8C%85%E6%89%93%E5%8C%85/&title=helmV3标准包打包"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2025/03/29/helmV3%E6%A0%87%E5%87%86%E5%8C%85%E6%89%93%E5%8C%85/&title=helmV3标准包打包"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2025/03/29/helmV3%E6%A0%87%E5%87%86%E5%8C%85%E6%89%93%E5%8C%85/&name=helmV3标准包打包&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2025/03/29/helmV3%E6%A0%87%E5%87%86%E5%8C%85%E6%89%93%E5%8C%85/&t=helmV3标准包打包"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    
+    
+      <div id="toc">
+        <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#1%E3%80%81%E4%BB%80%E4%B9%88%E6%98%AFhelm"><span class="toc-number">1.</span> <span class="toc-text">1、什么是helm</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#2%E3%80%81%E5%A6%82%E4%BD%95%E4%BD%BF%E7%94%A8%EF%BC%88%E5%9F%BA%E4%BA%8E3-7-x%EF%BC%89"><span class="toc-number">2.</span> <span class="toc-text">2、如何使用（基于3.7.x）</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#2-1%E3%80%81%E5%AE%89%E8%A3%85Helm"><span class="toc-number">2.1.</span> <span class="toc-text">2.1、安装Helm</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-2%E3%80%81%E4%BD%BF%E7%94%A8Helm"><span class="toc-number">2.2.</span> <span class="toc-text">2.2、使用Helm</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#2-2-1%E3%80%81%E5%88%9B%E5%BB%BA%E4%B8%80%E4%B8%AAChart"><span class="toc-number">2.2.1.</span> <span class="toc-text">2.2.1、创建一个Chart</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-2-2%E3%80%81%E6%89%93%E5%8C%85"><span class="toc-number">2.2.2.</span> <span class="toc-text">2.2.2、打包</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-2-3%E3%80%81%E5%AE%89%E8%A3%85"><span class="toc-number">2.2.3.</span> <span class="toc-text">2.2.3、安装</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-2-4%E3%80%81%E5%B8%B8%E7%94%A8%E6%93%8D%E4%BD%9C"><span class="toc-number">2.2.4.</span> <span class="toc-text">2.2.4、常用操作</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-3%E3%80%81%E5%85%B3%E9%94%AE%E6%96%87%E4%BB%B6%E8%AF%B4%E6%98%8E"><span class="toc-number">2.3.</span> <span class="toc-text">2.3、关键文件说明</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#2-3-1%E3%80%81Chart-yaml"><span class="toc-number">2.3.1.</span> <span class="toc-text">2.3.1、Chart.yaml</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-3-2%E3%80%81values-yaml"><span class="toc-number">2.3.2.</span> <span class="toc-text">2.3.2、values.yaml</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-4%E3%80%81%E5%AE%9E%E4%BE%8Bdemo"><span class="toc-number">2.4.</span> <span class="toc-text">2.4、实例demo</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#2-4-1%E3%80%81%E7%BC%96%E5%86%99dockerfile"><span class="toc-number">2.4.1.</span> <span class="toc-text">2.4.1、编写dockerfile</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-4-2%E3%80%81%E6%9E%84%E5%BB%BA%E5%92%8C%E6%8E%A8%E9%80%81docker%E9%95%9C%E5%83%8F"><span class="toc-number">2.4.2.</span> <span class="toc-text">2.4.2、构建和推送docker镜像</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-4-3%E3%80%81%E7%BC%96%E5%86%99-Helm-Chart"><span class="toc-number">2.4.3.</span> <span class="toc-text">2.4.3、编写 Helm Chart</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-4-4%E3%80%81%E7%BC%96%E8%BE%91yaml"><span class="toc-number">2.4.4.</span> <span class="toc-text">2.4.4、编辑yaml</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-4-5%E3%80%81%E6%89%93%E5%8C%85%E9%83%A8%E7%BD%B2-%EF%BC%88%E6%88%96%E8%80%85%E7%9B%B4%E6%8E%A5%E5%9C%A8kusp%E5%90%8E%E5%8F%B0%E4%B8%8A%E4%BC%A0%E5%8D%B3%E5%8F%AF%E8%BF%9B%E8%A1%8C%E9%83%A8%E7%BD%B2%EF%BC%89"><span class="toc-number">2.4.5.</span> <span class="toc-text">2.4.5、打包部署 （或者直接在kusp后台上传即可进行部署）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-4-6%E3%80%81%E5%8F%AF%E8%A7%86%E5%8C%96%E7%95%8C%E9%9D%A2%E6%93%8D%E4%BD%9C"><span class="toc-number">2.4.6.</span> <span class="toc-text">2.4.6、可视化界面操作</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#2-4-6-1%E3%80%81%E7%99%BB%E5%BD%95%E6%88%90%E5%8A%9F%E4%B9%8B%E5%90%8E-%E9%80%89%E6%8B%A9-east%E4%BC%81%E4%B8%9A%E7%A9%BA%E9%97%B4"><span class="toc-number">2.4.6.1.</span> <span class="toc-text">2.4.6.1、登录成功之后  选择 east企业空间</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-4-6-2%E3%80%81%E4%B9%8B%E5%90%8E%E7%82%B9%E5%87%BB%E5%BA%94%E7%94%A8%E7%AE%A1%E7%90%86%E2%80%93-%E5%BA%94%E7%94%A8%E6%A8%A1%E6%9D%BF"><span class="toc-number">2.4.6.2.</span> <span class="toc-text">2.4.6.2、之后点击应用管理–&gt;应用模板</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-4-6-3%E3%80%81%E4%B9%8B%E5%90%8E%E7%82%B9%E5%87%BB%E5%88%9B%E5%BB%BA%E2%80%94-%E4%B8%8A%E4%BC%A0"><span class="toc-number">2.4.6.3.</span> <span class="toc-text">2.4.6.3、之后点击创建—&gt;上传</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-4-6-4%E3%80%81%E7%84%B6%E5%90%8E%E4%B8%8A%E4%BC%A0%E8%87%AA%E5%B7%B1%E7%9A%84helm-package%E6%89%93%E5%A5%BD%E7%9A%84%E5%8C%85%EF%BC%8C%E5%A6%82%E4%B8%8B%E6%89%80%E7%A4%BA"><span class="toc-number">2.4.6.4.</span> <span class="toc-text">2.4.6.4、然后上传自己的helm package打好的包，如下所示</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-4-6-5%E3%80%81%E7%84%B6%E5%90%8E%E7%82%B9%E5%87%BB%E5%AE%89%E8%A3%85%E5%8D%B3%E5%8F%AF"><span class="toc-number">2.4.6.5.</span> <span class="toc-text">2.4.6.5、然后点击安装即可</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-4-6-6%E3%80%81%E4%B9%8B%E5%90%8E%E8%BF%94%E5%9B%9E-%E4%BE%9D%E6%AC%A1%E7%82%B9%E5%87%BB%E8%BF%9B%E5%85%A5%E5%8D%B3%E5%8F%AF%E7%9C%8B%E5%88%B0%E8%AE%BF%E9%97%AE%E7%AB%AF%E5%8F%A3%E5%8F%B7"><span class="toc-number">2.4.6.6.</span> <span class="toc-text">2.4.6.6、之后返回  依次点击进入即可看到访问端口号</span></a></li></ol></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#3%E3%80%81%E9%83%A8%E7%BD%B2%E5%AE%8C%E6%88%90"><span class="toc-number">3.</span> <span class="toc-text">3、部署完成</span></a></li></ol>
+      </div>
+    
+  </span>
+</div>
+
+    
+    <div class="content index py4 ">
+        
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle p-name" itemprop="name headline">
+        helmV3标准包打包
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author p-author h-card" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span class="p-name" itemprop="name">x1a0g</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2025-03-29T00:32:21.000Z" class="dt-published" itemprop="datePublished">2025-03-29</time>
+        
+      
+    </div>
+
+
+      
+    <div class="article-category">
+        <i class="fa-solid fa-archive"></i>
+        <a class="category-link" href="/categories/Linux/">Linux</a>
+    </div>
+
+
+      
+    <div class="article-tag">
+        <i class="fa-solid fa-tag"></i>
+        <a class="p-category" href="/tags/k8s/" rel="tag">k8s</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content e-content" itemprop="articleBody">
+    <h1 id="1、什么是helm"><a href="#1、什么是helm" class="headerlink" title="1、什么是helm"></a>1、什么是helm</h1><p>官网  <a target="_blank" rel="noopener" href="https://helm.sh/zh/docs/">https://helm.sh/zh/docs/</a></p>
+<img src="/2025/03/29/helmV3%E6%A0%87%E5%87%86%E5%8C%85%E6%89%93%E5%8C%85/1714009200848-30b0de4e-e036-4183-9086-5e95b402ebc4.png" class="">
+
+<blockquote>
+<p><font style="color:rgb(7, 19, 62);">Helm是</font>**<font style="color:rgb(7, 19, 62);">一个用于Kubernetes的包管理工具，它主要用于简化在Kubernetes集群中部署和管理应用程序的过程</font>**类似于yum和apt</p>
+</blockquote>
+<p><strong><font style="color:rgb(51, 51, 51);">Helm存在以下特点：</font></strong></p>
+<ol>
+<li><strong><font style="color:rgb(7, 19, 62);">简化部署流程</font></strong><font style="color:rgb(7, 19, 62);">：Helm通过提供一种方式来定义、安装和升级应用程序，使得部署过程更加高效和一致。使用Helm，开发者可以描述应用程序所需的所有资源（如服务、卷、路由等），然后使用单个命令将这些资源部署到Kubernetes集群上。</font></li>
+<li><strong><font style="color:rgb(7, 19, 62);">Charts管理</font></strong><font style="color:rgb(7, 19, 62);">：Helm的核心概念是Charts，它们是预先配置的应用程序或服务的打包版本。这些Charts可以被定制并用于在不同的环境中部署相同的应用，确保了环境的一致性和可重复性。</font></li>
+<li><strong><font style="color:rgb(7, 19, 62);">节省时间</font></strong><font style="color:rgb(7, 19, 62);">：对于需要部署多个微服务的项目，Helm可以显著减少部署时间和出错的可能性。它避免了手动执行每个服务的部署，通过自动化的方式提高了效率。</font></li>
+</ol>
+<p><strong><font style="color:rgb(7, 19, 62);">Helm有3个重要概念：</font></strong></p>
+<ol>
+<li><font style="color:rgb(7, 19, 62);">helm：一个命令行客户端工具，主要用于Kubernetes应用chart的创建、打包、发 布和管理。</font></li>
+<li><font style="color:rgb(7, 19, 62);">Chart：应用描述，一系列用于描述k8s资源相关文件的集合。</font></li>
+<li><font style="color:rgb(7, 19, 62);">Release：基于Chart的部署实体，一个chart被Helm运行后将会生成对应的一个 release；将在k8s中创建出真实运行的资源对象。</font></li>
+</ol>
+<h1 id="2、如何使用（基于3-7-x）"><a href="#2、如何使用（基于3-7-x）" class="headerlink" title="2、如何使用（基于3.7.x）"></a><font style="color:rgb(51, 51, 51);">2、如何使用（基于3.7.x）</font></h1><h2 id="2-1、安装Helm"><a href="#2-1、安装Helm" class="headerlink" title="2.1、安装Helm"></a>2.1、安装Helm</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#下载</span></span><br><span class="line"><span class="built_in">sudo</span> wget https://get.helm.sh/helm-v3.1.2-linux-amd64.tar.gz</span><br><span class="line"><span class="comment">#解压</span></span><br><span class="line">tar -zxvf helm-v3.11.2-linux-amd64.tar.gz </span><br><span class="line"><span class="comment">#配置</span></span><br><span class="line"><span class="built_in">mv</span> linux-amd64/helm /usr/local/bin/helm</span><br><span class="line"><span class="comment"># 验证</span></span><br><span class="line">helm version</span><br><span class="line"></span><br><span class="line"><span class="comment"># 添加仓库源信息</span></span><br><span class="line">-- 官方库</span><br><span class="line">helm repo add bitnami https://charts.bitnami.com/bitnami</span><br><span class="line">-- stable标准包</span><br><span class="line">helm repo add stable http://mirror.azure.cn/kubernetes/charts</span><br><span class="line">-- 阿里云</span><br><span class="line">helm repo add allyun https://kubernetes.oss-cn-hangzhou.allyuncs.com/charts</span><br><span class="line"><span class="comment">#更新仓库</span></span><br><span class="line">helm repo update</span><br><span class="line"><span class="comment">#查看仓库源</span></span><br><span class="line">helm repo <span class="built_in">ls</span></span><br><span class="line"><span class="comment">#删除仓库</span></span><br><span class="line">helm repo remove aliyun</span><br></pre></td></tr></table></figure>
+
+<h2 id="2-2、使用Helm"><a href="#2-2、使用Helm" class="headerlink" title="2.2、使用Helm"></a><font style="color:rgb(51, 51, 51);">2.2、使用Helm</font></h2><h3 id="2-2-1、创建一个Chart"><a href="#2-2-1、创建一个Chart" class="headerlink" title="2.2.1、创建一个Chart"></a>2.2.1、创建一个Chart</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> helm create mychart</span><br></pre></td></tr></table></figure>
+
+<h3 id="2-2-2、打包"><a href="#2-2-2、打包" class="headerlink" title="2.2.2、打包"></a>2.2.2、打包</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> helm lint mychart/</span><br><span class="line"><span class="built_in">sudo</span> helm package ./mychart</span><br></pre></td></tr></table></figure>
+
+<h3 id="2-2-3、安装"><a href="#2-2-3、安装" class="headerlink" title="2.2.3、安装"></a>2.2.3、安装</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">helm install demo(pod名称) ./mychat </span><br><span class="line"></span><br><span class="line"><span class="comment">#查看已经安装的包</span></span><br><span class="line">helm <span class="built_in">ls</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#卸载</span></span><br><span class="line">helm uninstall ./mychat</span><br><span class="line"></span><br><span class="line"><span class="comment">#完成之后使用kubectl get pods查看是否为running状态</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#kubectl get svc 查看具体的地址和端口</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="2-2-4、常用操作"><a href="#2-2-4、常用操作" class="headerlink" title="2.2.4、常用操作"></a>2.2.4、常用操作</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#升级</span></span><br><span class="line">helm upgrade releaseName chartName</span><br><span class="line"><span class="comment">#回滚</span></span><br><span class="line">helm rollback releaseName revision</span><br><span class="line"><span class="comment">#检索包信息</span></span><br><span class="line">helm search repo nginx(举例)</span><br><span class="line">helm search hub nginx(举例)</span><br><span class="line"><span class="comment">#查看信息</span></span><br><span class="line">helm status releaseName</span><br><span class="line"><span class="comment">#查看发布历史</span></span><br><span class="line">helm <span class="built_in">history</span> releaseName</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h2 id="2-3、关键文件说明"><a href="#2-3、关键文件说明" class="headerlink" title="2.3、关键文件说明"></a>2.3、关键文件说明</h2><h3 id="2-3-1、Chart-yaml"><a href="#2-3-1、Chart-yaml" class="headerlink" title="2.3.1、Chart.yaml"></a>2.3.1、<strong><font style="color:rgb(25, 27, 31);">Chart.yaml</font></strong></h3><p><strong><font style="color:rgb(25, 27, 31);">定义了当前 chart版本，以及描述当前chart用途，其中 name 参数表示 chart 名称，后期上传下载都会用此名称</font></strong></p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">apiVersion:</span> <span class="string">v2</span></span><br><span class="line"><span class="attr">name:</span> <span class="string">mychart</span></span><br><span class="line"><span class="attr">description:</span> <span class="string">A</span> <span class="string">Helm</span> <span class="string">chart</span> <span class="string">for</span> <span class="string">Kubernetes</span></span><br><span class="line"><span class="attr">type:</span> <span class="string">application</span></span><br><span class="line"><span class="attr">version:</span> <span class="number">0.1</span><span class="number">.0</span></span><br><span class="line"><span class="attr">appVersion:</span> <span class="number">1.16</span><span class="number">.0</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="2-3-2、values-yaml"><a href="#2-3-2、values-yaml" class="headerlink" title="2.3.2、values.yaml"></a>2.3.2、<strong><font style="color:rgb(25, 27, 31);">values.yaml</font></strong></h3><p><font style="color:rgb(25, 27, 31);">可变参数，都是在此文件中定义，在yaml模板中引用，比如：</font><font style="color:rgb(25, 27, 31);background-color:rgb(248, 248, 250);">image.repository</font><font style="color:rgb(25, 27, 31);">，而引用则通过</font><font style="color:rgb(25, 27, 31);background-color:rgb(248, 248, 250);">.Values</font><font style="color:rgb(25, 27, 31);">+变量的名进行引用</font></p>
+<h2 id="2-4、实例demo"><a href="#2-4、实例demo" class="headerlink" title="2.4、实例demo"></a>2.4、实例demo</h2><blockquote>
+<ol>
+<li>编写jar包所用的环境的Dockerfile 然后传到私有镜像仓库</li>
+<li>通过helm 创建对应的Chart  修改相应的配置文件</li>
+<li>使用安装命令直接安装成relase就可以安装到k8s当中</li>
+</ol>
+</blockquote>
+<h3 id="2-4-1、编写dockerfile"><a href="#2-4-1、编写dockerfile" class="headerlink" title="2.4.1、编写dockerfile"></a>2.4.1、编写dockerfile</h3><figure class="highlight dockerfile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">FROM</span> openjdk:<span class="number">17</span>-jdk-alpine</span><br><span class="line"><span class="keyword">COPY</span><span class="language-bash"> ./east.jar /usr/src/east/</span></span><br><span class="line"><span class="keyword">WORKDIR</span><span class="language-bash"> /usr/src/east</span></span><br><span class="line"><span class="keyword">EXPOSE</span> <span class="number">8080</span></span><br><span class="line"><span class="keyword">ENTRYPOINT</span><span class="language-bash"> [<span class="string">&quot;java&quot;</span>, <span class="string">&quot;-jar&quot;</span>, <span class="string">&quot;myapp.jar&quot;</span>]</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h3 id="2-4-2、构建和推送docker镜像"><a href="#2-4-2、构建和推送docker镜像" class="headerlink" title="2.4.2、构建和推送docker镜像"></a>2.4.2、构建和推送docker镜像</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">docker build -t myapp:latest .</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">#以阿里云为例</span></span><br><span class="line"><span class="built_in">sudo</span> docker login --username=xxxxxx registry.cn-beijing.aliyuncs.com</span><br><span class="line"><span class="comment">#输入密码  </span></span><br><span class="line"><span class="comment">#打标签</span></span><br><span class="line">docker tag  4bae764c8ccf registry.cn-beijing.aliyuncs.com/xiao/east:1.1</span><br><span class="line"><span class="comment">#推送</span></span><br><span class="line">docker push registry.cn-beijing.aliyuncs.com/xiao/east:1.1</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p><strong><font style="color:rgb(7, 19, 62);">然后，使用适当的命令将镜像推送到 Docker Hub 或其他容器镜像仓库（例如harbar、阿里云容器仓库）</font></strong></p>
+<h3 id="2-4-3、编写-Helm-Chart"><a href="#2-4-3、编写-Helm-Chart" class="headerlink" title="2.4.3、编写 Helm Chart"></a>2.4.3、<font style="color:rgb(7, 19, 62);">编写 Helm Chart</font></h3><blockquote>
+<p><code>helm create myapp</code>   目录结构如下</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">myapp/</span><br><span class="line">├── charts/</span><br><span class="line">│   └── myapp/</span><br><span class="line">│       ├── templates/</span><br><span class="line">│       │   ├── deployment.yaml</span><br><span class="line">│       │   └── service.yaml</span><br><span class="line">│       └── values.yaml</span><br><span class="line">└── Chart.yaml</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h3 id="2-4-4、编辑yaml"><a href="#2-4-4、编辑yaml" class="headerlink" title="2.4.4、编辑yaml"></a>2.4.4、编辑yaml</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">image:</span><br><span class="line">  repository: registry.cn-beijing.aliyuncs.com/xiao/east</span><br><span class="line">  tag: 1.4</span><br><span class="line">  pullPolicy: IfNotPresent</span><br><span class="line">  <span class="comment">#  registry: registry.cn-beijing.aliyuncs.com/xiao</span></span><br><span class="line"></span><br><span class="line">replicaCount: 1</span><br><span class="line"></span><br><span class="line">service:</span><br><span class="line">  <span class="built_in">type</span>: LoadBalancer</span><br><span class="line">  port: 8080</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p><strong><font style="color:rgb(7, 19, 62);">可以定义 Deployment 资源，引用您的 Docker 镜像</font></strong></p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">apiVersion: apps/v1</span><br><span class="line">kind: Deployment</span><br><span class="line">metadata:</span><br><span class="line">  name: east-deployment</span><br><span class="line">spec:</span><br><span class="line">  replicas: 1</span><br><span class="line">  selector:</span><br><span class="line">    matchLabels:</span><br><span class="line">      app: east</span><br><span class="line">  template:</span><br><span class="line">    metadata:</span><br><span class="line">      labels:</span><br><span class="line">        app: east</span><br><span class="line">    spec:</span><br><span class="line">      containers:</span><br><span class="line">      - name: east-container</span><br><span class="line">        image: &#123;&#123; .Values.image.repository &#125;&#125;:&#123;&#123; .Values.image.tag &#125;&#125;</span><br><span class="line">        ports:</span><br><span class="line">        - containerPort: 8080</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p><strong><font style="color:rgb(7, 19, 62);">可以定义 Service 资源，以暴露应用</font></strong></p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">apiVersion: v1</span><br><span class="line">kind: Service</span><br><span class="line">metadata:</span><br><span class="line">  name: east-service</span><br><span class="line">spec:</span><br><span class="line">  <span class="built_in">type</span>: LoadBalancer</span><br><span class="line">  ports:</span><br><span class="line">  - port: 8080</span><br><span class="line">    targetPort: 8080</span><br><span class="line">  selector:</span><br><span class="line">    app: east</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p><strong>可以配置软件包的基本信息</strong></p>
+</blockquote>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">apiVersion:</span> <span class="string">v2</span></span><br><span class="line"><span class="attr">appVersion:</span> <span class="number">1.16</span><span class="number">.0</span></span><br><span class="line"><span class="attr">description:</span> <span class="string">A</span> <span class="string">Helm</span> <span class="string">chart</span> <span class="string">for</span> <span class="string">Kubernetes</span></span><br><span class="line"><span class="attr">name:</span> <span class="string">east</span></span><br><span class="line"><span class="attr">type:</span> <span class="string">application</span></span><br><span class="line"><span class="attr">version:</span> <span class="number">1.1</span><span class="number">.0</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h3 id="2-4-5、打包部署-（或者直接在kusp后台上传即可进行部署）"><a href="#2-4-5、打包部署-（或者直接在kusp后台上传即可进行部署）" class="headerlink" title="2.4.5、打包部署 （或者直接在kusp后台上传即可进行部署）"></a>2.4.5、打包部署 （或者直接在kusp后台上传即可进行部署）</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">helm package east</span><br><span class="line"></span><br><span class="line"><span class="comment">#命令部署</span></span><br><span class="line">helm install demo(pod名称) ./east</span><br></pre></td></tr></table></figure>
+
+<h3 id="2-4-6、可视化界面操作"><a href="#2-4-6、可视化界面操作" class="headerlink" title="2.4.6、可视化界面操作"></a>2.4.6、可视化界面操作</h3><p><strong><font style="color:#DF2A3F;">账号 testxxxxx 密码  aaaaaa</font></strong></p>
+<h4 id="2-4-6-1、登录成功之后-选择-east企业空间"><a href="#2-4-6-1、登录成功之后-选择-east企业空间" class="headerlink" title="2.4.6.1、登录成功之后  选择 east企业空间"></a>2.4.6.1、登录成功之后  选择 east企业空间</h4><style>.bffoauspbyzr{}</style><img src="/2025/03/29/helmV3%E6%A0%87%E5%87%86%E5%8C%85%E6%89%93%E5%8C%85/Typora_SVzf4hFJ6P.png" class="bffoauspbyzr" alt="Typora_SVzf4hFJ6P">
+
+<h4 id="2-4-6-2、之后点击应用管理–-应用模板"><a href="#2-4-6-2、之后点击应用管理–-应用模板" class="headerlink" title="2.4.6.2、之后点击应用管理–&gt;应用模板"></a>2.4.6.2、之后点击应用管理–&gt;应用模板</h4><style>.djbspmmmvfjg{}</style><img src="/2025/03/29/helmV3%E6%A0%87%E5%87%86%E5%8C%85%E6%89%93%E5%8C%85/Typora_0o68mAFi6W.png" class="djbspmmmvfjg" alt="Typora_0o68mAFi6W">
+
+<h4 id="2-4-6-3、之后点击创建—-上传"><a href="#2-4-6-3、之后点击创建—-上传" class="headerlink" title="2.4.6.3、之后点击创建—&gt;上传"></a>2.4.6.3、之后点击创建—&gt;上传</h4><style>.wiinwocwvawl{}</style><img src="/2025/03/29/helmV3%E6%A0%87%E5%87%86%E5%8C%85%E6%89%93%E5%8C%85/Typora_GNgClI144D.png" class="wiinwocwvawl" alt="Typora_GNgClI144D">
+
+<h4 id="2-4-6-4、然后上传自己的helm-package打好的包，如下所示"><a href="#2-4-6-4、然后上传自己的helm-package打好的包，如下所示" class="headerlink" title="2.4.6.4、然后上传自己的helm package打好的包，如下所示"></a>2.4.6.4、然后上传自己的<code>helm package</code>打好的包，如下所示</h4><style>.nzxjbimdksrg{}</style><img src="/2025/03/29/helmV3%E6%A0%87%E5%87%86%E5%8C%85%E6%89%93%E5%8C%85/Typora_mP5fWdKIBS.png" class="nzxjbimdksrg" alt="Typora_mP5fWdKIBS">
+
+<h4 id="2-4-6-5、然后点击安装即可"><a href="#2-4-6-5、然后点击安装即可" class="headerlink" title="2.4.6.5、然后点击安装即可"></a>2.4.6.5、然后点击安装即可</h4><style>.uqdnolnqjztd{}</style><img src="/2025/03/29/helmV3%E6%A0%87%E5%87%86%E5%8C%85%E6%89%93%E5%8C%85/Typora_njOsQhJgNF.png" class="uqdnolnqjztd" alt="Typora_njOsQhJgNF">
+
+<hr>
+<h4 id="2-4-6-6、之后返回-依次点击进入即可看到访问端口号"><a href="#2-4-6-6、之后返回-依次点击进入即可看到访问端口号" class="headerlink" title="2.4.6.6、之后返回  依次点击进入即可看到访问端口号"></a>2.4.6.6、之后返回  依次点击进入即可看到访问端口号</h4><style>.qexkwiquwcix{}</style><img src="/2025/03/29/helmV3%E6%A0%87%E5%87%86%E5%8C%85%E6%89%93%E5%8C%85/Typora_afTcq81HRU.png" class="qexkwiquwcix" alt="Typora_afTcq81HRU">
+
+<h1 id="3、部署完成"><a href="#3、部署完成" class="headerlink" title="3、部署完成"></a>3、部署完成</h1><p><strong>部署完成之后使用浏览器访问进行验证，负载均衡策略均生效</strong></p>
+<style>.vxfbtodsleux{}</style><img src="/2025/03/29/helmV3%E6%A0%87%E5%87%86%E5%8C%85%E6%89%93%E5%8C%85/1713951962335-92561735-5335-40ff-890d-b98fe341880d.png" class="vxfbtodsleux">
+
+<style>.fvrigdgumhia{}</style><img src="/2025/03/29/helmV3%E6%A0%87%E5%87%86%E5%8C%85%E6%89%93%E5%8C%85/1713951973686-40a0fd3e-b3a3-4122-8663-eac0c20a7317.png" class="fvrigdgumhia">
+
+<style>.exktnfialpqa{}</style><img src="/2025/03/29/helmV3%E6%A0%87%E5%87%86%E5%8C%85%E6%89%93%E5%8C%85/1713951984715-0a1b9253-fcf3-4228-8db5-56099769f40b.png" class="exktnfialpqa">
+
+
+
+
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+        
+          <li><a href="/">Home</a></li>
+        
+          <li><a href="/archives/">Writing</a></li>
+        
+          <li><a href="/categories/">Category</a></li>
+        
+          <li><a href="/tags/">tags</a></li>
+        
+      </ul>
+    </div>
+
+    
+    
+      <div id="toc-footer" style="display: none">
+        <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#1%E3%80%81%E4%BB%80%E4%B9%88%E6%98%AFhelm"><span class="toc-number">1.</span> <span class="toc-text">1、什么是helm</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#2%E3%80%81%E5%A6%82%E4%BD%95%E4%BD%BF%E7%94%A8%EF%BC%88%E5%9F%BA%E4%BA%8E3-7-x%EF%BC%89"><span class="toc-number">2.</span> <span class="toc-text">2、如何使用（基于3.7.x）</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#2-1%E3%80%81%E5%AE%89%E8%A3%85Helm"><span class="toc-number">2.1.</span> <span class="toc-text">2.1、安装Helm</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-2%E3%80%81%E4%BD%BF%E7%94%A8Helm"><span class="toc-number">2.2.</span> <span class="toc-text">2.2、使用Helm</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#2-2-1%E3%80%81%E5%88%9B%E5%BB%BA%E4%B8%80%E4%B8%AAChart"><span class="toc-number">2.2.1.</span> <span class="toc-text">2.2.1、创建一个Chart</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-2-2%E3%80%81%E6%89%93%E5%8C%85"><span class="toc-number">2.2.2.</span> <span class="toc-text">2.2.2、打包</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-2-3%E3%80%81%E5%AE%89%E8%A3%85"><span class="toc-number">2.2.3.</span> <span class="toc-text">2.2.3、安装</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-2-4%E3%80%81%E5%B8%B8%E7%94%A8%E6%93%8D%E4%BD%9C"><span class="toc-number">2.2.4.</span> <span class="toc-text">2.2.4、常用操作</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-3%E3%80%81%E5%85%B3%E9%94%AE%E6%96%87%E4%BB%B6%E8%AF%B4%E6%98%8E"><span class="toc-number">2.3.</span> <span class="toc-text">2.3、关键文件说明</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#2-3-1%E3%80%81Chart-yaml"><span class="toc-number">2.3.1.</span> <span class="toc-text">2.3.1、Chart.yaml</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-3-2%E3%80%81values-yaml"><span class="toc-number">2.3.2.</span> <span class="toc-text">2.3.2、values.yaml</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-4%E3%80%81%E5%AE%9E%E4%BE%8Bdemo"><span class="toc-number">2.4.</span> <span class="toc-text">2.4、实例demo</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#2-4-1%E3%80%81%E7%BC%96%E5%86%99dockerfile"><span class="toc-number">2.4.1.</span> <span class="toc-text">2.4.1、编写dockerfile</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-4-2%E3%80%81%E6%9E%84%E5%BB%BA%E5%92%8C%E6%8E%A8%E9%80%81docker%E9%95%9C%E5%83%8F"><span class="toc-number">2.4.2.</span> <span class="toc-text">2.4.2、构建和推送docker镜像</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-4-3%E3%80%81%E7%BC%96%E5%86%99-Helm-Chart"><span class="toc-number">2.4.3.</span> <span class="toc-text">2.4.3、编写 Helm Chart</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-4-4%E3%80%81%E7%BC%96%E8%BE%91yaml"><span class="toc-number">2.4.4.</span> <span class="toc-text">2.4.4、编辑yaml</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-4-5%E3%80%81%E6%89%93%E5%8C%85%E9%83%A8%E7%BD%B2-%EF%BC%88%E6%88%96%E8%80%85%E7%9B%B4%E6%8E%A5%E5%9C%A8kusp%E5%90%8E%E5%8F%B0%E4%B8%8A%E4%BC%A0%E5%8D%B3%E5%8F%AF%E8%BF%9B%E8%A1%8C%E9%83%A8%E7%BD%B2%EF%BC%89"><span class="toc-number">2.4.5.</span> <span class="toc-text">2.4.5、打包部署 （或者直接在kusp后台上传即可进行部署）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-4-6%E3%80%81%E5%8F%AF%E8%A7%86%E5%8C%96%E7%95%8C%E9%9D%A2%E6%93%8D%E4%BD%9C"><span class="toc-number">2.4.6.</span> <span class="toc-text">2.4.6、可视化界面操作</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#2-4-6-1%E3%80%81%E7%99%BB%E5%BD%95%E6%88%90%E5%8A%9F%E4%B9%8B%E5%90%8E-%E9%80%89%E6%8B%A9-east%E4%BC%81%E4%B8%9A%E7%A9%BA%E9%97%B4"><span class="toc-number">2.4.6.1.</span> <span class="toc-text">2.4.6.1、登录成功之后  选择 east企业空间</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-4-6-2%E3%80%81%E4%B9%8B%E5%90%8E%E7%82%B9%E5%87%BB%E5%BA%94%E7%94%A8%E7%AE%A1%E7%90%86%E2%80%93-%E5%BA%94%E7%94%A8%E6%A8%A1%E6%9D%BF"><span class="toc-number">2.4.6.2.</span> <span class="toc-text">2.4.6.2、之后点击应用管理–&gt;应用模板</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-4-6-3%E3%80%81%E4%B9%8B%E5%90%8E%E7%82%B9%E5%87%BB%E5%88%9B%E5%BB%BA%E2%80%94-%E4%B8%8A%E4%BC%A0"><span class="toc-number">2.4.6.3.</span> <span class="toc-text">2.4.6.3、之后点击创建—&gt;上传</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-4-6-4%E3%80%81%E7%84%B6%E5%90%8E%E4%B8%8A%E4%BC%A0%E8%87%AA%E5%B7%B1%E7%9A%84helm-package%E6%89%93%E5%A5%BD%E7%9A%84%E5%8C%85%EF%BC%8C%E5%A6%82%E4%B8%8B%E6%89%80%E7%A4%BA"><span class="toc-number">2.4.6.4.</span> <span class="toc-text">2.4.6.4、然后上传自己的helm package打好的包，如下所示</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-4-6-5%E3%80%81%E7%84%B6%E5%90%8E%E7%82%B9%E5%87%BB%E5%AE%89%E8%A3%85%E5%8D%B3%E5%8F%AF"><span class="toc-number">2.4.6.5.</span> <span class="toc-text">2.4.6.5、然后点击安装即可</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-4-6-6%E3%80%81%E4%B9%8B%E5%90%8E%E8%BF%94%E5%9B%9E-%E4%BE%9D%E6%AC%A1%E7%82%B9%E5%87%BB%E8%BF%9B%E5%85%A5%E5%8D%B3%E5%8F%AF%E7%9C%8B%E5%88%B0%E8%AE%BF%E9%97%AE%E7%AB%AF%E5%8F%A3%E5%8F%B7"><span class="toc-number">2.4.6.6.</span> <span class="toc-text">2.4.6.6、之后返回  依次点击进入即可看到访问端口号</span></a></li></ol></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#3%E3%80%81%E9%83%A8%E7%BD%B2%E5%AE%8C%E6%88%90"><span class="toc-number">3.</span> <span class="toc-text">3、部署完成</span></a></li></ol>
+      </div>
+    
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2025/03/29/helmV3%E6%A0%87%E5%87%86%E5%8C%85%E6%89%93%E5%8C%85/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2025/03/29/helmV3%E6%A0%87%E5%87%86%E5%8C%85%E6%89%93%E5%8C%85/&text=helmV3标准包打包"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2025/03/29/helmV3%E6%A0%87%E5%87%86%E5%8C%85%E6%89%93%E5%8C%85/&title=helmV3标准包打包"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2025/03/29/helmV3%E6%A0%87%E5%87%86%E5%8C%85%E6%89%93%E5%8C%85/&is_video=false&description=helmV3标准包打包"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=helmV3标准包打包&body=Check out this article: http://example.com/2025/03/29/helmV3%E6%A0%87%E5%87%86%E5%8C%85%E6%89%93%E5%8C%85/"><i class="fa-solid fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2025/03/29/helmV3%E6%A0%87%E5%87%86%E5%8C%85%E6%89%93%E5%8C%85/&title=helmV3标准包打包"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2025/03/29/helmV3%E6%A0%87%E5%87%86%E5%8C%85%E6%89%93%E5%8C%85/&title=helmV3标准包打包"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2025/03/29/helmV3%E6%A0%87%E5%87%86%E5%8C%85%E6%89%93%E5%8C%85/&title=helmV3标准包打包"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2025/03/29/helmV3%E6%A0%87%E5%87%86%E5%8C%85%E6%89%93%E5%8C%85/&title=helmV3标准包打包"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2025/03/29/helmV3%E6%A0%87%E5%87%86%E5%8C%85%E6%89%93%E5%8C%85/&name=helmV3标准包打包&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2025/03/29/helmV3%E6%A0%87%E5%87%86%E5%8C%85%E6%89%93%E5%8C%85/&t=helmV3标准包打包"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fa-solid fa-bars fa-lg" aria-hidden="true"></i> Menu</a>
+        
+          <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fa-solid fa-list fa-lg" aria-hidden="true"></i> TOC</a>
+        
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fa-solid fa-share-alt fa-lg" aria-hidden="true"></i> Share</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2016-2025
+    x1a0g
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     --><!--
+       --><li><a href="/categories/">Category</a></li><!--
+     --><!--
+       --><li><a href="/tags/">tags</a></li><!--
+     -->
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script>
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script>
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"Copy to clipboard!\">";
+    btn += '<i class="fa-regular fa-clone"></i>';
+    btn += '</span>';
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "Copied!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Baidu Analytics -->
+
+<!-- Cloudflare Analytics -->
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+</body>
+</html>

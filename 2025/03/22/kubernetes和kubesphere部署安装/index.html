@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="1、单机环境要求   系统 最低要求（每个节点）    Ubuntu 16.04，18.04，20.04 CPU：2 核，内存：4 G，硬盘：40 G   Debian Buster，Stretch CPU：2 核，内存：4 G，硬盘：40 G   CentOS 7.x CPU：2 核，内存：4 G，硬盘：40 G   Red Hat Enterprise Linux 7 CPU：2 核，内存：4">
+<meta property="og:type" content="article">
+<meta property="og:title" content="kubernetes和kubesphere部署安装">
+<meta property="og:url" content="http://example.com/2025/03/22/kubernetes%E5%92%8Ckubesphere%E9%83%A8%E7%BD%B2%E5%AE%89%E8%A3%85/index.html">
+<meta property="og:site_name" content="x1a0g&#39;s blog">
+<meta property="og:description" content="1、单机环境要求   系统 最低要求（每个节点）    Ubuntu 16.04，18.04，20.04 CPU：2 核，内存：4 G，硬盘：40 G   Debian Buster，Stretch CPU：2 核，内存：4 G，硬盘：40 G   CentOS 7.x CPU：2 核，内存：4 G，硬盘：40 G   Red Hat Enterprise Linux 7 CPU：2 核，内存：4">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2025-03-22T01:12:30.000Z">
+<meta property="article:modified_time" content="2025-04-04T05:29:56.504Z">
+<meta property="article:author" content="x1a0g">
+<meta property="article:tag" content="k8s">
+<meta name="twitter:card" content="summary">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/favicon.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+        
+      
+    
+    <!-- title -->
+    <title>kubernetes和kubesphere部署安装</title>
+    <!-- async scripts -->
+    <!-- Google Analytics -->
+
+
+    <!-- Umami Analytics -->
+
+
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="Top" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fa-solid fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     --><!--
+       --><li><a href="/categories/">Category</a></li><!--
+     --><!--
+       --><li><a href="/tags/">tags</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" aria-label="Previous post" href="/2025/03/29/helmV3%E6%A0%87%E5%87%86%E5%8C%85%E6%89%93%E5%8C%85/"><i class="fa-solid fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" aria-label="Next post" href="/2025/03/15/Java-agent%E6%8A%80%E6%9C%AF-%E4%B8%8B/"><i class="fa-solid fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="Back to top" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="Share post" href="#"><i class="fa-solid fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+      <span id="i-share" class="info" style="display:none;">Share post</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2025/03/22/kubernetes%E5%92%8Ckubesphere%E9%83%A8%E7%BD%B2%E5%AE%89%E8%A3%85/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2025/03/22/kubernetes%E5%92%8Ckubesphere%E9%83%A8%E7%BD%B2%E5%AE%89%E8%A3%85/&text=kubernetes和kubesphere部署安装"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2025/03/22/kubernetes%E5%92%8Ckubesphere%E9%83%A8%E7%BD%B2%E5%AE%89%E8%A3%85/&title=kubernetes和kubesphere部署安装"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2025/03/22/kubernetes%E5%92%8Ckubesphere%E9%83%A8%E7%BD%B2%E5%AE%89%E8%A3%85/&is_video=false&description=kubernetes和kubesphere部署安装"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=kubernetes和kubesphere部署安装&body=Check out this article: http://example.com/2025/03/22/kubernetes%E5%92%8Ckubesphere%E9%83%A8%E7%BD%B2%E5%AE%89%E8%A3%85/"><i class="fa-solid fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2025/03/22/kubernetes%E5%92%8Ckubesphere%E9%83%A8%E7%BD%B2%E5%AE%89%E8%A3%85/&title=kubernetes和kubesphere部署安装"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2025/03/22/kubernetes%E5%92%8Ckubesphere%E9%83%A8%E7%BD%B2%E5%AE%89%E8%A3%85/&title=kubernetes和kubesphere部署安装"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2025/03/22/kubernetes%E5%92%8Ckubesphere%E9%83%A8%E7%BD%B2%E5%AE%89%E8%A3%85/&title=kubernetes和kubesphere部署安装"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2025/03/22/kubernetes%E5%92%8Ckubesphere%E9%83%A8%E7%BD%B2%E5%AE%89%E8%A3%85/&title=kubernetes和kubesphere部署安装"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2025/03/22/kubernetes%E5%92%8Ckubesphere%E9%83%A8%E7%BD%B2%E5%AE%89%E8%A3%85/&name=kubernetes和kubesphere部署安装&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2025/03/22/kubernetes%E5%92%8Ckubesphere%E9%83%A8%E7%BD%B2%E5%AE%89%E8%A3%85/&t=kubernetes和kubesphere部署安装"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    
+    
+      <div id="toc">
+        <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#1%E3%80%81%E5%8D%95%E6%9C%BA%E7%8E%AF%E5%A2%83%E8%A6%81%E6%B1%82"><span class="toc-number">1.</span> <span class="toc-text">1、单机环境要求</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%8A%82%E7%82%B9%E8%A6%81%E6%B1%82"><span class="toc-number">1.0.1.</span> <span class="toc-text">节点要求</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#2%E3%80%81%E5%AE%89%E8%A3%85%E5%87%86%E5%A4%87"><span class="toc-number">2.</span> <span class="toc-text">2、安装准备</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#2-0%E3%80%81%E5%AE%89%E8%A3%85%E7%9B%B8%E5%85%B3%E5%BA%93%EF%BC%88%E4%B8%89%E5%8F%B0%E6%9C%BA%E5%99%A8%E5%9D%87%E6%89%A7%E8%A1%8C%EF%BC%89"><span class="toc-number">2.1.</span> <span class="toc-text">2.0、安装相关库（三台机器均执行）</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-1%E3%80%81%E9%85%8D%E7%BD%AE%E5%86%85%E7%BD%91%E4%BA%92%E9%80%9A%EF%BC%88%E4%B8%89%E5%8F%B0%E6%9C%BA%E5%99%A8%E5%9D%87%E6%89%A7%E8%A1%8C%EF%BC%89"><span class="toc-number">2.2.</span> <span class="toc-text">2.1、配置内网互通（三台机器均执行）</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-2%E3%80%81%E9%85%8D%E7%BD%AE%E6%97%B6%E9%97%B4%E5%90%8C%E6%AD%A5%EF%BC%88%E4%B8%89%E5%8F%B0%E6%9C%BA%E5%99%A8%E5%9D%87%E6%89%A7%E8%A1%8C%EF%BC%89"><span class="toc-number">2.3.</span> <span class="toc-text">2.2、配置时间同步（三台机器均执行）</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-3%E3%80%81%E5%85%B3%E9%97%AD%E9%98%B2%E7%81%AB%E5%A2%99%EF%BC%88%E4%B8%89%E5%8F%B0%E6%9C%BA%E5%99%A8%E5%9D%87%E6%89%A7%E8%A1%8C%EF%BC%89"><span class="toc-number">2.4.</span> <span class="toc-text">2.3、关闭防火墙（三台机器均执行）</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-4%E3%80%81%E5%85%B3%E9%97%ADselinux%EF%BC%88%E4%B8%89%E5%8F%B0%E6%9C%BA%E5%99%A8%E5%9D%87%E6%89%A7%E8%A1%8C%EF%BC%89"><span class="toc-number">2.5.</span> <span class="toc-text">2.4、关闭selinux（三台机器均执行）</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-5%E3%80%81%E5%85%B3%E9%97%AD%E4%BA%A4%E6%8D%A2%E7%A9%BA%E9%97%B4%EF%BC%88%E4%B8%89%E5%8F%B0%E6%9C%BA%E5%99%A8%E5%9D%87%E6%89%A7%E8%A1%8C%EF%BC%89"><span class="toc-number">2.6.</span> <span class="toc-text">2.5、关闭交换空间（三台机器均执行）</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#3%E3%80%81%E5%AE%89%E8%A3%85%E6%AD%A5%E9%AA%A4"><span class="toc-number">3.</span> <span class="toc-text">3、安装步骤</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#3-1%E3%80%81%E5%AE%89%E8%A3%85kk"><span class="toc-number">3.1.</span> <span class="toc-text">3.1、安装kk</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-2%E3%80%81%E5%88%9B%E5%BB%BA%E9%9B%86%E7%BE%A4"><span class="toc-number">3.2.</span> <span class="toc-text">3.2、创建集群</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#3-2-1%E3%80%81%E4%BF%AE%E6%94%B9%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6"><span class="toc-number">3.2.1.</span> <span class="toc-text">3.2.1、修改配置文件</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-2-2%E3%80%81%E5%BC%80%E5%A7%8B%E5%AE%89%E8%A3%85"><span class="toc-number">3.2.2.</span> <span class="toc-text">3.2.2、开始安装</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-3%E3%80%81%E5%AE%89%E8%A3%85%E5%AE%8C%E6%88%90"><span class="toc-number">3.3.</span> <span class="toc-text">3.3、安装完成</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-4%E3%80%81%E7%9B%B8%E5%85%B3%E9%97%AE%E9%A2%98"><span class="toc-number">3.4.</span> <span class="toc-text">3.4、相关问题</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-6%E3%80%81%E5%B8%B8%E7%94%A8%E5%91%BD%E4%BB%A4"><span class="toc-number">3.5.</span> <span class="toc-text">3.6、常用命令</span></a></li></ol></li></ol>
+      </div>
+    
+  </span>
+</div>
+
+    
+    <div class="content index py4 ">
+        
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle p-name" itemprop="name headline">
+        kubernetes和kubesphere部署安装
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author p-author h-card" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span class="p-name" itemprop="name">x1a0g</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2025-03-22T01:12:30.000Z" class="dt-published" itemprop="datePublished">2025-03-22</time>
+        
+      
+    </div>
+
+
+      
+    <div class="article-category">
+        <i class="fa-solid fa-archive"></i>
+        <a class="category-link" href="/categories/Linux/">Linux</a>
+    </div>
+
+
+      
+    <div class="article-tag">
+        <i class="fa-solid fa-tag"></i>
+        <a class="p-category" href="/tags/k8s/" rel="tag">k8s</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content e-content" itemprop="articleBody">
+    <h1 id="1、单机环境要求"><a href="#1、单机环境要求" class="headerlink" title="1、单机环境要求"></a>1、单机环境要求</h1><table>
+<thead>
+<tr>
+<th><strong><font style="color:rgb(54, 67, 92);">系统</font></strong></th>
+<th><strong><font style="color:rgb(54, 67, 92);">最低要求（每个节点）</font></strong></th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong><font style="color:rgb(54, 67, 92);">Ubuntu</font></strong><font style="color:rgb(54, 67, 92);"> </font><em><font style="color:rgb(54, 67, 92);">16.04，18.04，20.04</font></em></td>
+<td><font style="color:rgb(54, 67, 92);">CPU：2 核，内存：4 G，硬盘：40 G</font></td>
+</tr>
+<tr>
+<td><strong><font style="color:rgb(54, 67, 92);">Debian</font></strong><font style="color:rgb(54, 67, 92);"> </font><em><font style="color:rgb(54, 67, 92);">Buster，Stretch</font></em></td>
+<td><font style="color:rgb(54, 67, 92);">CPU：2 核，内存：4 G，硬盘：40 G</font></td>
+</tr>
+<tr>
+<td><strong><font style="color:rgb(54, 67, 92);">CentOS</font></strong><font style="color:rgb(54, 67, 92);"> </font><em><font style="color:rgb(54, 67, 92);">7</font></em><font style="color:rgb(54, 67, 92);">.x</font></td>
+<td><font style="color:rgb(54, 67, 92);">CPU：2 核，内存：4 G，硬盘：40 G</font></td>
+</tr>
+<tr>
+<td><strong><font style="color:rgb(54, 67, 92);">Red Hat Enterprise Linux</font></strong><font style="color:rgb(54, 67, 92);"> </font><em><font style="color:rgb(54, 67, 92);">7</font></em></td>
+<td><font style="color:rgb(54, 67, 92);">CPU：2 核，内存：4 G，硬盘：40 G</font></td>
+</tr>
+<tr>
+<td><strong><font style="color:rgb(54, 67, 92);">SUSE Linux Enterprise Server</font></strong><font style="color:rgb(54, 67, 92);"> </font><em><font style="color:rgb(54, 67, 92);">15</font></em><font style="color:rgb(54, 67, 92);"> </font><strong><font style="color:rgb(54, 67, 92);">&#x2F;openSUSE Leap</font></strong><font style="color:rgb(54, 67, 92);"> </font><em><font style="color:rgb(54, 67, 92);">15.2</font></em></td>
+<td><font style="color:rgb(54, 67, 92);">CPU：2 核，内存：4 G，硬盘：40 G</font></td>
+</tr>
+</tbody></table>
+<ul>
+<li><font style="color:rgb(54, 67, 92);">&#x2F;var&#x2F;lib&#x2F;docker</font><font style="color:rgb(54, 67, 92);"> </font><font style="color:rgb(54, 67, 92);">路径主要用于存储容器数据，在使用和操作过程中数据量会逐渐增加。因此，在生产环境中，建议为</font><font style="color:rgb(54, 67, 92);"> </font><font style="color:rgb(54, 67, 92);">&#x2F;var&#x2F;lib&#x2F;docker</font><font style="color:rgb(54, 67, 92);"> </font><font style="color:rgb(54, 67, 92);">单独挂载一个硬盘。</font></li>
+<li><strong><font style="color:rgb(54, 67, 92);">CPU 必须为 x86_64，暂时不支持 Arm 架构的 CPU。</font></strong></li>
+</ul>
+<h3 id="节点要求"><a href="#节点要求" class="headerlink" title="节点要求"></a><font style="color:rgb(23, 28, 52);">节点要求</font></h3><ul>
+<li><strong><font style="color:rgb(54, 67, 92);">所有节点必须都能通过 </font></strong><font style="color:rgb(54, 67, 92);">SSH</font><font style="color:rgb(54, 67, 92);"> 访问。</font></li>
+<li><strong><font style="color:rgb(54, 67, 92);">所有节点时间同步。</font></strong></li>
+<li><strong><font style="color:rgb(54, 67, 92);">所有节点都应使用 </font></strong><font style="color:rgb(54, 67, 92);">sudo</font><font style="color:rgb(54, 67, 92);">&#x2F;</font><font style="color:rgb(54, 67, 92);">curl</font><font style="color:rgb(54, 67, 92);">&#x2F;</font><font style="color:rgb(54, 67, 92);">openssl</font><font style="color:rgb(54, 67, 92);">&#x2F;</font><font style="color:rgb(54, 67, 92);">tar</font><font style="color:rgb(54, 67, 92);">。</font></li>
+</ul>
+<h1 id="2、安装准备"><a href="#2、安装准备" class="headerlink" title="2、安装准备"></a>2、安装准备</h1><p><strong>本次安装版本环境如下：</strong></p>
+<table>
+<thead>
+<tr>
+<th><strong>服务器版本</strong></th>
+<th>Ubuntu 20.04.2 LTS</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>kubernetes版本</strong></td>
+<td>v1.21.5</td>
+</tr>
+<tr>
+<td><strong>kubesphere版本</strong></td>
+<td>v3.4.1</td>
+</tr>
+<tr>
+<td><strong>helm版本</strong></td>
+<td>v3.9.0</td>
+</tr>
+</tbody></table>
+<h2 id="2-0、安装相关库（三台机器均执行）"><a href="#2-0、安装相关库（三台机器均执行）" class="headerlink" title="2.0、安装相关库（三台机器均执行）"></a>2.0、安装相关库（三台机器均执行）</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> apt update</span><br><span class="line"><span class="built_in">sudo</span> apt install socat conntrack ebtables ipset curl -y</span><br></pre></td></tr></table></figure>
+
+<h2 id="2-1、配置内网互通（三台机器均执行）"><a href="#2-1、配置内网互通（三台机器均执行）" class="headerlink" title="2.1、配置内网互通（三台机器均执行）"></a>2.1、配置内网互通（三台机器均执行）</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#修改名称</span></span><br><span class="line"><span class="built_in">sudo</span> vim /etc/hostname  </span><br><span class="line"><span class="comment">#修改hosts</span></span><br><span class="line"><span class="built_in">sudo</span> vim /etc/hosts</span><br><span class="line">------------------------</span><br><span class="line">192.168.3.73 master-01</span><br><span class="line">192.168.3.74 node-01</span><br><span class="line">192.168.3.75 node-02</span><br><span class="line">------------------------</span><br><span class="line"><span class="comment">#配置完成互相ping一下</span></span><br><span class="line">ping master-01</span><br><span class="line">ping node-01</span><br><span class="line">ping node-02</span><br><span class="line"></span><br><span class="line"><span class="comment">#重启</span></span><br><span class="line">reboot</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h2 id="2-2、配置时间同步（三台机器均执行）"><a href="#2-2、配置时间同步（三台机器均执行）" class="headerlink" title="2.2、配置时间同步（三台机器均执行）"></a>2.2、配置时间同步（三台机器均执行）</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> timedatectl set-timezone Asia/Shanghai</span><br><span class="line"><span class="built_in">sudo</span> apt-get install chrony</span><br><span class="line"><span class="comment">#修改配置文件 /etc/chrony/chrony.conf，修改 ntp 服务器配置：</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 删除所有的 pool 配置</span></span><br><span class="line"><span class="comment">#pool ntp.ubuntu.com        iburst maxsources 4</span></span><br><span class="line"><span class="comment">#pool 0.ubuntu.pool.ntp.org iburst maxsources 1</span></span><br><span class="line"><span class="comment">#pool 1.ubuntu.pool.ntp.org iburst maxsources 1</span></span><br><span class="line"><span class="comment">#pool 2.ubuntu.pool.ntp.org iburst maxsources 2</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#新增以下配置</span></span><br><span class="line">server ntp.api.bz iburst</span><br><span class="line"></span><br><span class="line"><span class="comment">#重启chrony服务</span></span><br><span class="line"><span class="built_in">sudo</span> systemctl restart chrony</span><br><span class="line"></span><br><span class="line"><span class="comment">#验证</span></span><br><span class="line"><span class="built_in">sudo</span> chronyc sourcestats -v</span><br></pre></td></tr></table></figure>
+
+<h2 id="2-3、关闭防火墙（三台机器均执行）"><a href="#2-3、关闭防火墙（三台机器均执行）" class="headerlink" title="2.3、关闭防火墙（三台机器均执行）"></a>2.3、关闭防火墙（三台机器均执行）</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"> <span class="comment">#永久</span></span><br><span class="line"><span class="built_in">sudo</span> ufw <span class="built_in">disable</span>   	</span><br></pre></td></tr></table></figure>
+
+<h2 id="2-4、关闭selinux（三台机器均执行）"><a href="#2-4、关闭selinux（三台机器均执行）" class="headerlink" title="2.4、关闭selinux（三台机器均执行）"></a>2.4、关闭selinux（三台机器均执行）</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> nano /etc/default/grub</span><br><span class="line"><span class="comment">#找到</span></span><br><span class="line">GRUB_CMDLINE_LINUX_DEFAULT=<span class="string">&quot;quiet splash&quot;</span></span><br><span class="line"><span class="comment">#修改为</span></span><br><span class="line">GRUB_CMDLINE_LINUX_DEFAULT=<span class="string">&quot;quiet splash selinux=0&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="built_in">sudo</span> update-grub</span><br><span class="line"><span class="comment">#重启验证</span></span><br><span class="line"><span class="built_in">sudo</span> reboot</span><br><span class="line">getenforce</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h2 id="2-5、关闭交换空间（三台机器均执行）"><a href="#2-5、关闭交换空间（三台机器均执行）" class="headerlink" title="2.5、关闭交换空间（三台机器均执行）"></a>2.5、关闭交换空间（三台机器均执行）</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#临时</span></span><br><span class="line">swapoff -a</span><br><span class="line"><span class="comment">#永久</span></span><br><span class="line">sed -ri <span class="string">&#x27;s/.*swap.*/#&amp;/&#x27;</span> /etc/fstab</span><br></pre></td></tr></table></figure>
+
+<h1 id="3、安装步骤"><a href="#3、安装步骤" class="headerlink" title="3、安装步骤"></a>3、安装步骤</h1><h2 id="3-1、安装kk"><a href="#3-1、安装kk" class="headerlink" title="3.1、安装kk"></a>3.1、安装kk</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl -sfL https://get-kk.kubesphere.io | VERSION=v3.0.13 sh -</span><br></pre></td></tr></table></figure>
+
+<h2 id="3-2、创建集群"><a href="#3-2、创建集群" class="headerlink" title="3.2、创建集群"></a>3.2、创建集群</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#创建配置文件</span></span><br><span class="line">./kk create config --with-kubernetes v1.21.5 --with-kubesphere v3.4.1</span><br></pre></td></tr></table></figure>
+
+<h3 id="3-2-1、修改配置文件"><a href="#3-2-1、修改配置文件" class="headerlink" title="3.2.1、修改配置文件"></a>3.2.1、修改配置文件</h3><p>按需修改以下内容即可 之后的内容一动不用动</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">apiVersion:</span> <span class="string">kubekey.kubesphere.io/v1alpha2</span></span><br><span class="line"><span class="attr">kind:</span> <span class="string">Cluster</span></span><br><span class="line"><span class="attr">metadata:</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">sample</span></span><br><span class="line"><span class="attr">spec:</span></span><br><span class="line">  <span class="attr">hosts:</span></span><br><span class="line">  <span class="comment">#这块儿需要改一下</span></span><br><span class="line">  <span class="bullet">-</span> &#123;<span class="attr">name:</span> <span class="string">master-01</span>, <span class="attr">address:</span> <span class="number">192.168</span><span class="number">.3</span><span class="number">.73</span>, <span class="attr">internalAddress:</span> <span class="number">192.168</span><span class="number">.3</span><span class="number">.73</span>, <span class="attr">user:</span> <span class="string">app</span>, <span class="attr">password:</span> <span class="string">&quot;xxxx&quot;</span>&#125;</span><br><span class="line">  <span class="bullet">-</span> &#123;<span class="attr">name:</span> <span class="string">node-01</span>, <span class="attr">address:</span> <span class="number">192.168</span><span class="number">.3</span><span class="number">.74</span>, <span class="attr">internalAddress:</span> <span class="number">192.168</span><span class="number">.3</span><span class="number">.74</span>, <span class="attr">user:</span> <span class="string">app</span>, <span class="attr">password:</span> <span class="string">&quot;xxxx&quot;</span>&#125;</span><br><span class="line">  <span class="bullet">-</span> &#123;<span class="attr">name:</span> <span class="string">node-02</span>, <span class="attr">address:</span> <span class="number">192.168</span><span class="number">.3</span><span class="number">.75</span>, <span class="attr">internalAddress:</span> <span class="number">192.168</span><span class="number">.3</span><span class="number">.75</span>, <span class="attr">user:</span> <span class="string">app</span>, <span class="attr">password:</span> <span class="string">&quot;xxxx&quot;</span>&#125;</span><br><span class="line">  <span class="attr">roleGroups:</span></span><br><span class="line">    <span class="attr">etcd:</span></span><br><span class="line">    <span class="bullet">-</span> <span class="string">master-01</span></span><br><span class="line">    <span class="attr">control-plane:</span></span><br><span class="line">    <span class="bullet">-</span> <span class="string">master-01</span></span><br><span class="line">    <span class="attr">worker:</span></span><br><span class="line">    <span class="bullet">-</span> <span class="string">node-01</span></span><br><span class="line">    <span class="bullet">-</span> <span class="string">node-02</span></span><br><span class="line">  <span class="attr">controlPlaneEndpoint:</span></span><br><span class="line">    <span class="comment">## Internal loadbalancer for apiservers </span></span><br><span class="line">    <span class="comment"># internalLoadbalancer: haproxy 是否开启高可用</span></span><br><span class="line"></span><br><span class="line">    <span class="attr">domain:</span> <span class="string">lb.kubesphere.local</span></span><br><span class="line">    <span class="attr">address:</span> <span class="string">&quot;&quot;</span></span><br><span class="line">    <span class="attr">port:</span> <span class="number">6443</span></span><br><span class="line">  <span class="attr">kubernetes:</span></span><br><span class="line">    <span class="attr">version:</span> <span class="string">v1.21.5</span></span><br><span class="line">    <span class="attr">clusterName:</span> <span class="string">cluster.local</span></span><br><span class="line">    <span class="attr">autoRenewCerts:</span> <span class="literal">true</span></span><br><span class="line">    <span class="attr">containerManager:</span> <span class="string">docker</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h3 id="3-2-2、开始安装"><a href="#3-2-2、开始安装" class="headerlink" title="3.2.2、开始安装"></a>3.2.2、开始安装</h3><figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">./kk</span> <span class="string">create</span> <span class="string">cluster</span> <span class="string">-f</span> <span class="string">config-sample.yaml</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="3-3、安装完成"><a href="#3-3、安装完成" class="headerlink" title="3.3、安装完成"></a>3.3、安装完成</h2><p><strong>安装完成后会给出后台访问地址 默认：</strong><a target="_blank" rel="noopener" href="http://192.168.3.73:30880/login"><strong>http://192.168.3.73:30880/login</strong></a></p>
+<p><strong><font style="color:#DF2A3F;">账号：admin 密码：xxxxxx</font></strong></p>
+<hr>
+<table>
+<thead>
+<tr>
+<th><strong>节点名称</strong></th>
+<th><strong>节点ip</strong></th>
+<th><strong>用户名</strong></th>
+<th>密码</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>master-01</td>
+<td>192.168.3.73</td>
+<td>app</td>
+<td>xxxxx</td>
+</tr>
+<tr>
+<td>node-01</td>
+<td>192.168.3.74</td>
+<td>app</td>
+<td>xxxxx</td>
+</tr>
+<tr>
+<td>node-02</td>
+<td>192.168.3.75</td>
+<td>app</td>
+<td>xxxxx</td>
+</tr>
+</tbody></table>
+<h2 id="3-4、相关问题"><a href="#3-4、相关问题" class="headerlink" title="3.4、相关问题"></a>3.4、相关问题</h2><blockquote>
+<p><font style="color:rgb(115, 119, 122);background-color:rgb(249, 249, 249);">Kubernetes的从节点上运行命令【kubectl】出现了如下错误[root@k8snode1 kubernetes]# kubectl get podThe connection to the server localhost:80</font></p>
+</blockquote>
+<p><font style="color:rgb(36, 41, 46);">出现这个问题的原因是kubectl命令需要使用kubernetes-admin来运行，解决方法如下，将主节点中的【&#x2F;etc&#x2F;kubernetes&#x2F;admin.conf】文件拷贝到从节点相同目录下，然后配置环境变量：</font></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">echo &quot;export KUBECONFIG=/etc/kubernetes/admin.conf&quot; &gt;&gt; ~/.bash_profile</span><br></pre></td></tr></table></figure>
+
+<p><font style="color:rgb(36, 41, 46);">立即生效</font></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">source ~/.bash_profile</span><br></pre></td></tr></table></figure>
+
+<p><font style="color:rgb(36, 41, 46);">接着再运行kubectl命令就OK了</font></p>
+<h2 id="3-6、常用命令"><a href="#3-6、常用命令" class="headerlink" title="3.6、常用命令"></a><font style="color:rgb(36, 41, 46);">3.6、常用命令</font></h2><figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#查看节点状态</span></span><br><span class="line"><span class="string">kubectl</span> <span class="string">get</span> <span class="string">nodes</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#查看所有pod状态</span></span><br><span class="line"><span class="string">sudo</span> <span class="string">kubectl</span> <span class="string">get</span> <span class="string">pods</span> <span class="string">--all-namespaces</span></span><br><span class="line"><span class="comment">#创建资源</span></span><br><span class="line"><span class="comment">#使用 YAML 配置文件创建服务</span></span><br><span class="line"><span class="string">kubectl</span> <span class="string">create</span> <span class="string">-f</span> <span class="string">my-service.yaml</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#使用目录下的所有 YAML、YML 和 JSON 文件创建资源</span></span><br><span class="line"><span class="string">kubectl</span> <span class="string">create</span> <span class="string">-f</span> <span class="string">&lt;目录&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#查看资源</span></span><br><span class="line"><span class="comment">#查看所有容器组</span></span><br><span class="line"><span class="string">kubectl</span> <span class="string">get</span> <span class="string">pods</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#查看所有服务</span></span><br><span class="line"><span class="string">kubectl</span> <span class="string">get</span> <span class="string">services</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#查看资源详情</span></span><br><span class="line"><span class="comment">#查看节点详情</span></span><br><span class="line"><span class="string">kubectl</span> <span class="string">describe</span> <span class="string">nodes</span> <span class="string">&lt;节点名称&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#查看容器组详情</span></span><br><span class="line"><span class="string">kubectl</span> <span class="string">describe</span> <span class="string">pods</span> <span class="string">&lt;容器组名称&gt;</span></span><br></pre></td></tr></table></figure>
+
+
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+        
+          <li><a href="/">Home</a></li>
+        
+          <li><a href="/archives/">Writing</a></li>
+        
+          <li><a href="/categories/">Category</a></li>
+        
+          <li><a href="/tags/">tags</a></li>
+        
+      </ul>
+    </div>
+
+    
+    
+      <div id="toc-footer" style="display: none">
+        <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#1%E3%80%81%E5%8D%95%E6%9C%BA%E7%8E%AF%E5%A2%83%E8%A6%81%E6%B1%82"><span class="toc-number">1.</span> <span class="toc-text">1、单机环境要求</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%8A%82%E7%82%B9%E8%A6%81%E6%B1%82"><span class="toc-number">1.0.1.</span> <span class="toc-text">节点要求</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#2%E3%80%81%E5%AE%89%E8%A3%85%E5%87%86%E5%A4%87"><span class="toc-number">2.</span> <span class="toc-text">2、安装准备</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#2-0%E3%80%81%E5%AE%89%E8%A3%85%E7%9B%B8%E5%85%B3%E5%BA%93%EF%BC%88%E4%B8%89%E5%8F%B0%E6%9C%BA%E5%99%A8%E5%9D%87%E6%89%A7%E8%A1%8C%EF%BC%89"><span class="toc-number">2.1.</span> <span class="toc-text">2.0、安装相关库（三台机器均执行）</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-1%E3%80%81%E9%85%8D%E7%BD%AE%E5%86%85%E7%BD%91%E4%BA%92%E9%80%9A%EF%BC%88%E4%B8%89%E5%8F%B0%E6%9C%BA%E5%99%A8%E5%9D%87%E6%89%A7%E8%A1%8C%EF%BC%89"><span class="toc-number">2.2.</span> <span class="toc-text">2.1、配置内网互通（三台机器均执行）</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-2%E3%80%81%E9%85%8D%E7%BD%AE%E6%97%B6%E9%97%B4%E5%90%8C%E6%AD%A5%EF%BC%88%E4%B8%89%E5%8F%B0%E6%9C%BA%E5%99%A8%E5%9D%87%E6%89%A7%E8%A1%8C%EF%BC%89"><span class="toc-number">2.3.</span> <span class="toc-text">2.2、配置时间同步（三台机器均执行）</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-3%E3%80%81%E5%85%B3%E9%97%AD%E9%98%B2%E7%81%AB%E5%A2%99%EF%BC%88%E4%B8%89%E5%8F%B0%E6%9C%BA%E5%99%A8%E5%9D%87%E6%89%A7%E8%A1%8C%EF%BC%89"><span class="toc-number">2.4.</span> <span class="toc-text">2.3、关闭防火墙（三台机器均执行）</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-4%E3%80%81%E5%85%B3%E9%97%ADselinux%EF%BC%88%E4%B8%89%E5%8F%B0%E6%9C%BA%E5%99%A8%E5%9D%87%E6%89%A7%E8%A1%8C%EF%BC%89"><span class="toc-number">2.5.</span> <span class="toc-text">2.4、关闭selinux（三台机器均执行）</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-5%E3%80%81%E5%85%B3%E9%97%AD%E4%BA%A4%E6%8D%A2%E7%A9%BA%E9%97%B4%EF%BC%88%E4%B8%89%E5%8F%B0%E6%9C%BA%E5%99%A8%E5%9D%87%E6%89%A7%E8%A1%8C%EF%BC%89"><span class="toc-number">2.6.</span> <span class="toc-text">2.5、关闭交换空间（三台机器均执行）</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#3%E3%80%81%E5%AE%89%E8%A3%85%E6%AD%A5%E9%AA%A4"><span class="toc-number">3.</span> <span class="toc-text">3、安装步骤</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#3-1%E3%80%81%E5%AE%89%E8%A3%85kk"><span class="toc-number">3.1.</span> <span class="toc-text">3.1、安装kk</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-2%E3%80%81%E5%88%9B%E5%BB%BA%E9%9B%86%E7%BE%A4"><span class="toc-number">3.2.</span> <span class="toc-text">3.2、创建集群</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#3-2-1%E3%80%81%E4%BF%AE%E6%94%B9%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6"><span class="toc-number">3.2.1.</span> <span class="toc-text">3.2.1、修改配置文件</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-2-2%E3%80%81%E5%BC%80%E5%A7%8B%E5%AE%89%E8%A3%85"><span class="toc-number">3.2.2.</span> <span class="toc-text">3.2.2、开始安装</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-3%E3%80%81%E5%AE%89%E8%A3%85%E5%AE%8C%E6%88%90"><span class="toc-number">3.3.</span> <span class="toc-text">3.3、安装完成</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-4%E3%80%81%E7%9B%B8%E5%85%B3%E9%97%AE%E9%A2%98"><span class="toc-number">3.4.</span> <span class="toc-text">3.4、相关问题</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-6%E3%80%81%E5%B8%B8%E7%94%A8%E5%91%BD%E4%BB%A4"><span class="toc-number">3.5.</span> <span class="toc-text">3.6、常用命令</span></a></li></ol></li></ol>
+      </div>
+    
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2025/03/22/kubernetes%E5%92%8Ckubesphere%E9%83%A8%E7%BD%B2%E5%AE%89%E8%A3%85/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2025/03/22/kubernetes%E5%92%8Ckubesphere%E9%83%A8%E7%BD%B2%E5%AE%89%E8%A3%85/&text=kubernetes和kubesphere部署安装"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2025/03/22/kubernetes%E5%92%8Ckubesphere%E9%83%A8%E7%BD%B2%E5%AE%89%E8%A3%85/&title=kubernetes和kubesphere部署安装"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2025/03/22/kubernetes%E5%92%8Ckubesphere%E9%83%A8%E7%BD%B2%E5%AE%89%E8%A3%85/&is_video=false&description=kubernetes和kubesphere部署安装"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=kubernetes和kubesphere部署安装&body=Check out this article: http://example.com/2025/03/22/kubernetes%E5%92%8Ckubesphere%E9%83%A8%E7%BD%B2%E5%AE%89%E8%A3%85/"><i class="fa-solid fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2025/03/22/kubernetes%E5%92%8Ckubesphere%E9%83%A8%E7%BD%B2%E5%AE%89%E8%A3%85/&title=kubernetes和kubesphere部署安装"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2025/03/22/kubernetes%E5%92%8Ckubesphere%E9%83%A8%E7%BD%B2%E5%AE%89%E8%A3%85/&title=kubernetes和kubesphere部署安装"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2025/03/22/kubernetes%E5%92%8Ckubesphere%E9%83%A8%E7%BD%B2%E5%AE%89%E8%A3%85/&title=kubernetes和kubesphere部署安装"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2025/03/22/kubernetes%E5%92%8Ckubesphere%E9%83%A8%E7%BD%B2%E5%AE%89%E8%A3%85/&title=kubernetes和kubesphere部署安装"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2025/03/22/kubernetes%E5%92%8Ckubesphere%E9%83%A8%E7%BD%B2%E5%AE%89%E8%A3%85/&name=kubernetes和kubesphere部署安装&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2025/03/22/kubernetes%E5%92%8Ckubesphere%E9%83%A8%E7%BD%B2%E5%AE%89%E8%A3%85/&t=kubernetes和kubesphere部署安装"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fa-solid fa-bars fa-lg" aria-hidden="true"></i> Menu</a>
+        
+          <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fa-solid fa-list fa-lg" aria-hidden="true"></i> TOC</a>
+        
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fa-solid fa-share-alt fa-lg" aria-hidden="true"></i> Share</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2016-2025
+    x1a0g
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     --><!--
+       --><li><a href="/categories/">Category</a></li><!--
+     --><!--
+       --><li><a href="/tags/">tags</a></li><!--
+     -->
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script>
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script>
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"Copy to clipboard!\">";
+    btn += '<i class="fa-regular fa-clone"></i>';
+    btn += '</span>';
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "Copied!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Baidu Analytics -->
+
+<!-- Cloudflare Analytics -->
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+</body>
+</html>
