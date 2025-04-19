@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="level1 基本运算12345678910111213141516171819#include&lt;stdio.h&gt;&#x2F;&#x2F;level1 简单整数运算int main() &#123;	int a &#x3D; 10;	printf(&quot;hwx-a:%d\n&quot;, a);	int b &#x3D; 2186;	printf(&quot;hwx-b:%d\n&quot;, b);	int c &#x3D;">
+<meta property="og:type" content="article">
+<meta property="og:title" content="速通汇编">
+<meta property="og:url" content="http://example.com/2025/04/19/%E9%80%9F%E9%80%9A%E6%B1%87%E7%BC%96/index.html">
+<meta property="og:site_name" content="x1a0g&#39;s blog">
+<meta property="og:description" content="level1 基本运算12345678910111213141516171819#include&lt;stdio.h&gt;&#x2F;&#x2F;level1 简单整数运算int main() &#123;	int a &#x3D; 10;	printf(&quot;hwx-a:%d\n&quot;, a);	int b &#x3D; 2186;	printf(&quot;hwx-b:%d\n&quot;, b);	int c &#x3D;">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="http://example.com/2025/04/19/%E9%80%9F%E9%80%9A%E6%B1%87%E7%BC%96/Obsidian_mySqToPsJn.png">
+<meta property="article:published_time" content="2025-04-19T08:52:06.000Z">
+<meta property="article:modified_time" content="2025-04-19T08:53:14.845Z">
+<meta property="article:author" content="x1a0g">
+<meta property="article:tag" content="asm">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/2025/04/19/%E9%80%9F%E9%80%9A%E6%B1%87%E7%BC%96/Obsidian_mySqToPsJn.png">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/favicon.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+        
+      
+    
+    <!-- title -->
+    <title>速通汇编</title>
+    <!-- async scripts -->
+    <!-- Google Analytics -->
+
+
+    <!-- Umami Analytics -->
+
+
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="Menu"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="Top" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fa-solid fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     --><!--
+       --><li><a href="/categories/">Category</a></li><!--
+     --><!--
+       --><li><a href="/tags/">tags</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        
+        <li><a class="icon" aria-label="Next post" href="/2025/04/04/IO%E5%A4%9A%E8%B7%AF%E5%A4%8D%E7%94%A8%E4%BB%A3%E7%A0%81%E5%AE%9E%E7%8E%B0/"><i class="fa-solid fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="Back to top" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="Share post" href="#"><i class="fa-solid fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">Previous post</span>
+      <span id="i-next" class="info" style="display:none;">Next post</span>
+      <span id="i-top" class="info" style="display:none;">Back to top</span>
+      <span id="i-share" class="info" style="display:none;">Share post</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2025/04/19/%E9%80%9F%E9%80%9A%E6%B1%87%E7%BC%96/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2025/04/19/%E9%80%9F%E9%80%9A%E6%B1%87%E7%BC%96/&text=速通汇编"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2025/04/19/%E9%80%9F%E9%80%9A%E6%B1%87%E7%BC%96/&title=速通汇编"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2025/04/19/%E9%80%9F%E9%80%9A%E6%B1%87%E7%BC%96/&is_video=false&description=速通汇编"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=速通汇编&body=Check out this article: http://example.com/2025/04/19/%E9%80%9F%E9%80%9A%E6%B1%87%E7%BC%96/"><i class="fa-solid fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2025/04/19/%E9%80%9F%E9%80%9A%E6%B1%87%E7%BC%96/&title=速通汇编"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2025/04/19/%E9%80%9F%E9%80%9A%E6%B1%87%E7%BC%96/&title=速通汇编"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2025/04/19/%E9%80%9F%E9%80%9A%E6%B1%87%E7%BC%96/&title=速通汇编"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2025/04/19/%E9%80%9F%E9%80%9A%E6%B1%87%E7%BC%96/&title=速通汇编"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2025/04/19/%E9%80%9F%E9%80%9A%E6%B1%87%E7%BC%96/&name=速通汇编&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2025/04/19/%E9%80%9F%E9%80%9A%E6%B1%87%E7%BC%96/&t=速通汇编"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    
+    
+      <div id="toc">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#level1-%E5%9F%BA%E6%9C%AC%E8%BF%90%E7%AE%97"><span class="toc-number">1.</span> <span class="toc-text">level1 基本运算</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#level2-%E6%9D%A1%E4%BB%B6%E5%88%86%E6%94%AF"><span class="toc-number">2.</span> <span class="toc-text">level2 条件分支</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#level3-%E5%BE%AA%E7%8E%AF%E7%BB%93%E6%9E%84"><span class="toc-number">3.</span> <span class="toc-text">level3 循环结构</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#level4-%E5%87%BD%E6%95%B0%E8%B0%83%E7%94%A8"><span class="toc-number">4.</span> <span class="toc-text">level4 函数调用</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#level5-%E6%95%B0%E7%BB%84%E4%B8%8E%E6%8C%87%E9%92%88"><span class="toc-number">5.</span> <span class="toc-text">level5 数组与指针</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#level6-%E7%B1%BB"><span class="toc-number">6.</span> <span class="toc-text">level6 类</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#level7-%E9%80%92%E5%BD%92"><span class="toc-number">7.</span> <span class="toc-text">level7 递归</span></a></li></ol>
+      </div>
+    
+  </span>
+</div>
+
+    
+    <div class="content index py4 ">
+        
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle p-name" itemprop="name headline">
+        速通汇编
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author p-author h-card" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span class="p-name" itemprop="name">x1a0g</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2025-04-19T08:52:06.000Z" class="dt-published" itemprop="datePublished">2025-04-19</time>
+        
+      
+    </div>
+
+
+      
+    <div class="article-category">
+        <i class="fa-solid fa-archive"></i>
+        <a class="category-link" href="/categories/%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/">基础知识</a>
+    </div>
+
+
+      
+    <div class="article-tag">
+        <i class="fa-solid fa-tag"></i>
+        <a class="p-category" href="/tags/asm/" rel="tag">asm</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content e-content" itemprop="articleBody">
+    <h2 id="level1-基本运算"><a href="#level1-基本运算" class="headerlink" title="level1 基本运算"></a>level1 基本运算</h2><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span><span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="comment">//level1 简单整数运算</span></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line">	<span class="type">int</span> a = <span class="number">10</span>;</span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">&quot;hwx-a:%d\n&quot;</span>, a);</span><br><span class="line">	<span class="type">int</span> b = <span class="number">2186</span>;</span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">&quot;hwx-b:%d\n&quot;</span>, b);</span><br><span class="line">	<span class="type">int</span> c = a + b;</span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">&quot;%d\n&quot;</span>,c);</span><br><span class="line">	<span class="type">int</span> d = a - b;</span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">&quot;%d\n&quot;</span>, d);</span><br><span class="line">	<span class="type">int</span> e = a * b;</span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">&quot;%d\n&quot;</span>, e);</span><br><span class="line">	<span class="type">int</span> f = a / b;</span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">&quot;%d\n&quot;</span>, f);</span><br><span class="line"></span><br><span class="line">	<span class="keyword">return</span> f;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>反汇编代码</p>
+</blockquote>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br></pre></td><td class="code"><pre><span class="line">push ebp</span><br><span class="line">mov ebp esp   # 栈顶和栈顶</span><br><span class="line">sub esp,18    # 栈是向下增长的  18的10进制是24  上述有6个变量 一个变量4字节</span><br><span class="line">mov dword ptr ss:[ebp-4],A  #访问栈段（`ss`）中，以 `ebp-4` 为地址的4字节（`dword`）内存单元，赋值为A</span><br><span class="line">mov eax,dword ptr ss:[ebp-4]   # eax赋值为A</span><br><span class="line">push eax                   #_printf入参 2（A）</span><br><span class="line">push enc-me.ED2100         #_printf入参 1 格式化字符串变量</span><br><span class="line">call &lt;enc-me._printf&gt;      #函数调用</span><br><span class="line">add esp,8              #清除刚才的两个push</span><br><span class="line">mov dword ptr ss:[ebp-8],88A</span><br><span class="line">mov ecx,dword ptr ss:[ebp-8]</span><br><span class="line">push ecx</span><br><span class="line">push enc-me.ED210C</span><br><span class="line">call &lt;enc-me._printf&gt;</span><br><span class="line">add esp,8</span><br><span class="line">mov edx,dword ptr ss:[ebp-4]   #edx = A</span><br><span class="line">add edx,dword ptr ss:[ebp-8]   #edx = A + 88A</span><br><span class="line">mov dword ptr ss:[ebp-10],edx  #ebp-10(int c) = edx</span><br><span class="line">mov eax,dword ptr ss:[ebp-10]</span><br><span class="line">push eax                     #_printf入参 2（int c）</span><br><span class="line">push enc-me.ED2118           #格式化字符串</span><br><span class="line">call &lt;enc-me._printf&gt;</span><br><span class="line">add esp,8</span><br><span class="line">mov ecx,dword ptr ss:[ebp-4]</span><br><span class="line">sub ecx,dword ptr ss:[ebp-8]   #减法</span><br><span class="line">mov dword ptr ss:[ebp-14],ecx</span><br><span class="line">mov edx,dword ptr ss:[ebp-14]</span><br><span class="line">push edx</span><br><span class="line">push enc-me.ED211C</span><br><span class="line">call &lt;enc-me._printf&gt;</span><br><span class="line">add esp,8</span><br><span class="line">mov eax,dword ptr ss:[ebp-4]</span><br><span class="line">imul eax,dword ptr ss:[ebp-8]  #乘法</span><br><span class="line">mov dword ptr ss:[ebp-18],eax</span><br><span class="line">mov ecx,dword ptr ss:[ebp-18]</span><br><span class="line">push ecx</span><br><span class="line">push enc-me.ED2120</span><br><span class="line">call &lt;enc-me._printf&gt;</span><br><span class="line">add esp,8</span><br><span class="line">mov eax,dword ptr ss:[ebp-4]</span><br><span class="line"></span><br><span class="line">cdq   </span><br><span class="line">/*将eax的符号位扩展到 edx，形成 64 位被除数 edx:eax</span><br><span class="line">如果 `eax` 是正数（最高位为 0），`edx` 被设为 `0x00000000`。</span><br><span class="line">如果 `eax` 是负数（最高位为 1），`edx` 被设为 `0xFFFFFFFF`。*/</span><br><span class="line"></span><br><span class="line">idiv dword ptr ss:[ebp-8]</span><br><span class="line">mov dword ptr ss:[ebp-C],eax</span><br><span class="line">mov edx,dword ptr ss:[ebp-C]</span><br><span class="line">push edx</span><br><span class="line">push enc-me.ED2124</span><br><span class="line">call &lt;enc-me._printf&gt;</span><br><span class="line">add esp,8</span><br><span class="line">mov eax,dword ptr ss:[ebp-C]</span><br><span class="line">mov esp,ebp</span><br><span class="line">pop ebp</span><br><span class="line">ret </span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>栈上结果</p>
+</blockquote>
+<style>.lturmccgqydm{}</style><img src="/2025/04/19/%E9%80%9F%E9%80%9A%E6%B1%87%E7%BC%96/Obsidian_mySqToPsJn.png" class="lturmccgqydm" alt="Obsidian_mySqToPsJn">
+
+<h2 id="level2-条件分支"><a href="#level2-条件分支" class="headerlink" title="level2 条件分支"></a>level2 条件分支</h2><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="type">int</span> x = <span class="number">5</span>;</span><br><span class="line">    <span class="keyword">if</span> (x &gt; <span class="number">0</span>) &#123;</span><br><span class="line">        x = <span class="number">1</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">else</span> &#123;</span><br><span class="line">        x = <span class="number">-1</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> x;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>汇编</p>
+</blockquote>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">push ebp</span><br><span class="line">mov ebp,esp</span><br><span class="line">push ecx</span><br><span class="line">mov dword ptr ss:[ebp-4],5    # 赋值 ebp-4=5</span><br><span class="line">cmp dword ptr ss:[ebp-4],0    # 比较  5和0比较</span><br><span class="line">jle enc-me.51101A             # 如果是小于的情况 跳到</span><br><span class="line">mov dword ptr ss:[ebp-4],1    # 赋值ebp-4=1</span><br><span class="line">jmp enc-me.511021</span><br><span class="line">51101A    mov dword ptr ss:[ebp-4],FFFFFFFF #小于跳转到这  ebp-4 = -1</span><br><span class="line">511021    mov eax,dword ptr ss:[ebp-4]      #否则跳转到这</span><br><span class="line">mov esp,ebp</span><br><span class="line">pop ebp</span><br><span class="line">ret </span><br></pre></td></tr></table></figure>
+<h2 id="level3-循环结构"><a href="#level3-循环结构" class="headerlink" title="level3 循环结构"></a>level3 循环结构</h2><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="type">int</span> sum = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">1</span>; i &lt;= <span class="number">10</span>; i=i<span class="number">+2</span>) &#123;</span><br><span class="line">        sum += i;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> sum;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>汇编</p>
+</blockquote>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">       push ebp</span><br><span class="line">       mov ebp,esp</span><br><span class="line">       sub esp,8</span><br><span class="line">       mov dword ptr ss:[ebp-8],0    #赋值 ebp-8=0  设ebp-8为 m</span><br><span class="line">       mov dword ptr ss:[ebp-4],1    #赋值 ebp-4=1  设ebp-4为 n</span><br><span class="line">       jmp enc-me.5D101F</span><br><span class="line">5D1016 mov eax,dword ptr ss:[ebp-4]  # eax = n</span><br><span class="line">       add  eax,2                    # eax += 2</span><br><span class="line">       mov dword ptr ss:[ebp-4],eax  # n = eax  (n+=2)</span><br><span class="line">5D101F cmp dword ptr ss:[ebp-4],A    #比较 n  和 A（10）</span><br><span class="line">       jg enc-me.5D1030              #大于跳到5D1030  小于等于走下面</span><br><span class="line">       mov ecx,dword ptr ss:[ebp-8]  # ecx = m</span><br><span class="line">       add ecx,dword ptr ss:[ebp-4]  # ecx = ecx + n</span><br><span class="line">       mov dword ptr ss:[ebp-8],ecx  # m = ecx   (m +=  n)</span><br><span class="line">       jmp enc-me.5D1016             # 跳到5D1016执行</span><br><span class="line">5D1030 mov eax,dword ptr ss:[ebp-8]  #大于跳到这  返回参数为 m</span><br><span class="line">       mov esp,ebp</span><br><span class="line">       pop ebp</span><br><span class="line">       ret </span><br><span class="line">&gt; 按照逻辑写出来是这样</span><br><span class="line">int m=0,n=1</span><br><span class="line">while(n&lt;=10)&#123;</span><br><span class="line">	m += n</span><br><span class="line">	n +=2</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="level4-函数调用"><a href="#level4-函数调用" class="headerlink" title="level4 函数调用"></a>level4 函数调用</h2><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//level4  函数调用</span></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">add</span><span class="params">(<span class="type">int</span> a, <span class="type">int</span> b)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> a + b;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="type">int</span> result = <span class="built_in">add</span>(<span class="number">3</span>, <span class="number">7</span>);</span><br><span class="line">    <span class="keyword">return</span> result;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">push ebp</span><br><span class="line">mov ebp,esp</span><br><span class="line">mov eax,dword ptr ss:[ebp+8]</span><br><span class="line">add eax,dword ptr ss:[ebp+C]</span><br><span class="line">pop ebp</span><br><span class="line">ret </span><br><span class="line">int3 </span><br><span class="line">int3 </span><br><span class="line">int3 </span><br><span class="line">int3 </span><br><span class="line">int3 </span><br><span class="line">push ebp                     //main</span><br><span class="line">mov ebp,esp</span><br><span class="line">push ecx                    //分配result的空间</span><br><span class="line">push 7                      //  第二个参数</span><br><span class="line">push 3                      //  第一个参数</span><br><span class="line">call &lt;enc-me.int __cdecl add(int, int)&gt;  //调用add方法</span><br><span class="line">add esp,8                   //平衡栈空间 清除push进来的两个参数</span><br><span class="line">mov dword ptr ss:[ebp-4],eax   //赋返回值</span><br><span class="line">mov eax,dword ptr ss:[ebp-4]</span><br><span class="line">mov esp,ebp</span><br><span class="line">pop ebp</span><br><span class="line">ret </span><br></pre></td></tr></table></figure>
+
+<p>在调用add方法的后  栈的结构通常为 </p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">ebp</span><br><span class="line">返回地址 ebp+4</span><br><span class="line">ebp+8   第一个参数</span><br><span class="line">ebc+c   第二个参数</span><br></pre></td></tr></table></figure>
+
+
+<h2 id="level5-数组与指针"><a href="#level5-数组与指针" class="headerlink" title="level5 数组与指针"></a>level5 数组与指针</h2><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//level5 函数与指针</span></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="type">int</span> arr[<span class="number">3</span>] = &#123; <span class="number">10</span>, <span class="number">20</span>, <span class="number">30</span> &#125;;</span><br><span class="line">    <span class="type">int</span> sum = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; <span class="number">3</span>; i++) &#123;</span><br><span class="line">        sum += arr[i];</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> sum;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>汇编</p>
+</blockquote>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">push ebp</span><br><span class="line">mov ebp,esp</span><br><span class="line">sub esp,14</span><br><span class="line">mov dword ptr ss:[ebp-14],A</span><br><span class="line">mov dword ptr ss:[ebp-10],14</span><br><span class="line">mov dword ptr ss:[ebp-C],1E</span><br><span class="line">mov dword ptr ss:[ebp-8],0</span><br><span class="line">mov dword ptr ss:[ebp-4],0</span><br><span class="line">jmp enc-me.CF1034</span><br><span class="line">CF102B mov eax,dword ptr ss:[ebp-4]    //这一行判断ebp-4这个循环累加变量</span><br><span class="line">add eax,1</span><br><span class="line">mov dword ptr ss:[ebp-4],eax</span><br><span class="line">CF1034  cmp dword ptr ss:[ebp-4],3</span><br><span class="line">jge enc-me.CF1049   //  &gt;=3是返回</span><br><span class="line">mov ecx,dword ptr ss:[ebp-4]   //小于3才会走</span><br><span class="line">mov edx,dword ptr ss:[ebp-8]  //返回值</span><br><span class="line">add edx,dword ptr ss:[ebp-14 +ecx*4] //核心  数组的基地址 + 循环累加*数据宽度</span><br><span class="line">mov dword ptr ss:[ebp-8],edx</span><br><span class="line">jmp enc-me.CF102B</span><br><span class="line">CF1049 mov eax,dword ptr ss:[ebp-8]  //这一行判断ebp-8为返回值</span><br><span class="line">mov esp,ebp</span><br><span class="line">pop ebp</span><br><span class="line">ret </span><br></pre></td></tr></table></figure>
+
+
+<h2 id="level6-类"><a href="#level6-类" class="headerlink" title="level6 类"></a>level6 类</h2><blockquote>
+<p>main函数入口</p>
+</blockquote>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">push edi</span><br><span class="line">push esi</span><br><span class="line">push dword ptr ds:[eax]</span><br><span class="line">call project1.D31040</span><br><span class="line">add esp,C</span><br></pre></td></tr></table></figure>
+
+
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//结构体和类</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">MyClass</span> &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="type">int</span> value;</span><br><span class="line">    <span class="function"><span class="type">void</span> <span class="title">setValue</span><span class="params">(<span class="type">int</span> v)</span> </span>&#123; value = v; &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    MyClass obj;</span><br><span class="line">    obj.<span class="built_in">setValue</span>(<span class="number">42</span>);</span><br><span class="line">    <span class="keyword">return</span> obj.value;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line">push ebp</span><br><span class="line">mov ebp,esp</span><br><span class="line">push ecx</span><br><span class="line">push 2A</span><br><span class="line">/*</span><br><span class="line">`lea` 指令：  </span><br><span class="line">    计算 `[ebp-4]` 的有效地址（即 `0x0FF8`），并将其存入 `ECX` 寄存器。  </span><br><span class="line">    此时，`ECX` 的值是主函数局部变量 `[ebp-4]` 的地址。</span><br><span class="line">传递地址的目的：  </span><br><span class="line">    被调用函数 `enc-me.D71080` 需要通过 `ECX` 接收 `this` 指针（即主函数局部变量的地址），从而修改该地址指向的内存。</span><br><span class="line">*/</span><br><span class="line">lea ecx,dword ptr ss:[ebp-4] </span><br><span class="line">call enc-me.D71080</span><br><span class="line">mov eax,dword ptr ss:[ebp-4]</span><br><span class="line">mov esp,ebp</span><br><span class="line">pop ebp</span><br><span class="line">ret</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">//enc-me.D71080</span><br><span class="line">push ebp</span><br><span class="line">mov ebp,esp</span><br><span class="line">push ecx</span><br><span class="line">mov dword ptr ss:[ebp-4],ecx</span><br><span class="line">mov eax,dword ptr ss:[ebp-4]</span><br><span class="line">mov ecx,dword ptr ss:[ebp+8]</span><br><span class="line">mov dword ptr ds:[eax],ecx  //从这一句来看 ecx也是对象第一个参数的位置</span><br><span class="line">mov esp,ebp</span><br><span class="line">pop ebp</span><br><span class="line">ret 4</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">地址       内容</span><br><span class="line">0x0FE8    | 0x0FF8     | ← ESP = 0x0FE8（保存的 ECX 值）</span><br><span class="line">0x0FEC    | 0x0FFC     | ← EBP = 0x0FEC</span><br><span class="line">0x0FF0    | 返回地址    |</span><br><span class="line">0x0FF4    | 0x2A      |</span><br><span class="line">0x0FF8    | ECX 值     |</span><br><span class="line">0x0FFC    | 0x1000     |</span><br><span class="line">0x1000    |            |</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">赋值之后</span><br><span class="line">地址       内容</span><br><span class="line">0x0FE8    | 0x0FF8     | ← ESP = 0x0FE8（被调用函数局部变量）</span><br><span class="line">0x0FEC    | 0x0FFC     | ← EBP = 0x0FEC</span><br><span class="line">0x0FF0    | 返回地址    |</span><br><span class="line">0x0FF4    | 0x2A      | ← 参数 [ebp+8]</span><br><span class="line">0x0FF8    | 0x2A      | ← 主函数 [ebp-4] 被修改</span><br><span class="line">0x0FFC    | 0x1000     |</span><br><span class="line">0x1000    |            |</span><br><span class="line"></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+
+<h2 id="level7-递归"><a href="#level7-递归" class="headerlink" title="level7 递归"></a>level7 递归</h2><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="type">int</span> <span class="title">factorial</span><span class="params">(<span class="type">int</span> n)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (n &lt;= <span class="number">1</span>) <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">    <span class="keyword">return</span> n * <span class="built_in">factorial</span>(n<span class="number">-1</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="built_in">factorial</span>(<span class="number">5</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">691000 push ebp</span><br><span class="line">mov ebp,esp</span><br><span class="line">cmp dword ptr ss:[ebp+8],1</span><br><span class="line">jg enc-me.691010</span><br><span class="line">mov eax,1              //当n&lt;=1 进这</span><br><span class="line">jmp enc-me.691023      //走这一步就是弹栈</span><br><span class="line">691010 mov eax,dword ptr ss:[ebp+8]</span><br><span class="line">sub eax,1</span><br><span class="line">push eax</span><br><span class="line">call enc-me.691000</span><br><span class="line">add esp,4             //ret走这</span><br><span class="line">imul eax,dword ptr ss:[ebp+8]  //在归的过程中解决</span><br><span class="line">691023 pop ebp</span><br><span class="line">ret </span><br></pre></td></tr></table></figure>
+
+<p>在fac（5）到fac（4）的栈情况</p>
+<ul>
+<li><strong>参数压栈</strong>：<code>push 4</code>。</li>
+<li><strong>返回地址</strong>：<code>call factorial</code> 压入返回地址 <code>0xB</code> 也就是call的下一条指令。</li>
+<li>布局如下：</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">地址      内容</span><br><span class="line">0x0FF0  | 返回地址 0xB    | ← ESP = 0x0FF0</span><br><span class="line">0x0FF4  | 参数 n=4       |</span><br><span class="line">0x0FF8  | 旧 EBP (main) |</span><br><span class="line">0x0FFC  | 返回地址 0xA    |</span><br><span class="line">0x1000  | 参数 n=5       |</span><br></pre></td></tr></table></figure>
+
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+        
+          <li><a href="/">Home</a></li>
+        
+          <li><a href="/archives/">Writing</a></li>
+        
+          <li><a href="/categories/">Category</a></li>
+        
+          <li><a href="/tags/">tags</a></li>
+        
+      </ul>
+    </div>
+
+    
+    
+      <div id="toc-footer" style="display: none">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#level1-%E5%9F%BA%E6%9C%AC%E8%BF%90%E7%AE%97"><span class="toc-number">1.</span> <span class="toc-text">level1 基本运算</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#level2-%E6%9D%A1%E4%BB%B6%E5%88%86%E6%94%AF"><span class="toc-number">2.</span> <span class="toc-text">level2 条件分支</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#level3-%E5%BE%AA%E7%8E%AF%E7%BB%93%E6%9E%84"><span class="toc-number">3.</span> <span class="toc-text">level3 循环结构</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#level4-%E5%87%BD%E6%95%B0%E8%B0%83%E7%94%A8"><span class="toc-number">4.</span> <span class="toc-text">level4 函数调用</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#level5-%E6%95%B0%E7%BB%84%E4%B8%8E%E6%8C%87%E9%92%88"><span class="toc-number">5.</span> <span class="toc-text">level5 数组与指针</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#level6-%E7%B1%BB"><span class="toc-number">6.</span> <span class="toc-text">level6 类</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#level7-%E9%80%92%E5%BD%92"><span class="toc-number">7.</span> <span class="toc-text">level7 递归</span></a></li></ol>
+      </div>
+    
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2025/04/19/%E9%80%9F%E9%80%9A%E6%B1%87%E7%BC%96/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2025/04/19/%E9%80%9F%E9%80%9A%E6%B1%87%E7%BC%96/&text=速通汇编"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2025/04/19/%E9%80%9F%E9%80%9A%E6%B1%87%E7%BC%96/&title=速通汇编"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2025/04/19/%E9%80%9F%E9%80%9A%E6%B1%87%E7%BC%96/&is_video=false&description=速通汇编"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=速通汇编&body=Check out this article: http://example.com/2025/04/19/%E9%80%9F%E9%80%9A%E6%B1%87%E7%BC%96/"><i class="fa-solid fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2025/04/19/%E9%80%9F%E9%80%9A%E6%B1%87%E7%BC%96/&title=速通汇编"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2025/04/19/%E9%80%9F%E9%80%9A%E6%B1%87%E7%BC%96/&title=速通汇编"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2025/04/19/%E9%80%9F%E9%80%9A%E6%B1%87%E7%BC%96/&title=速通汇编"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2025/04/19/%E9%80%9F%E9%80%9A%E6%B1%87%E7%BC%96/&title=速通汇编"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2025/04/19/%E9%80%9F%E9%80%9A%E6%B1%87%E7%BC%96/&name=速通汇编&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2025/04/19/%E9%80%9F%E9%80%9A%E6%B1%87%E7%BC%96/&t=速通汇编"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fa-solid fa-bars fa-lg" aria-hidden="true"></i> Menu</a>
+        
+          <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fa-solid fa-list fa-lg" aria-hidden="true"></i> TOC</a>
+        
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fa-solid fa-share-alt fa-lg" aria-hidden="true"></i> Share</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up fa-lg" aria-hidden="true"></i> Top</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2016-2025
+    x1a0g
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/">Home</a></li><!--
+     --><!--
+       --><li><a href="/archives/">Writing</a></li><!--
+     --><!--
+       --><li><a href="/categories/">Category</a></li><!--
+     --><!--
+       --><li><a href="/tags/">tags</a></li><!--
+     -->
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script>
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script>
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"Copy to clipboard!\">";
+    btn += '<i class="fa-regular fa-clone"></i>';
+    btn += '</span>';
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "Copied!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Baidu Analytics -->
+
+<!-- Cloudflare Analytics -->
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+</body>
+</html>
